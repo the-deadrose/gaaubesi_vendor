@@ -27,6 +27,7 @@ class CardActionButton extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 20, color: buttonColor),
             const SizedBox(height: 4),
