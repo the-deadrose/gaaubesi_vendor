@@ -11,10 +11,11 @@ class DeliveredOrderBloc
   final FetchDeliveredOrdersUseCase fetchDeliveredOrdersUseCase;
 
   DeliveredOrderBloc({required this.fetchDeliveredOrdersUseCase})
-      : super(const DeliveredOrderInitial()) {
+    : super(const DeliveredOrderInitial()) {
     on<DeliveredOrderLoadRequested>(_onDeliveredOrderLoadRequested);
     on<DeliveredOrderRefreshRequested>(_onDeliveredOrderRefreshRequested);
     on<DeliveredOrderLoadMoreRequested>(_onDeliveredOrderLoadMoreRequested);
+    on<DeliveredOrderFilterChanged>(_onDeliveredOrderFilterChanged);
   }
 
   Future<void> _onDeliveredOrderLoadRequested(
@@ -86,19 +87,34 @@ class DeliveredOrderBloc
         currentPage: currentState.currentPage,
         totalCount: currentState.totalCount,
         totalPages: currentState.totalPages,
+        destination: currentState.destination,
+        startDate: currentState.startDate,
+        endDate: currentState.endDate,
+        receiverSearch: currentState.receiverSearch,
+        minCharge: currentState.minCharge,
+        maxCharge: currentState.maxCharge,
       ),
     );
 
     final nextPage = currentState.currentPage + 1;
     final result = await fetchDeliveredOrdersUseCase(
-      FetchDeliveredOrdersParams(page: nextPage),
+      FetchDeliveredOrdersParams(
+        page: nextPage,
+        destination: currentState.destination,
+        startDate: currentState.startDate,
+        endDate: currentState.endDate,
+        receiverSearch: currentState.receiverSearch,
+        minCharge: currentState.minCharge,
+        maxCharge: currentState.maxCharge,
+      ),
     );
 
     result.fold(
       (failure) => emit(DeliveredOrderError(message: failure.message)),
       (response) {
-        final updatedOrders = List<DeliveredOrderEntity>.from(currentState.orders)
-          ..addAll(response.results);
+        final updatedOrders = List<DeliveredOrderEntity>.from(
+          currentState.orders,
+        )..addAll(response.results);
 
         emit(
           DeliveredOrderLoaded(
@@ -107,9 +123,53 @@ class DeliveredOrderBloc
             hasMore: response.hasMore,
             totalCount: response.count,
             totalPages: response.totalPages,
+            destination: currentState.destination,
+            startDate: currentState.startDate,
+            endDate: currentState.endDate,
+            receiverSearch: currentState.receiverSearch,
+            minCharge: currentState.minCharge,
+            maxCharge: currentState.maxCharge,
           ),
         );
       },
+    );
+  }
+
+  Future<void> _onDeliveredOrderFilterChanged(
+    DeliveredOrderFilterChanged event,
+    Emitter<DeliveredOrderState> emit,
+  ) async {
+    emit(const DeliveredOrderLoading());
+
+    final result = await fetchDeliveredOrdersUseCase(
+      FetchDeliveredOrdersParams(
+        page: 1,
+        destination: event.destination,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        receiverSearch: event.receiverSearch,
+        minCharge: event.minCharge,
+        maxCharge: event.maxCharge,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(DeliveredOrderError(message: failure.message)),
+      (response) => emit(
+        DeliveredOrderLoaded(
+          orders: response.results,
+          currentPage: 1,
+          hasMore: response.hasMore,
+          totalCount: response.count,
+          totalPages: response.totalPages,
+          destination: event.destination,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          receiverSearch: event.receiverSearch,
+          minCharge: event.minCharge,
+          maxCharge: event.maxCharge,
+        ),
+      ),
     );
   }
 }

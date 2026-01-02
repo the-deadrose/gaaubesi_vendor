@@ -11,6 +11,22 @@
 part of 'app_router.dart';
 
 /// generated route for
+/// [BulkUploadOrdersPage]
+class BulkUploadOrdersRoute extends PageRouteInfo<void> {
+  const BulkUploadOrdersRoute({List<PageRouteInfo>? children})
+    : super(BulkUploadOrdersRoute.name, initialChildren: children);
+
+  static const String name = 'BulkUploadOrdersRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const BulkUploadOrdersPage();
+    },
+  );
+}
+
+/// generated route for
 /// [CommentPage]
 class CommentRoute extends PageRouteInfo<void> {
   const CommentRoute({List<PageRouteInfo>? children})
@@ -43,17 +59,17 @@ class ContactRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [DeliveredOrdersPage]
-class DeliveredOrdersRoute extends PageRouteInfo<void> {
-  const DeliveredOrdersRoute({List<PageRouteInfo>? children})
-    : super(DeliveredOrdersRoute.name, initialChildren: children);
+/// [CreateOrderPage]
+class CreateOrderRoute extends PageRouteInfo<void> {
+  const CreateOrderRoute({List<PageRouteInfo>? children})
+    : super(CreateOrderRoute.name, initialChildren: children);
 
-  static const String name = 'DeliveredOrdersRoute';
+  static const String name = 'CreateOrderRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const DeliveredOrdersPage();
+      return const CreateOrderPage();
     },
   );
 }

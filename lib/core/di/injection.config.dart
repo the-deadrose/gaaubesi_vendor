@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -48,14 +48,28 @@ import 'package:gaaubesi_vendor/features/orders/data/repositories/order_reposito
     as _i800;
 import 'package:gaaubesi_vendor/features/orders/domain/repositories/order_repository.dart'
     as _i532;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_usecase.dart'
+    as _i353;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
     as _i451;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart'
     as _i340;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_possible_redirect_orders_usecase.dart'
+    as _i83;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_returned_orders_usecase.dart'
+    as _i466;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_rtv_orders_usecase.dart'
+    as _i287;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_bloc.dart'
     as _i853;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_bloc.dart'
     as _i238;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order_bloc.dart'
+    as _i68;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order_bloc.dart'
+    as _i135;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order_bloc.dart'
+    as _i4;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -107,14 +121,14 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
       ),
     );
+    gh.lazySingleton<_i277.GetCurrentUserUseCase>(
+      () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
+    );
     gh.lazySingleton<_i634.LoginUseCase>(
       () => _i634.LoginUseCase(gh<_i40.AuthRepository>()),
     );
     gh.lazySingleton<_i357.LogoutUseCase>(
       () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i277.GetCurrentUserUseCase>(
-      () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
     );
     gh.factory<_i915.HomeBloc>(
       () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
@@ -126,19 +140,51 @@ extension GetItInjectableX on _i174.GetIt {
         getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
       ),
     );
-    gh.lazySingleton<_i340.FetchOrdersUseCase>(
-      () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
+    gh.lazySingleton<_i353.CreateOrderUseCase>(
+      () => _i353.CreateOrderUseCase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
       () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i340.FetchOrdersUseCase>(
+      () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i83.FetchPossibleRedirectOrdersUseCase>(
+      () =>
+          _i83.FetchPossibleRedirectOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i466.FetchReturnedOrdersUseCase>(
+      () => _i466.FetchReturnedOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
+      () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.factory<_i238.OrderBloc>(
+      () => _i238.OrderBloc(
+        fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
+        createOrderUseCase: gh<_i353.CreateOrderUseCase>(),
+      ),
+    );
+    gh.factory<_i4.RtvOrderBloc>(
+      () => _i4.RtvOrderBloc(
+        fetchRtvOrdersUseCase: gh<_i287.FetchRtvOrdersUseCase>(),
+      ),
+    );
+    gh.factory<_i135.ReturnedOrderBloc>(
+      () => _i135.ReturnedOrderBloc(
+        fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
+      ),
     );
     gh.factory<_i853.DeliveredOrderBloc>(
       () => _i853.DeliveredOrderBloc(
         fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
       ),
     );
-    gh.factory<_i238.OrderBloc>(
-      () => _i238.OrderBloc(fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>()),
+    gh.factory<_i68.PossibleRedirectOrderBloc>(
+      () => _i68.PossibleRedirectOrderBloc(
+        fetchPossibleRedirectOrdersUseCase:
+            gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
+      ),
     );
     return this;
   }

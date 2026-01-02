@@ -4,6 +4,10 @@ import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_delivered_order_response_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/paginated_possible_redirect_order_response_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/paginated_returned_order_response_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/paginated_rtv_order_response_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
 
 abstract class OrderRemoteDataSource {
   Future<PaginatedOrderResponseModel> fetchOrders({
@@ -17,7 +21,46 @@ abstract class OrderRemoteDataSource {
 
   Future<PaginatedDeliveredOrderResponseModel> fetchDeliveredOrders({
     required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
   });
+
+  Future<PaginatedPossibleRedirectOrderResponseModel>
+  fetchPossibleRedirectOrders({
+    required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
+  });
+
+  Future<PaginatedReturnedOrderResponseModel> fetchReturnedOrders({
+    required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
+  });
+
+  Future<PaginatedRtvOrderResponseModel> fetchRtvOrders({
+    required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
+  });
+
+  Future<void> createOrder({required CreateOrderRequestModel request});
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -90,11 +133,26 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   @override
   Future<PaginatedDeliveredOrderResponseModel> fetchDeliveredOrders({
     required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
   }) async {
     try {
+      final queryParameters = <String, dynamic>{'page': page};
+      if (destination != null) queryParameters['destination'] = destination;
+      if (startDate != null) queryParameters['start_date'] = startDate;
+      if (endDate != null) queryParameters['end_date'] = endDate;
+      if (receiverSearch != null)
+        queryParameters['receiver_search'] = receiverSearch;
+      if (minCharge != null) queryParameters['min_charge'] = minCharge;
+      if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
+
       final response = await _dioClient.get(
         '/vendor/delivered_list/',
-        queryParameters: {'page': page},
+        queryParameters: queryParameters,
       );
 
       if (response.statusCode == 200) {
@@ -103,6 +161,188 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         );
       } else {
         throw ServerException('Failed to fetch delivered orders');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<PaginatedPossibleRedirectOrderResponseModel>
+  fetchPossibleRedirectOrders({
+    required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
+  }) async {
+    // try {
+    final queryParameters = <String, dynamic>{'page': page};
+    if (destination != null) queryParameters['destination'] = destination;
+    if (startDate != null) queryParameters['start_date'] = startDate;
+    if (endDate != null) queryParameters['end_date'] = endDate;
+    if (receiverSearch != null)
+      queryParameters['receiver_search'] = receiverSearch;
+    if (minCharge != null) queryParameters['min_charge'] = minCharge;
+    if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
+
+    final response = await _dioClient.get(
+      '/vendor/possible_redirect/',
+      queryParameters: queryParameters,
+    );
+
+    if (response.statusCode == 200) {
+      return PaginatedPossibleRedirectOrderResponseModel.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } else {
+      throw ServerException('Failed to fetch possible redirect orders');
+    }
+    // } on DioException catch (e) {
+    //   String errorMessage = e.message ?? 'Unknown error';
+    //   if (e.response?.data != null && e.response?.data is Map) {
+    //     final data = e.response?.data as Map;
+    //     if (data.isNotEmpty) {
+    //       final firstValue = data.values.first;
+    //       if (firstValue is List && firstValue.isNotEmpty) {
+    //         errorMessage = firstValue.first.toString();
+    //       } else if (firstValue is String) {
+    //         errorMessage = firstValue;
+    //       }
+    //     }
+    //   }
+
+    //   throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    // }
+  }
+
+  @override
+  Future<PaginatedReturnedOrderResponseModel> fetchReturnedOrders({
+    required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
+  }) async {
+    try {
+      final queryParameters = <String, dynamic>{'page': page};
+      if (destination != null) queryParameters['destination'] = destination;
+      if (startDate != null) queryParameters['start_date'] = startDate;
+      if (endDate != null) queryParameters['end_date'] = endDate;
+      if (receiverSearch != null)
+        queryParameters['receiver_search'] = receiverSearch;
+      if (minCharge != null) queryParameters['min_charge'] = minCharge;
+      if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
+
+      final response = await _dioClient.get(
+        '/vendor/returned_orders/',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        return PaginatedReturnedOrderResponseModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw ServerException('Failed to fetch returned orders');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<PaginatedRtvOrderResponseModel> fetchRtvOrders({
+    required int page,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
+  }) async {
+    try {
+      final queryParameters = <String, dynamic>{'page': page};
+      if (destination != null) queryParameters['destination'] = destination;
+      if (startDate != null) queryParameters['start_date'] = startDate;
+      if (endDate != null) queryParameters['end_date'] = endDate;
+      if (receiverSearch != null)
+        queryParameters['receiver_search'] = receiverSearch;
+      if (minCharge != null) queryParameters['min_charge'] = minCharge;
+      if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
+
+      final response = await _dioClient.get(
+        '/vendor/rtv_list/',
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        return PaginatedRtvOrderResponseModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw ServerException('Failed to fetch RTV orders');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<void> createOrder({required CreateOrderRequestModel request}) async {
+    try {
+      final response = await _dioClient.post(
+        '/vendor/create_order/',
+        data: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return;
+      } else {
+        throw ServerException('Failed to create order');
       }
     } on DioException catch (e) {
       String errorMessage = e.message ?? 'Unknown error';

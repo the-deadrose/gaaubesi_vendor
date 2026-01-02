@@ -25,19 +25,7 @@ class PaginatedDeliveredOrderResponseModel
 
   factory PaginatedDeliveredOrderResponseModel.fromJson(
     Map<String, dynamic> json,
-  ) {
-    // Handle links object if present
-    final links = json['links'] as Map<String, dynamic>?;
-    return PaginatedDeliveredOrderResponseModel(
-      count: json['count'] as int,
-      totalPages: json['total_pages'] as int,
-      next: links?['next'] as String?,
-      previous: links?['previous'] as String?,
-      results: (json['results'] as List<dynamic>)
-          .map((e) => DeliveredOrderModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-  }
+  ) => _$PaginatedDeliveredOrderResponseModelFromJson(json);
 
   Map<String, dynamic> toJson() =>
       _$PaginatedDeliveredOrderResponseModelToJson(this);

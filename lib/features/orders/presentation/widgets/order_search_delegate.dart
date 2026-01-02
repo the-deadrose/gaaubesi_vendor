@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/search/search_empty_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/search/search_highlight_text.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/search/search_result_item.dart';
 
-/// Search delegate for orders with custom UI and search history
+/// Search delegate for orders with custom UI and search history.
 class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
   final List<OrderEntity> allOrders;
   final List<String> recentSearches;
@@ -29,7 +32,7 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
       ),
     );
   }
@@ -63,7 +66,7 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
     final results = _searchOrders(query);
 
     if (results.isEmpty) {
-      return _buildEmptyState(context, 'No orders found');
+      return const SearchEmptyState(message: 'No orders found');
     }
 
     return ListView.builder(
@@ -71,119 +74,9 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
       itemCount: results.length,
       itemBuilder: (context, index) {
         final order = results[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(12),
-            leading: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.inventory_2_rounded,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-            title: Row(
-              children: [
-                Text(
-                  '${order.orderId}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(
-                      order.lastDeliveryStatus,
-                    ).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    order.lastDeliveryStatus,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: _getStatusColor(order.lastDeliveryStatus),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person_outline_rounded,
-                        size: 14,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        order.receiverName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 14,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          order.receiverAddress,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            trailing: Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: Colors.grey[400],
-            ),
-            onTap: () => close(context, order),
-          ),
+        return SearchResultItem(
+          order: order,
+          onTap: () => close(context, order),
         );
       },
     );
@@ -198,7 +91,7 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
     final suggestions = _searchOrders(query).take(5).toList();
 
     if (suggestions.isEmpty) {
-      return _buildEmptyState(context, 'No suggestions');
+      return const SearchEmptyState(message: 'No suggestions');
     }
 
     return ListView.builder(
@@ -207,7 +100,7 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
         final order = suggestions[index];
         return ListTile(
           leading: const Icon(Icons.search_rounded),
-          title: RichText(text: _highlightQuery('${order.orderId}', query)),
+          title: HighlightedText(text: '${order.orderId}', query: query),
           subtitle: Text(
             order.receiverName,
             style: const TextStyle(fontSize: 12),
@@ -233,61 +126,10 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
     }).toList();
   }
 
-  TextSpan _highlightQuery(String text, String query) {
-    if (query.isEmpty) {
-      return TextSpan(
-        text: text,
-        style: const TextStyle(color: Colors.black),
-      );
-    }
-
-    final matches = <TextSpan>[];
-    final lowerText = text.toLowerCase();
-    final lowerQuery = query.toLowerCase();
-    int start = 0;
-
-    while (true) {
-      final index = lowerText.indexOf(lowerQuery, start);
-      if (index == -1) {
-        matches.add(
-          TextSpan(
-            text: text.substring(start),
-            style: const TextStyle(color: Colors.black),
-          ),
-        );
-        break;
-      }
-
-      if (index > start) {
-        matches.add(
-          TextSpan(
-            text: text.substring(start, index),
-            style: const TextStyle(color: Colors.black),
-          ),
-        );
-      }
-
-      matches.add(
-        TextSpan(
-          text: text.substring(index, index + query.length),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
-        ),
-      );
-
-      start = index + query.length;
-    }
-
-    return TextSpan(children: matches);
-  }
-
   Widget _buildRecentSearches(BuildContext context) {
     if (recentSearches.isEmpty) {
-      return _buildEmptyState(
-        context,
-        'Start typing to search orders',
+      return const SearchEmptyState(
+        message: 'Start typing to search orders',
         icon: Icons.search_rounded,
       );
     }
@@ -327,38 +169,5 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
         ),
       ],
     );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context,
-    String message, {
-    IconData icon = Icons.inbox_outlined,
-  }) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'delivered':
-        return Colors.green;
-      case 'in transit':
-        return Colors.orange;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return Colors.blue;
-    }
   }
 }

@@ -23,13 +23,13 @@ class DeliveredOrderEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        orderId,
-        codCharge,
-        destination,
-        receiverNumber,
-        receiverName,
-        deliveryCharge,
-        deliveredDate,
-        createdOn,
-      ];
+    orderId,
+    codCharge,
+    destination,
+    receiverNumber,
+    receiverName,
+    deliveryCharge,
+    deliveredDate,
+    createdOn,
+  ];
 }

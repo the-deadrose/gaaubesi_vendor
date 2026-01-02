@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
 
 abstract class OrderEvent extends Equatable {
   const OrderEvent();
@@ -83,4 +84,13 @@ class OrderAdvancedFilterChanged extends OrderEvent {
 
 class OrderStatsRequested extends OrderEvent {
   const OrderStatsRequested();
+}
+
+class OrderCreateRequested extends OrderEvent {
+  final CreateOrderRequestEntity request;
+
+  const OrderCreateRequested({required this.request});
+
+  @override
+  List<Object?> get props => [request];
 }

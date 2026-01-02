@@ -3,7 +3,8 @@ import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/pages/delivered_orders_page.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/bulk_upload_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/extra_mileage_page.dart';
 import 'package:gaaubesi_vendor/features/payments/presentation/pages/payments_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
@@ -49,13 +50,18 @@ class AppRouter extends RootStackRouter {
           ],
         ),
         AutoRoute(
-          page: DeliveredOrdersRoute.page,
-          path: '/delivered-orders',
+          page: ExtraMileageRoute.page,
+          path: '/extra-mileage',
           guards: [AuthGuard()],
         ),
         AutoRoute(
-          page: ExtraMileageRoute.page,
-          path: '/extra-mileage',
+          page: CreateOrderRoute.page,
+          path: '/create-order',
+          guards: [AuthGuard()],
+        ),
+        AutoRoute(
+          page: BulkUploadOrdersRoute.page,
+          path: '/bulk-upload-orders',
           guards: [AuthGuard()],
         ),
         AutoRoute(

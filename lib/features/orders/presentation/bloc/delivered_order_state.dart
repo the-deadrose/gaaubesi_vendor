@@ -22,6 +22,12 @@ class DeliveredOrderLoaded extends DeliveredOrderState {
   final bool hasMore;
   final int totalCount;
   final int totalPages;
+  final String? destination;
+  final String? startDate;
+  final String? endDate;
+  final String? receiverSearch;
+  final double? minCharge;
+  final double? maxCharge;
 
   const DeliveredOrderLoaded({
     required this.orders,
@@ -29,6 +35,12 @@ class DeliveredOrderLoaded extends DeliveredOrderState {
     required this.hasMore,
     required this.totalCount,
     required this.totalPages,
+    this.destination,
+    this.startDate,
+    this.endDate,
+    this.receiverSearch,
+    this.minCharge,
+    this.maxCharge,
   });
 
   DeliveredOrderLoaded copyWith({
@@ -37,6 +49,12 @@ class DeliveredOrderLoaded extends DeliveredOrderState {
     bool? hasMore,
     int? totalCount,
     int? totalPages,
+    String? destination,
+    String? startDate,
+    String? endDate,
+    String? receiverSearch,
+    double? minCharge,
+    double? maxCharge,
   }) {
     return DeliveredOrderLoaded(
       orders: orders ?? this.orders,
@@ -44,11 +62,29 @@ class DeliveredOrderLoaded extends DeliveredOrderState {
       hasMore: hasMore ?? this.hasMore,
       totalCount: totalCount ?? this.totalCount,
       totalPages: totalPages ?? this.totalPages,
+      destination: destination ?? this.destination,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      receiverSearch: receiverSearch ?? this.receiverSearch,
+      minCharge: minCharge ?? this.minCharge,
+      maxCharge: maxCharge ?? this.maxCharge,
     );
   }
 
   @override
-  List<Object?> get props => [orders, currentPage, hasMore, totalCount, totalPages];
+  List<Object?> get props => [
+    orders,
+    currentPage,
+    hasMore,
+    totalCount,
+    totalPages,
+    destination,
+    startDate,
+    endDate,
+    receiverSearch,
+    minCharge,
+    maxCharge,
+  ];
 }
 
 class DeliveredOrderLoadingMore extends DeliveredOrderState {
@@ -56,16 +92,39 @@ class DeliveredOrderLoadingMore extends DeliveredOrderState {
   final int currentPage;
   final int totalCount;
   final int totalPages;
+  final String? destination;
+  final String? startDate;
+  final String? endDate;
+  final String? receiverSearch;
+  final double? minCharge;
+  final double? maxCharge;
 
   const DeliveredOrderLoadingMore({
     required this.orders,
     required this.currentPage,
     required this.totalCount,
     required this.totalPages,
+    this.destination,
+    this.startDate,
+    this.endDate,
+    this.receiverSearch,
+    this.minCharge,
+    this.maxCharge,
   });
 
   @override
-  List<Object?> get props => [orders, currentPage, totalCount, totalPages];
+  List<Object?> get props => [
+    orders,
+    currentPage,
+    totalCount,
+    totalPages,
+    destination,
+    startDate,
+    endDate,
+    receiverSearch,
+    minCharge,
+    maxCharge,
+  ];
 }
 
 class DeliveredOrderError extends DeliveredOrderState {

@@ -146,3 +146,20 @@ class OrderError extends OrderState {
   @override
   List<Object?> get props => [message];
 }
+
+class OrderCreating extends OrderState {
+  const OrderCreating();
+}
+
+class OrderCreated extends OrderState {
+  const OrderCreated();
+}
+
+class OrderCreateFailed extends OrderState {
+  final String message;
+
+  const OrderCreateFailed({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}

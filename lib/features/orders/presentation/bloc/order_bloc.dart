@@ -2,14 +2,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_usecase.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_state.dart';
 
 @injectable
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final FetchOrdersUseCase fetchOrdersUseCase;
+  final CreateOrderUseCase createOrderUseCase;
 
-  OrderBloc({required this.fetchOrdersUseCase}) : super(const OrderInitial()) {
+  OrderBloc({
+    required this.fetchOrdersUseCase,
+    required this.createOrderUseCase,
+  }) : super(const OrderInitial()) {
     on<OrderLoadRequested>(_onOrderLoadRequested);
     on<OrderRefreshRequested>(_onOrderRefreshRequested);
     on<OrderLoadMoreRequested>(_onOrderLoadMoreRequested);
@@ -18,6 +23,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<OrderFilterChanged>(_onOrderFilterChanged);
     on<OrderAdvancedFilterChanged>(_onOrderAdvancedFilterChanged);
     on<OrderStatsRequested>(_onOrderStatsRequested);
+    on<OrderCreateRequested>(_onOrderCreateRequested);
   }
 
   Future<void> _onOrderLoadRequested(
@@ -294,5 +300,19 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         ),
       );
     }
+  }
+
+  Future<void> _onOrderCreateRequested(
+    OrderCreateRequested event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(const OrderCreating());
+
+    final result = await createOrderUseCase(event.request);
+
+    result.fold(
+      (failure) => emit(OrderCreateFailed(message: failure.message)),
+      (_) => emit(const OrderCreated()),
+    );
   }
 }
