@@ -52,6 +52,8 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_use
     as _i353;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
     as _i451;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_order_detail_usecase.dart'
+    as _i739;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart'
     as _i340;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_possible_redirect_orders_usecase.dart'
@@ -60,16 +62,18 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_returned_o
     as _i466;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_rtv_orders_usecase.dart'
     as _i287;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_bloc.dart'
-    as _i853;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_bloc.dart'
-    as _i238;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order_bloc.dart'
-    as _i68;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order_bloc.dart'
-    as _i135;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order_bloc.dart'
-    as _i4;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart'
+    as _i37;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_bloc.dart'
+    as _i626;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart'
+    as _i124;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_bloc.dart'
+    as _i894;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_bloc.dart'
+    as _i337;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart'
+    as _i691;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -146,6 +150,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
       () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
     );
+    gh.lazySingleton<_i739.FetchOrderDetailUseCase>(
+      () => _i739.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
+    );
     gh.lazySingleton<_i340.FetchOrdersUseCase>(
       () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
     );
@@ -159,29 +166,34 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
       () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
     );
-    gh.factory<_i238.OrderBloc>(
-      () => _i238.OrderBloc(
+    gh.factory<_i626.OrderBloc>(
+      () => _i626.OrderBloc(
         fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
         createOrderUseCase: gh<_i353.CreateOrderUseCase>(),
       ),
     );
-    gh.factory<_i4.RtvOrderBloc>(
-      () => _i4.RtvOrderBloc(
+    gh.factory<_i124.OrderDetailBloc>(
+      () => _i124.OrderDetailBloc(
+        fetchOrderDetailUseCase: gh<_i739.FetchOrderDetailUseCase>(),
+      ),
+    );
+    gh.factory<_i691.RtvOrderBloc>(
+      () => _i691.RtvOrderBloc(
         fetchRtvOrdersUseCase: gh<_i287.FetchRtvOrdersUseCase>(),
       ),
     );
-    gh.factory<_i135.ReturnedOrderBloc>(
-      () => _i135.ReturnedOrderBloc(
+    gh.factory<_i337.ReturnedOrderBloc>(
+      () => _i337.ReturnedOrderBloc(
         fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
       ),
     );
-    gh.factory<_i853.DeliveredOrderBloc>(
-      () => _i853.DeliveredOrderBloc(
+    gh.factory<_i37.DeliveredOrderBloc>(
+      () => _i37.DeliveredOrderBloc(
         fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
       ),
     );
-    gh.factory<_i68.PossibleRedirectOrderBloc>(
-      () => _i68.PossibleRedirectOrderBloc(
+    gh.factory<_i894.PossibleRedirectOrderBloc>(
+      () => _i894.PossibleRedirectOrderBloc(
         fetchPossibleRedirectOrdersUseCase:
             gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
       ),

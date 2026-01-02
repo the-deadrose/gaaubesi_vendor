@@ -8,6 +8,7 @@ import 'package:gaaubesi_vendor/features/orders/data/models/paginated_possible_r
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_returned_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_rtv_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/order_detail_model.dart';
 
 abstract class OrderRemoteDataSource {
   Future<PaginatedOrderResponseModel> fetchOrders({
@@ -61,6 +62,8 @@ abstract class OrderRemoteDataSource {
   });
 
   Future<void> createOrder({required CreateOrderRequestModel request});
+
+  Future<OrderDetailModel> fetchOrderDetail({required int orderId});
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -343,6 +346,39 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         return;
       } else {
         throw ServerException('Failed to create order');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<OrderDetailModel> fetchOrderDetail({required int orderId}) async {
+    try {
+      final response = await _dioClient.get(
+        '/order/detail/app',
+        queryParameters: {'order_id': orderId},
+      );
+
+      if (response.statusCode == 200) {
+        return OrderDetailModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw ServerException('Failed to fetch order details');
       }
     } on DioException catch (e) {
       String errorMessage = e.message ?? 'Unknown error';

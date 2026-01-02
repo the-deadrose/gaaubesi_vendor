@@ -1,9 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/possible_redirect_order_entity.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order_bloc.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order_event.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_event.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_state.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/base_order_list_sliver.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/possible_redirect_order_card.dart';
 
@@ -30,7 +32,15 @@ class PossibleRedirectOrderListSliver extends StatelessWidget {
         if (state is PossibleRedirectOrderLoadingMore) return state.orders;
         return [];
       },
-      buildCard: (order) => PossibleRedirectOrderCard(order: order),
+      buildCard: (order) => PossibleRedirectOrderCard(
+        order: order,
+        onTap: () {
+          final orderIdInt = int.tryParse(order.orderId);
+          if (orderIdInt != null) {
+            context.router.push(OrderDetailRoute(orderId: orderIdInt));
+          }
+        },
+      ),
       onRetry: () {
         context.read<PossibleRedirectOrderBloc>().add(
           const PossibleRedirectOrderRefreshRequested(),

@@ -8,8 +8,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/stat
 
 class ReturnedOrderCard extends StatefulWidget {
   final ReturnedOrderEntity order;
+  final VoidCallback? onTap;
 
-  const ReturnedOrderCard({super.key, required this.order});
+  const ReturnedOrderCard({super.key, required this.order, this.onTap});
 
   @override
   State<ReturnedOrderCard> createState() => _ReturnedOrderCardState();
@@ -34,7 +35,10 @@ class _ReturnedOrderCardState extends State<ReturnedOrderCard>
             HapticFeedback.lightImpact();
             setState(() => _isPressed = true);
           },
-          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onTap?.call();
+          },
           onTapCancel: () => setState(() => _isPressed = false),
           child: AnimatedScale(
             scale: _isPressed ? 0.98 : 1.0,

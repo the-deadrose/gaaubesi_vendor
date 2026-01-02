@@ -1,10 +1,12 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/delivered_order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_bloc.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_event.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_event.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_state.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/base_order_list_sliver.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 
@@ -50,7 +52,10 @@ class DeliveredOrderListSliver extends StatelessWidget {
         return OrderCard(
           order: order,
           onTap: () {
-            // TODO: Navigate to delivered order details
+            final orderIdInt = int.tryParse(deliveredOrder.orderId);
+            if (orderIdInt != null) {
+              context.router.push(OrderDetailRoute(orderId: orderIdInt));
+            }
           },
         );
       },

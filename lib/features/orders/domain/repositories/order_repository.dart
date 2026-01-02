@@ -6,6 +6,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_possib
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_returned_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_rtv_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/order_detail_entity.dart';
 
 abstract class OrderRepository {
   Future<Either<Failure, PaginatedOrderResponseEntity>> fetchOrders({
@@ -62,5 +63,9 @@ abstract class OrderRepository {
 
   Future<Either<Failure, void>> createOrder({
     required CreateOrderRequestEntity request,
+  });
+
+  Future<Either<Failure, OrderDetailEntity>> fetchOrderDetail({
+    required int orderId,
   });
 }

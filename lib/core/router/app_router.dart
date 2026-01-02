@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
@@ -6,6 +7,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.d
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/bulk_upload_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/extra_mileage_page.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/order_detail_page.dart';
 import 'package:gaaubesi_vendor/features/payments/presentation/pages/payments_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
@@ -72,6 +74,11 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: CommentRoute.page,
           path: '/comment',
+          guards: [AuthGuard()],
+        ),
+        AutoRoute(
+          page: OrderDetailRoute.page,
+          path: '/order-detail/:orderId',
           guards: [AuthGuard()],
         ),
       ];

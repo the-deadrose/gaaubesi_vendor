@@ -10,6 +10,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_possib
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_returned_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_rtv_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/order_detail_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/repositories/order_repository.dart';
 
 @LazySingleton(as: OrderRepository)
@@ -193,6 +194,22 @@ class OrderRepositoryImpl implements OrderRepository {
       );
       await remoteDataSource.createOrder(request: model);
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, OrderDetailEntity>> fetchOrderDetail({
+    required int orderId,
+  }) async {
+    try {
+      final result = await remoteDataSource.fetchOrderDetail(orderId: orderId);
+      return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_event.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_state.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_usecase.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_event.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_state.dart';
 
 @injectable
 class OrderBloc extends Bloc<OrderEvent, OrderState> {

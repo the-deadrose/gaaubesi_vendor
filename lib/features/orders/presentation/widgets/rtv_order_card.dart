@@ -7,8 +7,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/stat
 
 class RtvOrderCard extends StatefulWidget {
   final RtvOrderEntity order;
+  final VoidCallback? onTap;
 
-  const RtvOrderCard({super.key, required this.order});
+  const RtvOrderCard({super.key, required this.order, this.onTap});
 
   @override
   State<RtvOrderCard> createState() => _RtvOrderCardState();
@@ -33,7 +34,10 @@ class _RtvOrderCardState extends State<RtvOrderCard>
             HapticFeedback.lightImpact();
             setState(() => _isPressed = true);
           },
-          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onTap?.call();
+          },
           onTapCancel: () => setState(() => _isPressed = false),
           child: AnimatedScale(
             scale: _isPressed ? 0.98 : 1.0,

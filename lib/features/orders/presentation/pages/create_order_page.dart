@@ -6,9 +6,9 @@ import 'package:gaaubesi_vendor/core/widgets/primary_button.dart';
 import 'package:gaaubesi_vendor/core/widgets/input_field.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/enums/order_enums.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_bloc.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_event.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_event.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_state.dart';
 
 @RoutePage()
 class CreateOrderPage extends StatelessWidget {

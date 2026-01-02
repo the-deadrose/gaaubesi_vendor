@@ -8,8 +8,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/stat
 
 class PossibleRedirectOrderCard extends StatefulWidget {
   final PossibleRedirectOrderEntity order;
+  final VoidCallback? onTap;
 
-  const PossibleRedirectOrderCard({super.key, required this.order});
+  const PossibleRedirectOrderCard({super.key, required this.order, this.onTap});
 
   @override
   State<PossibleRedirectOrderCard> createState() =>
@@ -35,7 +36,10 @@ class _PossibleRedirectOrderCardState extends State<PossibleRedirectOrderCard>
             HapticFeedback.lightImpact();
             setState(() => _isPressed = true);
           },
-          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onTap?.call();
+          },
           onTapCancel: () => setState(() => _isPressed = false),
           child: AnimatedScale(
             scale: _isPressed ? 0.98 : 1.0,

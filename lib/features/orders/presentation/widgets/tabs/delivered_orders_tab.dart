@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_bloc.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_event.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_event.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_state.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/delivered_order_list_sliver.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/base_order_tab_view.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/order_filter_bottom_sheet.dart';
