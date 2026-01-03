@@ -190,7 +190,7 @@ class OrderDetailHeader extends StatelessWidget {
 
   Widget _buildPackageAccessBadge(BuildContext context) {
     final theme = Theme.of(context);
-    final color = order.packageAccess.toLowerCase().contains("can't")
+    final color = (order.packageAccess?.toLowerCase().contains("can't") ?? false)
         ? Colors.red
         : Colors.green;
 
@@ -205,7 +205,7 @@ class OrderDetailHeader extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            order.packageAccess.toLowerCase().contains("can't")
+            (order.packageAccess?.toLowerCase().contains("can't") ?? false)
                 ? Icons.lock_rounded
                 : Icons.lock_open_rounded,
             size: 14,
@@ -213,7 +213,7 @@ class OrderDetailHeader extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            order.packageAccess,
+            order.packageAccess ?? '',
             style: theme.textTheme.bodySmall?.copyWith(
               color: color,
               fontWeight: FontWeight.w600,

@@ -22,7 +22,7 @@ OrderDetailModel _$OrderDetailModelFromJson(Map<String, dynamic> json) =>
       createdOn: json['created_on'] as String,
       createdBy: json['created_by'] as String,
       trackId: json['track_id'] as String,
-      packageAccess: json['package_access'] as String,
+      packageAccess: json['package_access'] as String?,
       orderDeliveryInstruction: json['order_delivery_instruction'] as String?,
       description: json['description'] as String,
       vendorReferenceId: json['vendor_reference_id'] as String?,

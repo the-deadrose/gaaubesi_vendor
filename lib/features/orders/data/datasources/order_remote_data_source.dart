@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_order_response_model.dart';
@@ -101,7 +102,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       }
 
       final response = await _dioClient.get(
-        '/order/list/',
+        ApiEndpoints.orderList,
         queryParameters: queryParameters,
       );
 
@@ -143,7 +144,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     double? minCharge,
     double? maxCharge,
   }) async {
-    try {
+    // try {
       final queryParameters = <String, dynamic>{'page': page};
       if (destination != null) queryParameters['destination'] = destination;
       if (startDate != null) queryParameters['start_date'] = startDate;
@@ -154,7 +155,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
       final response = await _dioClient.get(
-        '/vendor/delivered_list/',
+        ApiEndpoints.vendorDeliveredList,
         queryParameters: queryParameters,
       );
 
@@ -165,22 +166,22 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       } else {
         throw ServerException('Failed to fetch delivered orders');
       }
-    } on DioException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-      if (e.response?.data != null && e.response?.data is Map) {
-        final data = e.response?.data as Map;
-        if (data.isNotEmpty) {
-          final firstValue = data.values.first;
-          if (firstValue is List && firstValue.isNotEmpty) {
-            errorMessage = firstValue.first.toString();
-          } else if (firstValue is String) {
-            errorMessage = firstValue;
-          }
-        }
-      }
+    // } on DioException catch (e) {
+    //   String errorMessage = e.message ?? 'Unknown error';
+    //   if (e.response?.data != null && e.response?.data is Map) {
+    //     final data = e.response?.data as Map;
+    //     if (data.isNotEmpty) {
+    //       final firstValue = data.values.first;
+    //       if (firstValue is List && firstValue.isNotEmpty) {
+    //         errorMessage = firstValue.first.toString();
+    //       } else if (firstValue is String) {
+    //         errorMessage = firstValue;
+    //       }
+    //     }
+    //   }
 
-      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
-    }
+    //   throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    // }
   }
 
   @override
@@ -205,7 +206,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
     final response = await _dioClient.get(
-      '/vendor/possible_redirect/',
+      ApiEndpoints.vendorPossibleRedirect,
       queryParameters: queryParameters,
     );
 
@@ -255,7 +256,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
       final response = await _dioClient.get(
-        '/vendor/returned_orders/',
+        ApiEndpoints.vendorReturnedOrders,
         queryParameters: queryParameters,
       );
 
@@ -305,7 +306,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
       final response = await _dioClient.get(
-        '/vendor/rtv_list/',
+        ApiEndpoints.vendorRtvList,
         queryParameters: queryParameters,
       );
 
@@ -338,7 +339,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<void> createOrder({required CreateOrderRequestModel request}) async {
     try {
       final response = await _dioClient.post(
-        '/vendor/create_order/',
+        ApiEndpoints.vendorCreateOrder,
         data: request.toJson(),
       );
 
@@ -369,7 +370,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<OrderDetailModel> fetchOrderDetail({required int orderId}) async {
     try {
       final response = await _dioClient.get(
-        '/order/detail/app',
+        ApiEndpoints.orderDetail,
         queryParameters: {'order_id': orderId},
       );
 

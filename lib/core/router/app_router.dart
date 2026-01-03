@@ -8,6 +8,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/bulk_upload_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/extra_mileage_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/order_detail_page.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/stale_orders_page.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/return_orders_page.dart';
 import 'package:gaaubesi_vendor/features/payments/presentation/pages/payments_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
@@ -79,6 +82,21 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: OrderDetailRoute.page,
           path: '/order-detail/:orderId',
+          guards: [AuthGuard()],
+        ),
+        AutoRoute(
+          page: StaleOrdersRoute.page,
+          path: '/stale-orders',
+          guards: [AuthGuard()],
+        ),
+        AutoRoute(
+          page: RedirectedOrdersRoute.page,
+          path: '/redirected-orders',
+          guards: [AuthGuard()],
+        ),
+        AutoRoute(
+          page: ReturnOrdersRoute.page,
+          path: '/return-orders',
           guards: [AuthGuard()],
         ),
       ];

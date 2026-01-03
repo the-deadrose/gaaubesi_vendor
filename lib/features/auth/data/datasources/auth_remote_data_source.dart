@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/auth/data/models/user_model.dart';
@@ -18,7 +19,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> login(String username, String password) async {
     try {
       final response = await _dioClient.post(
-        '/login/',
+        ApiEndpoints.login,
         data: {'username': username, 'password': password},
       );
 

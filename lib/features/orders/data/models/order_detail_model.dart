@@ -20,7 +20,7 @@ class OrderDetailModel extends OrderDetailEntity {
     required super.createdOn,
     required super.createdBy,
     required super.trackId,
-    required super.packageAccess,
+    super.packageAccess,
     super.orderDeliveryInstruction,
     required super.description,
     super.vendorReferenceId,
@@ -90,7 +90,7 @@ class OrderDetailModel extends OrderDetailEntity {
 
   @override
   @JsonKey(name: 'package_access')
-  String get packageAccess => super.packageAccess;
+  String? get packageAccess => super.packageAccess;
 
   @override
   @JsonKey(name: 'order_delivery_instruction')

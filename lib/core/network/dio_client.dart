@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/constants/constants.dart';
 import 'package:gaaubesi_vendor/core/network/logger_interceptor.dart';
 import 'package:gaaubesi_vendor/core/services/secure_storage_service.dart';
@@ -24,8 +25,7 @@ class DioClient {
         InterceptorsWrapper(
           onRequest: (options, handler) async {
             // Skip adding token for auth endpoints
-            final isAuthEndpoint =
-                options.path.contains('/login') ||
+            final isAuthEndpoint = options.path == ApiEndpoints.login ||
                 options.path.contains('/register');
 
             if (!isAuthEndpoint) {

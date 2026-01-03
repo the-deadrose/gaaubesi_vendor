@@ -223,6 +223,54 @@ class PaymentsRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [RedirectedOrdersPage]
+class RedirectedOrdersRoute extends PageRouteInfo<void> {
+  const RedirectedOrdersRoute({List<PageRouteInfo>? children})
+    : super(RedirectedOrdersRoute.name, initialChildren: children);
+
+  static const String name = 'RedirectedOrdersRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const RedirectedOrdersPage();
+    },
+  );
+}
+
+/// generated route for
+/// [ReturnOrdersPage]
+class ReturnOrdersRoute extends PageRouteInfo<void> {
+  const ReturnOrdersRoute({List<PageRouteInfo>? children})
+    : super(ReturnOrdersRoute.name, initialChildren: children);
+
+  static const String name = 'ReturnOrdersRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ReturnOrdersPage();
+    },
+  );
+}
+
+/// generated route for
+/// [StaleOrdersPage]
+class StaleOrdersRoute extends PageRouteInfo<void> {
+  const StaleOrdersRoute({List<PageRouteInfo>? children})
+    : super(StaleOrdersRoute.name, initialChildren: children);
+
+  static const String name = 'StaleOrdersRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const StaleOrdersPage();
+    },
+  );
+}
+
+/// generated route for
 /// [UtilitiesPage]
 class UtilitiesRoute extends PageRouteInfo<void> {
   const UtilitiesRoute({List<PageRouteInfo>? children})

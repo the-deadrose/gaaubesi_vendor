@@ -16,7 +16,7 @@ class OrderDetailEntity extends Equatable {
   final String createdOn;
   final String createdBy;
   final String trackId;
-  final String packageAccess;
+  final String? packageAccess;
   final String? orderDeliveryInstruction;
   final String description;
   final String? vendorReferenceId;
@@ -42,7 +42,7 @@ class OrderDetailEntity extends Equatable {
     required this.createdOn,
     required this.createdBy,
     required this.trackId,
-    required this.packageAccess,
+    this.packageAccess,
     this.orderDeliveryInstruction,
     required this.description,
     this.vendorReferenceId,
