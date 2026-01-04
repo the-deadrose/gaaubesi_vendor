@@ -11,51 +11,61 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
+import 'package:gaaubesi_vendor/app/auth/data/datasources/auth_local_data_source.dart'
+    as _i697;
+import 'package:gaaubesi_vendor/app/auth/data/datasources/auth_remote_data_source.dart'
+    as _i623;
+import 'package:gaaubesi_vendor/app/auth/data/repositories/auth_repository_impl.dart'
+    as _i928;
+import 'package:gaaubesi_vendor/app/auth/domain/repositories/auth_repository.dart'
+    as _i113;
+import 'package:gaaubesi_vendor/app/auth/domain/usecases/get_current_user_usecase.dart'
+    as _i158;
+import 'package:gaaubesi_vendor/app/auth/domain/usecases/login_usecase.dart'
+    as _i740;
+import 'package:gaaubesi_vendor/app/auth/domain/usecases/logout_usecase.dart'
+    as _i1020;
+import 'package:gaaubesi_vendor/app/auth/presentation/bloc/auth_bloc.dart'
+    as _i1047;
+import 'package:gaaubesi_vendor/app/comments/data/datasource/comments_datasource.dart'
+    as _i103;
+import 'package:gaaubesi_vendor/app/comments/data/repository/comments_repo_imp.dart'
+    as _i51;
+import 'package:gaaubesi_vendor/app/comments/domain/repository/comments_repository.dart'
+    as _i581;
+import 'package:gaaubesi_vendor/app/comments/domain/usecase/todays_comments_usecase.dart'
+    as _i253;
+import 'package:gaaubesi_vendor/app/comments/presentation/bloc/todays_comments_bloc.dart'
+    as _i927;
+import 'package:gaaubesi_vendor/app/home/data/datasources/home_remote_data_source.dart'
+    as _i610;
+import 'package:gaaubesi_vendor/app/home/data/repositories/home_repository_impl.dart'
+    as _i335;
+import 'package:gaaubesi_vendor/app/home/domain/repositories/home_repository.dart'
+    as _i701;
+import 'package:gaaubesi_vendor/app/home/domain/usecases/get_vendor_stats_usecase.dart'
+    as _i642;
+import 'package:gaaubesi_vendor/app/home/presentation/bloc/home_bloc.dart'
+    as _i463;
+import 'package:gaaubesi_vendor/app/orders/data/datasources/order_remote_data_source.dart'
+    as _i814;
+import 'package:gaaubesi_vendor/app/orders/data/repositories/order_repository_impl.dart'
+    as _i32;
+import 'package:gaaubesi_vendor/app/orders/domain/repositories/order_repository.dart'
+    as _i899;
+import 'package:gaaubesi_vendor/app/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
+    as _i640;
+import 'package:gaaubesi_vendor/app/orders/domain/usecases/fetch_orders_usecase.dart'
+    as _i804;
+import 'package:gaaubesi_vendor/app/orders/presentation/bloc/delivered_order_bloc.dart'
+    as _i0;
+import 'package:gaaubesi_vendor/app/orders/presentation/bloc/order_bloc.dart'
+    as _i205;
 import 'package:gaaubesi_vendor/core/di/register_module.dart' as _i769;
 import 'package:gaaubesi_vendor/core/network/dio_client.dart' as _i619;
 import 'package:gaaubesi_vendor/core/router/app_router.dart' as _i694;
 import 'package:gaaubesi_vendor/core/services/secure_storage_service.dart'
     as _i14;
-import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_local_data_source.dart'
-    as _i18;
-import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_remote_data_source.dart'
-    as _i311;
-import 'package:gaaubesi_vendor/features/auth/data/repositories/auth_repository_impl.dart'
-    as _i635;
-import 'package:gaaubesi_vendor/features/auth/domain/repositories/auth_repository.dart'
-    as _i40;
-import 'package:gaaubesi_vendor/features/auth/domain/usecases/get_current_user_usecase.dart'
-    as _i277;
-import 'package:gaaubesi_vendor/features/auth/domain/usecases/login_usecase.dart'
-    as _i634;
-import 'package:gaaubesi_vendor/features/auth/domain/usecases/logout_usecase.dart'
-    as _i357;
-import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart'
-    as _i365;
-import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart'
-    as _i630;
-import 'package:gaaubesi_vendor/features/home/data/repositories/home_repository_impl.dart'
-    as _i990;
-import 'package:gaaubesi_vendor/features/home/domain/repositories/home_repository.dart'
-    as _i103;
-import 'package:gaaubesi_vendor/features/home/domain/usecases/get_vendor_stats_usecase.dart'
-    as _i84;
-import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart'
-    as _i915;
-import 'package:gaaubesi_vendor/features/orders/data/datasources/order_remote_data_source.dart'
-    as _i700;
-import 'package:gaaubesi_vendor/features/orders/data/repositories/order_repository_impl.dart'
-    as _i800;
-import 'package:gaaubesi_vendor/features/orders/domain/repositories/order_repository.dart'
-    as _i532;
-import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
-    as _i451;
-import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart'
-    as _i340;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order_bloc.dart'
-    as _i853;
-import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_bloc.dart'
-    as _i238;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -72,8 +82,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
-    gh.lazySingleton<_i18.AuthLocalDataSource>(
-      () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
+    gh.lazySingleton<_i697.AuthLocalDataSource>(
+      () => _i697.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i14.SecureStorageService>(
       () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
@@ -81,64 +91,79 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i619.DioClient>(
       () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
     );
-    gh.lazySingleton<_i630.HomeRemoteDataSource>(
-      () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
+    gh.lazySingleton<_i814.OrderRemoteDataSource>(
+      () => _i814.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
-    gh.lazySingleton<_i103.HomeRepository>(
-      () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i700.OrderRemoteDataSource>(
-      () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i311.AuthRemoteDataSource>(
-      () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i84.GetVendorStatsUseCase>(
-      () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
-    );
-    gh.lazySingleton<_i40.AuthRepository>(
-      () => _i635.AuthRepositoryImpl(
-        remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
-        localDataSource: gh<_i18.AuthLocalDataSource>(),
+    gh.lazySingleton<_i899.OrderRepository>(
+      () => _i32.OrderRepositoryImpl(
+        remoteDataSource: gh<_i814.OrderRemoteDataSource>(),
       ),
     );
-    gh.lazySingleton<_i532.OrderRepository>(
-      () => _i800.OrderRepositoryImpl(
-        remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
+    gh.lazySingleton<_i804.FetchOrdersUseCase>(
+      () => _i804.FetchOrdersUseCase(gh<_i899.OrderRepository>()),
+    );
+    gh.lazySingleton<_i640.FetchDeliveredOrdersUseCase>(
+      () => _i640.FetchDeliveredOrdersUseCase(gh<_i899.OrderRepository>()),
+    );
+    gh.lazySingleton<_i103.CommentsDatasource>(
+      () => _i103.CommentsDataSourceImps(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i623.AuthRemoteDataSource>(
+      () => _i623.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i610.HomeRemoteDataSource>(
+      () => _i610.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.factory<_i205.OrderBloc>(
+      () => _i205.OrderBloc(fetchOrdersUseCase: gh<_i804.FetchOrdersUseCase>()),
+    );
+    gh.lazySingleton<_i113.AuthRepository>(
+      () => _i928.AuthRepositoryImpl(
+        remoteDataSource: gh<_i623.AuthRemoteDataSource>(),
+        localDataSource: gh<_i697.AuthLocalDataSource>(),
       ),
     );
-    gh.lazySingleton<_i634.LoginUseCase>(
-      () => _i634.LoginUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i357.LogoutUseCase>(
-      () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i277.GetCurrentUserUseCase>(
-      () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.factory<_i915.HomeBloc>(
-      () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
-    );
-    gh.singleton<_i365.AuthBloc>(
-      () => _i365.AuthBloc(
-        loginUseCase: gh<_i634.LoginUseCase>(),
-        logoutUseCase: gh<_i357.LogoutUseCase>(),
-        getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
+    gh.factory<_i0.DeliveredOrderBloc>(
+      () => _i0.DeliveredOrderBloc(
+        fetchDeliveredOrdersUseCase: gh<_i640.FetchDeliveredOrdersUseCase>(),
       ),
     );
-    gh.lazySingleton<_i340.FetchOrdersUseCase>(
-      () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
+    gh.lazySingleton<_i701.HomeRepository>(
+      () => _i335.HomeRepositoryImpl(gh<_i610.HomeRemoteDataSource>()),
     );
-    gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
-      () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
+    gh.lazySingleton<_i642.GetVendorStatsUseCase>(
+      () => _i642.GetVendorStatsUseCase(gh<_i701.HomeRepository>()),
     );
-    gh.factory<_i853.DeliveredOrderBloc>(
-      () => _i853.DeliveredOrderBloc(
-        fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
+    gh.lazySingleton<_i581.CommentsRepository>(
+      () => _i51.CommentsRepoImp(gh<_i103.CommentsDatasource>()),
+    );
+    gh.lazySingleton<_i253.TodaysCommentsUseCase>(
+      () => _i253.TodaysCommentsUseCase(gh<_i581.CommentsRepository>()),
+    );
+    gh.factory<_i463.HomeBloc>(
+      () => _i463.HomeBloc(
+        gh<_i642.GetVendorStatsUseCase>(),
+        gh<_i14.SecureStorageService>(),
       ),
     );
-    gh.factory<_i238.OrderBloc>(
-      () => _i238.OrderBloc(fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>()),
+    gh.lazySingleton<_i158.GetCurrentUserUseCase>(
+      () => _i158.GetCurrentUserUseCase(gh<_i113.AuthRepository>()),
+    );
+    gh.lazySingleton<_i1020.LogoutUseCase>(
+      () => _i1020.LogoutUseCase(gh<_i113.AuthRepository>()),
+    );
+    gh.lazySingleton<_i740.LoginUseCase>(
+      () => _i740.LoginUseCase(gh<_i113.AuthRepository>()),
+    );
+    gh.factory<_i927.TodaysCommentsBloc>(
+      () => _i927.TodaysCommentsBloc(gh<_i253.TodaysCommentsUseCase>()),
+    );
+    gh.singleton<_i1047.AuthBloc>(
+      () => _i1047.AuthBloc(
+        loginUseCase: gh<_i740.LoginUseCase>(),
+        logoutUseCase: gh<_i1020.LogoutUseCase>(),
+        getCurrentUserUseCase: gh<_i158.GetCurrentUserUseCase>(),
+      ),
     );
     return this;
   }

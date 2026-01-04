@@ -155,6 +155,22 @@ class PaymentsRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [TodaysCommentsPage]
+class TodaysCommentsRoute extends PageRouteInfo<void> {
+  const TodaysCommentsRoute({List<PageRouteInfo>? children})
+    : super(TodaysCommentsRoute.name, initialChildren: children);
+
+  static const String name = 'TodaysCommentsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const TodaysCommentsPage();
+    },
+  );
+}
+
+/// generated route for
 /// [UtilitiesPage]
 class UtilitiesRoute extends PageRouteInfo<void> {
   const UtilitiesRoute({List<PageRouteInfo>? children})

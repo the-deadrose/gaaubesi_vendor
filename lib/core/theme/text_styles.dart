@@ -14,6 +14,12 @@ class AppTextStyles {
     letterSpacing: 0,
   );
 
+  static TextStyle displaySmall = GoogleFonts.roboto(
+    fontSize: 36,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0,
+  );
+
   static TextStyle headlineLarge = GoogleFonts.roboto(
     fontSize: 32,
     fontWeight: FontWeight.w400,
@@ -26,10 +32,28 @@ class AppTextStyles {
     letterSpacing: 0,
   );
 
+  static TextStyle headlineSmall = GoogleFonts.roboto(
+    fontSize: 24,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0,
+  );
+
   static TextStyle titleLarge = GoogleFonts.roboto(
     fontSize: 22,
     fontWeight: FontWeight.w400,
     letterSpacing: 0,
+  );
+
+  static TextStyle titleMedium = GoogleFonts.roboto(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.15,
+  );
+
+  static TextStyle titleSmall = GoogleFonts.roboto(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.1,
   );
 
   static TextStyle bodyLarge = GoogleFonts.roboto(
@@ -44,10 +68,28 @@ class AppTextStyles {
     letterSpacing: 0.25,
   );
 
+  static TextStyle bodySmall = GoogleFonts.roboto(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.4,
+  );
+
   static TextStyle labelLarge = GoogleFonts.roboto(
     fontSize: 14,
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
+  );
+
+  static TextStyle labelMedium = GoogleFonts.roboto(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+  );
+
+  static TextStyle labelSmall = GoogleFonts.roboto(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
   );
 
   // Added for compatibility with new pages
