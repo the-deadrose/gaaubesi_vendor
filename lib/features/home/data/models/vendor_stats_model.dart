@@ -1,5 +1,114 @@
 import 'package:gaaubesi_vendor/features/home/domain/entities/vendor_stats_entity.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'vendor_stats_model.g.dart';
+
+double _parseDouble(dynamic value) {
+  if (value == null) return 0.0;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) {
+    final parsed = double.tryParse(value);
+    return parsed ?? 0.0;
+  }
+  return 0.0;
+}
+
+int _parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) {
+    final parsed = int.tryParse(value);
+    return parsed ?? 0;
+  }
+  return 0;
+}
+
+String _parseString(dynamic value) => value?.toString() ?? '';
+
+ReturnedPackagesModel _parseReturnedPackages(dynamic value) {
+  if (value is Map<String, dynamic>) {
+    return ReturnedPackagesModel.fromJson(value);
+  }
+  return const ReturnedPackagesModel(count: 0, value: 0.0);
+}
+
+ProcessingOrdersModel _parseProcessingOrders(dynamic value) {
+  if (value is Map<String, dynamic>) {
+    return ProcessingOrdersModel.fromJson(value);
+  }
+  return const ProcessingOrdersModel(
+    dropOff: 0,
+    pickup: 0,
+    sentPickup: 0,
+    pickupComplete: 0,
+    dispatch: 0,
+    rtvDispatch: 0,
+    arrived: 0,
+    rtvArrived: 0,
+    sentForDeliv: 0,
+    returnToWarehouse: 0,
+    sentToVendor: 0,
+    hold: 0,
+  );
+}
+
+List<OrderDataModel> _parseOrderList(dynamic value) {
+  if (value == null) return const [];
+  if (value is! List) return const [];
+  return value
+      .whereType<Map<String, dynamic>>()
+      .map((e) => OrderDataModel.fromJson(e))
+      .toList();
+}
+
+List<OrderValueDataModel> _parseOrderValueList(dynamic value) {
+  if (value == null) return const [];
+  if (value is! List) return const [];
+  return value
+      .whereType<Map<String, dynamic>>()
+      .map((e) => OrderValueDataModel.fromJson(e))
+      .toList();
+}
+
+Map<String, dynamic> _returnedPackagesToJson(ReturnedPackagesEntity value) {
+  return {'count': value.count, 'value': value.value};
+}
+
+Map<String, dynamic> _processingOrdersToJson(ProcessingOrdersEntity value) {
+  return {
+    'drop_off': value.dropOff,
+    'pickup': value.pickup,
+    'sent_pickup': value.sentPickup,
+    'pickup_complete': value.pickupComplete,
+    'dispatch': value.dispatch,
+    'rtv_dispatch': value.rtvDispatch,
+    'arrived': value.arrived,
+    'rtv_arrived': value.rtvArrived,
+    'sent_for_deliv': value.sentForDeliv,
+    'return_to_warehouse': value.returnToWarehouse,
+    'sent_to_vendor': value.sentToVendor,
+    'hold': value.hold,
+  };
+}
+
+List<Map<String, dynamic>> _orderListToJson(List<OrderDataEntity> value) {
+  return value.map((e) => {
+    'created_on__date': e.createdOnDate,
+    'date': e.date,
+    'orders': e.orders,
+  }).toList();
+}
+
+List<Map<String, dynamic>> _orderValueListToJson(List<OrderValueDataEntity> value) {
+  return value.map((e) => {
+    'created_on__date': e.createdOnDate,
+    'cod': e.cod,
+  }).toList();
+}
+
+@JsonSerializable()
 class VendorStatsModel extends VendorStatsEntity {
   const VendorStatsModel({
     required super.vendorName,
@@ -35,193 +144,182 @@ class VendorStatsModel extends VendorStatsEntity {
     required super.lasstCodDate,
   });
 
+  @override
+  @JsonKey(name: 'vendor_name', fromJson: _parseString)
+  String get vendorName => super.vendorName;
+
+  @override
+  @JsonKey(name: 'success_percent', fromJson: _parseDouble)
+  double get successPercent => super.successPercent;
+
+  @override
+  @JsonKey(name: 'return_percent', fromJson: _parseDouble)
+  double get returnPercent => super.returnPercent;
+
+  @override
+  @JsonKey(name: 'stale_orders', fromJson: _parseInt)
+  int get staleOrders => super.staleOrders;
+
+  @override
+  @JsonKey(name: 'todays_comment', fromJson: _parseInt)
+  int get todaysComment => super.todaysComment;
+
+  @override
+  @JsonKey(name: 'orders_in_process', fromJson: _parseInt)
+  int get ordersInProcess => super.ordersInProcess;
+
+  @override
+  @JsonKey(name: 'orders_in_process_val', fromJson: _parseDouble)
+  double get ordersInProcessVal => super.ordersInProcessVal;
+
+  @override
+  @JsonKey(name: 'orders_in_return_process', fromJson: _parseInt)
+  int get ordersInReturnProcess => super.ordersInReturnProcess;
+
+  @override
+  @JsonKey(name: 'orders_in_delivery_process', fromJson: _parseInt)
+  int get ordersInDeliveryProcess => super.ordersInDeliveryProcess;
+
+  @override
+  @JsonKey(name: 'total_delv_charge', fromJson: _parseDouble)
+  double get totalDelvCharge => super.totalDelvCharge;
+
+  @override
+  @JsonKey(name: 'total_packages', fromJson: _parseInt)
+  int get totalPackages => super.totalPackages;
+
+  @override
+  @JsonKey(name: 'delivered_packages', fromJson: _parseInt)
+  int get deliveredPackages => super.deliveredPackages;
+
+  @override
+  @JsonKey(name: 'total_packages_value', fromJson: _parseDouble)
+  double get totalPackagesValue => super.totalPackagesValue;
+
+  @override
+  @JsonKey(name: 'delivered_packages_value', fromJson: _parseDouble)
+  double get deliveredPackagesValue => super.deliveredPackagesValue;
+
+  @override
+  @JsonKey(name: 'pending_cod', fromJson: _parseDouble)
+  double get pendingCod => super.pendingCod;
+
+  @override
+  @JsonKey(name: 'total_rtv_order', fromJson: _parseInt)
+  int get totalRtvOrder => super.totalRtvOrder;
+
+  @override
+  @JsonKey(name: 'total_hold_order', fromJson: _parseInt)
+  int get totalHoldOrder => super.totalHoldOrder;
+
+  @override
+  @JsonKey(name: 'today_delivery', fromJson: _parseInt)
+  int get todayDelivery => super.todayDelivery;
+
+  @override
+  @JsonKey(name: 'redirect_percentage', fromJson: _parseDouble)
+  double get redirectPercentage => super.redirectPercentage;
+
+  @override
+  @JsonKey(name: 'todays_returned_delivery', fromJson: _parseInt)
+  int get todaysReturnedDelivery => super.todaysReturnedDelivery;
+
+  @override
+  @JsonKey(name: 'redirect_order_returned_percent', fromJson: _parseDouble)
+  double get redirectOrderReturnedPercent => super.redirectOrderReturnedPercent;
+
+  @override
+  @JsonKey(name: 'total_redirect_percent', fromJson: _parseDouble)
+  double get totalRedirectPercent => super.totalRedirectPercent;
+
+  @override
+  @JsonKey(name: 'incoming_returns', fromJson: _parseInt)
+  int get incomingReturns => super.incomingReturns;
+
+  @override
+  @JsonKey(name: 'today_order_created', fromJson: _parseInt)
+  int get todayOrderCreated => super.todayOrderCreated;
+
+  @override
+  @JsonKey(
+    name: 'true_returned_packages',
+    fromJson: _parseReturnedPackages,
+    toJson: _returnedPackagesToJson,
+  )
+  ReturnedPackagesEntity get trueReturnedPackages => super.trueReturnedPackages;
+
+  @override
+  @JsonKey(
+    name: 'false_returned_packages',
+    fromJson: _parseReturnedPackages,
+    toJson: _returnedPackagesToJson,
+  )
+  ReturnedPackagesEntity get falseReturnedPackages => super.falseReturnedPackages;
+
+  @override
+  @JsonKey(
+    name: 'processing_orders',
+    fromJson: _parseProcessingOrders,
+    toJson: _processingOrdersToJson,
+  )
+  ProcessingOrdersEntity get processingOrders => super.processingOrders;
+
+  @override
+  @JsonKey(
+    name: 'order_thirty_days',
+    fromJson: _parseOrderList,
+    toJson: _orderListToJson,
+  )
+  List<OrderDataEntity> get orderThirtyDays => super.orderThirtyDays;
+
+  @override
+  @JsonKey(
+    name: 'order_value_thirty_days',
+    fromJson: _parseOrderValueList,
+    toJson: _orderValueListToJson,
+  )
+  List<OrderValueDataEntity> get orderValueThirtyDays => super.orderValueThirtyDays;
+
+  @override
+  @JsonKey(name: 'last_cod_amount', fromJson: _parseDouble)
+  double get lastCodAmount => super.lastCodAmount;
+
+  @override
+  @JsonKey(name: 'lasst_cod_date', fromJson: _parseString)
+  String get lasstCodDate => super.lasstCodDate;
+
   factory VendorStatsModel.fromJson(Map<String, dynamic> json) {
-    // Extract the data object from the response
     final Map<String, dynamic> data;
     if (json.containsKey('data') && json['data'] is Map<String, dynamic>) {
       data = json['data'] as Map<String, dynamic>;
     } else {
       data = json;
     }
-
-    return VendorStatsModel(
-      vendorName: data['vendor_name']?.toString() ?? '',
-      successPercent: _parseDouble(data['success_percent']),
-      returnPercent: _parseDouble(data['return_percent']),
-      staleOrders: _parseInt(data['stale_orders']),
-      todaysComment: _parseInt(data['todays_comment']),
-      ordersInProcess: _parseInt(data['orders_in_process']),
-      ordersInProcessVal: _parseDouble(data['orders_in_process_val']),
-      ordersInReturnProcess: _parseInt(data['orders_in_return_process']),
-      ordersInDeliveryProcess: _parseInt(data['orders_in_delivery_process']),
-      totalDelvCharge: _parseDouble(data['total_delv_charge']),
-      totalPackages: _parseInt(data['total_packages']),
-      deliveredPackages: _parseInt(data['delivered_packages']),
-      totalPackagesValue: _parseDouble(data['total_packages_value']),
-      deliveredPackagesValue: _parseDouble(data['delivered_packages_value']),
-      pendingCod: _parseDouble(data['pending_cod']),
-      totalRtvOrder: _parseInt(data['total_rtv_order']),
-      totalHoldOrder: _parseInt(data['total_hold_order']),
-      todayDelivery: _parseInt(data['today_delivery']),
-      redirectPercentage: _parseDouble(data['redirect_percentage']),
-      todaysReturnedDelivery: _parseInt(data['todays_returned_delivery']),
-      redirectOrderReturnedPercent: 
-          _parseDouble(data['redirect_order_returned_percent']),
-      totalRedirectPercent: _parseDouble(data['total_redirect_percent']),
-      incomingReturns: _parseInt(data['incoming_returns']),
-      todayOrderCreated: _parseInt(data['today_order_created']),
-      trueReturnedPackages: ReturnedPackagesModel.fromJson(
-        data['true_returned_packages'] is Map<String, dynamic> 
-            ? data['true_returned_packages'] as Map<String, dynamic>
-            : <String, dynamic>{'count': 0, 'value': 0.0},
-      ),
-      falseReturnedPackages: ReturnedPackagesModel.fromJson(
-        data['false_returned_packages'] is Map<String, dynamic>
-            ? data['false_returned_packages'] as Map<String, dynamic>
-            : <String, dynamic>{'count': 0, 'value': 0.0},
-      ),
-      processingOrders: ProcessingOrdersModel.fromJson(
-        data['processing_orders'] is Map<String, dynamic>
-            ? data['processing_orders'] as Map<String, dynamic>
-            : <String, dynamic>{},
-      ),
-      orderThirtyDays: _parseOrderList(data['order_thirty_days']),
-      orderValueThirtyDays: _parseOrderValueList(data['order_value_thirty_days']),
-      lastCodAmount: _parseDouble(data['last_cod_amount']),
-      lasstCodDate: data['lasst_cod_date']?.toString() ?? '',
-    );
+    return _$VendorStatsModelFromJson(data);
   }
 
-  static double _parseDouble(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) {
-      final parsed = double.tryParse(value);
-      return parsed ?? 0.0;
-    }
-    return 0.0;
-  }
-
-  static int _parseInt(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is double) return value.toInt();
-    if (value is String) {
-      final parsed = int.tryParse(value);
-      return parsed ?? 0;
-    }
-    return 0;
-  }
-
-  static List<OrderDataModel> _parseOrderList(dynamic value) {
-    if (value == null) return const [];
-    if (value is! List) return const [];
-    
-    final List<dynamic> list = value;
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map((e) => OrderDataModel.fromJson(e))
-        .toList();
-  }
-
-  static List<OrderValueDataModel> _parseOrderValueList(dynamic value) {
-    if (value == null) return const [];
-    if (value is! List) return const [];
-    
-    final List<dynamic> list = value;
-    return list
-        .whereType<Map<String, dynamic>>()
-        .map((e) => OrderValueDataModel.fromJson(e))
-        .toList();
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'vendor_name': vendorName,
-      'success_percent': successPercent,
-      'return_percent': returnPercent,
-      'stale_orders': staleOrders,
-      'todays_comment': todaysComment,
-      'orders_in_process': ordersInProcess,
-      'orders_in_process_val': ordersInProcessVal,
-      'orders_in_return_process': ordersInReturnProcess,
-      'orders_in_delivery_process': ordersInDeliveryProcess,
-      'total_delv_charge': totalDelvCharge,
-      'total_packages': totalPackages,
-      'delivered_packages': deliveredPackages,
-      'total_packages_value': totalPackagesValue,
-      'delivered_packages_value': deliveredPackagesValue,
-      'pending_cod': pendingCod,
-      'total_rtv_order': totalRtvOrder,
-      'total_hold_order': totalHoldOrder,
-      'today_delivery': todayDelivery,
-      'redirect_percentage': redirectPercentage,
-      'todays_returned_delivery': todaysReturnedDelivery,
-      'redirect_order_returned_percent': redirectOrderReturnedPercent,
-      'total_redirect_percent': totalRedirectPercent,
-      'incoming_returns': incomingReturns,
-      'today_order_created': todayOrderCreated,
-      'true_returned_packages': trueReturnedPackages is ReturnedPackagesModel
-          ? (trueReturnedPackages as ReturnedPackagesModel).toJson()
-          : <String, dynamic>{'count': 0, 'value': 0.0},
-      'false_returned_packages': falseReturnedPackages is ReturnedPackagesModel
-          ? (falseReturnedPackages as ReturnedPackagesModel).toJson()
-          : <String, dynamic>{'count': 0, 'value': 0.0},
-      'processing_orders': processingOrders is ProcessingOrdersModel
-          ? (processingOrders as ProcessingOrdersModel).toJson()
-          : <String, dynamic>{},
-      'order_thirty_days': orderThirtyDays
-          .whereType<OrderDataModel>()
-          .map((e) => e.toJson())
-          .toList(),
-      'order_value_thirty_days': orderValueThirtyDays
-          .whereType<OrderValueDataModel>()
-          .map((e) => e.toJson())
-          .toList(),
-      'last_cod_amount': lastCodAmount,
-      'lasst_cod_date': lasstCodDate,
-    };
-  }
+  Map<String, dynamic> toJson() => _$VendorStatsModelToJson(this);
 }
 
+@JsonSerializable()
 class ReturnedPackagesModel extends ReturnedPackagesEntity {
   const ReturnedPackagesModel({required super.count, required super.value});
 
-  factory ReturnedPackagesModel.fromJson(Map<String, dynamic> json) {
-    return ReturnedPackagesModel(
-      count: _parseInt(json['count']),
-      value: _parseDouble(json['value']),
-    );
-  }
+  @override
+  @JsonKey(fromJson: _parseInt)
+  int get count => super.count;
 
-  static double _parseDouble(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) {
-      final parsed = double.tryParse(value);
-      return parsed ?? 0.0;
-    }
-    return 0.0;
-  }
+  @override
+  @JsonKey(fromJson: _parseDouble)
+  double get value => super.value;
 
-  static int _parseInt(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is double) return value.toInt();
-    if (value is String) {
-      final parsed = int.tryParse(value);
-      return parsed ?? 0;
-    }
-    return 0;
-  }
+  factory ReturnedPackagesModel.fromJson(Map<String, dynamic> json) =>
+      _$ReturnedPackagesModelFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {'count': count, 'value': value};
-  }
+  Map<String, dynamic> toJson() => _$ReturnedPackagesModelToJson(this);
 }
 
+@JsonSerializable()
 class ProcessingOrdersModel extends ProcessingOrdersEntity {
   const ProcessingOrdersModel({
     required super.dropOff,
@@ -238,52 +336,61 @@ class ProcessingOrdersModel extends ProcessingOrdersEntity {
     required super.hold,
   });
 
-  factory ProcessingOrdersModel.fromJson(Map<String, dynamic> json) {
-    return ProcessingOrdersModel(
-      dropOff: _parseInt(json['drop_off']),
-      pickup: _parseInt(json['pickup']),
-      sentPickup: _parseInt(json['sent_pickup']),
-      pickupComplete: _parseInt(json['pickup_complete']),
-      dispatch: _parseInt(json['dispatch']),
-      rtvDispatch: _parseInt(json['rtv_dispatch']),
-      arrived: _parseInt(json['arrived']),
-      rtvArrived: _parseInt(json['rtv_arrived']),
-      sentForDeliv: _parseInt(json['sent_for_deliv']),
-      returnToWarehouse: _parseInt(json['return_to_warehouse']),
-      sentToVendor: _parseInt(json['sent_to_vendor']),
-      hold: _parseInt(json['hold']),
-    );
-  }
+  @override
+  @JsonKey(name: 'drop_off', fromJson: _parseInt)
+  int get dropOff => super.dropOff;
 
-  static int _parseInt(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is double) return value.toInt();
-    if (value is String) {
-      final parsed = int.tryParse(value);
-      return parsed ?? 0;
-    }
-    return 0;
-  }
+  @override
+  @JsonKey(fromJson: _parseInt)
+  int get pickup => super.pickup;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'drop_off': dropOff,
-      'pickup': pickup,
-      'sent_pickup': sentPickup,
-      'pickup_complete': pickupComplete,
-      'dispatch': dispatch,
-      'rtv_dispatch': rtvDispatch,
-      'arrived': arrived,
-      'rtv_arrived': rtvArrived,
-      'sent_for_deliv': sentForDeliv,
-      'return_to_warehouse': returnToWarehouse,
-      'sent_to_vendor': sentToVendor,
-      'hold': hold,
-    };
-  }
+  @override
+  @JsonKey(name: 'sent_pickup', fromJson: _parseInt)
+  int get sentPickup => super.sentPickup;
+
+  @override
+  @JsonKey(name: 'pickup_complete', fromJson: _parseInt)
+  int get pickupComplete => super.pickupComplete;
+
+  @override
+  @JsonKey(fromJson: _parseInt)
+  int get dispatch => super.dispatch;
+
+  @override
+  @JsonKey(name: 'rtv_dispatch', fromJson: _parseInt)
+  int get rtvDispatch => super.rtvDispatch;
+
+  @override
+  @JsonKey(fromJson: _parseInt)
+  int get arrived => super.arrived;
+
+  @override
+  @JsonKey(name: 'rtv_arrived', fromJson: _parseInt)
+  int get rtvArrived => super.rtvArrived;
+
+  @override
+  @JsonKey(name: 'sent_for_deliv', fromJson: _parseInt)
+  int get sentForDeliv => super.sentForDeliv;
+
+  @override
+  @JsonKey(name: 'return_to_warehouse', fromJson: _parseInt)
+  int get returnToWarehouse => super.returnToWarehouse;
+
+  @override
+  @JsonKey(name: 'sent_to_vendor', fromJson: _parseInt)
+  int get sentToVendor => super.sentToVendor;
+
+  @override
+  @JsonKey(fromJson: _parseInt)
+  int get hold => super.hold;
+
+  factory ProcessingOrdersModel.fromJson(Map<String, dynamic> json) =>
+      _$ProcessingOrdersModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProcessingOrdersModelToJson(this);
 }
 
+@JsonSerializable()
 class OrderDataModel extends OrderDataEntity {
   const OrderDataModel({
     required super.createdOnDate,
@@ -291,56 +398,38 @@ class OrderDataModel extends OrderDataEntity {
     required super.orders,
   });
 
-  factory OrderDataModel.fromJson(Map<String, dynamic> json) {
-    return OrderDataModel(
-      createdOnDate: json['created_on__date']?.toString() ?? '',
-      date: json['date']?.toString() ?? '',
-      orders: _parseInt(json['orders']),
-    );
-  }
+  @override
+  @JsonKey(name: 'created_on__date', fromJson: _parseString)
+  String get createdOnDate => super.createdOnDate;
 
-  static int _parseInt(dynamic value) {
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is double) return value.toInt();
-    if (value is String) {
-      final parsed = int.tryParse(value);
-      return parsed ?? 0;
-    }
-    return 0;
-  }
+  @override
+  @JsonKey(fromJson: _parseString)
+  String get date => super.date;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'created_on__date': createdOnDate,
-      'date': date,
-      'orders': orders,
-    };
-  }
+  @override
+  @JsonKey(fromJson: _parseInt)
+  int get orders => super.orders;
+
+  factory OrderDataModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderDataModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OrderDataModelToJson(this);
 }
 
+@JsonSerializable()
 class OrderValueDataModel extends OrderValueDataEntity {
   const OrderValueDataModel({required super.createdOnDate, required super.cod});
 
-  factory OrderValueDataModel.fromJson(Map<String, dynamic> json) {
-    return OrderValueDataModel(
-      createdOnDate: json['created_on__date']?.toString() ?? '',
-      cod: _parseDouble(json['cod']),
-    );
-  }
+  @override
+  @JsonKey(name: 'created_on__date', fromJson: _parseString)
+  String get createdOnDate => super.createdOnDate;
 
-  static double _parseDouble(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) {
-      final parsed = double.tryParse(value);
-      return parsed ?? 0.0;
-    }
-    return 0.0;
-  }
+  @override
+  @JsonKey(fromJson: _parseDouble)
+  double get cod => super.cod;
 
-  Map<String, dynamic> toJson() {
-    return {'created_on__date': createdOnDate, 'cod': cod};
-  }
+  factory OrderValueDataModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderValueDataModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OrderValueDataModelToJson(this);
 }

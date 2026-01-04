@@ -24,7 +24,6 @@ class DeliveredOrderModel extends DeliveredOrderEntity {
   @JsonKey(name: 'cod_charge')
   String get codCharge => super.codCharge;
 
-
   @override
   @JsonKey(name: 'receiver_number')
   String get receiverNumber => super.receiverNumber;
