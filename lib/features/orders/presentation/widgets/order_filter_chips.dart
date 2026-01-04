@@ -86,10 +86,10 @@ class _FilterChip extends StatelessWidget {
                     color: isSelected
                         ? Theme.of(
                             context,
-                          ).colorScheme.onPrimary.withOpacity(0.2)
+                          ).colorScheme.onPrimary.withValues(alpha:  0.2)
                         : Theme.of(
                             context,
-                          ).colorScheme.primary.withOpacity(0.1),
+                          ).colorScheme.primary.withValues(alpha:  0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -117,13 +117,13 @@ class _FilterChip extends StatelessWidget {
           ),
           backgroundColor: Theme.of(
             context,
-          ).colorScheme.primary.withOpacity(0.05),
+          ).colorScheme.primary.withValues(alpha:  0.05),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  : Theme.of(context).colorScheme.primary.withValues(alpha:  0.3),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -152,7 +152,7 @@ class _ClearAllChip extends StatelessWidget {
         ],
       ),
       onPressed: onTap,
-      backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+      backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha:  0.1),
       labelStyle: TextStyle(
         color: Theme.of(context).colorScheme.error,
         fontWeight: FontWeight.w600,
@@ -160,7 +160,7 @@ class _ClearAllChip extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.error.withValues(alpha:  0.3),
         ),
       ),
     );

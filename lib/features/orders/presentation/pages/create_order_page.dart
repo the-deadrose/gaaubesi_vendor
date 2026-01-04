@@ -192,7 +192,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
                   end: Alignment.bottomRight,
                   colors: [
                     theme.primaryColor,
-                    theme.primaryColor.withOpacity(0.8),
+                    theme.primaryColor.withValues(alpha:  0.8),
                   ],
                 ),
               ),
@@ -492,7 +492,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     final isDark = theme.brightness == Brightness.dark;
 
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
@@ -510,7 +510,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
         ),
         filled: true,
         fillColor: isDark
-            ? Colors.white.withOpacity(0.05)
+            ? Colors.white.withValues(alpha:  0.05)
             : Colors.grey.shade50,
       ),
       items: items.map((String item) {
@@ -535,7 +535,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     final isDark = theme.brightness == Brightness.dark;
 
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
@@ -553,7 +553,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
         ),
         filled: true,
         fillColor: isDark
-            ? Colors.white.withOpacity(0.05)
+            ? Colors.white.withValues(alpha:  0.05)
             : Colors.grey.shade50,
       ),
       items: items.map((T item) {

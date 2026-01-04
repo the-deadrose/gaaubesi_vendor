@@ -21,9 +21,9 @@ DeliveredOrderModel _$DeliveredOrderModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DeliveredOrderModelToJson(
   DeliveredOrderModel instance,
 ) => <String, dynamic>{
+  'destination': instance.destination,
   'order_id': instance.orderId,
   'cod_charge': instance.codCharge,
-  'destination': instance.destination,
   'receiver_number': instance.receiverNumber,
   'receiver_name': instance.receiverName,
   'delivery_charge': instance.deliveryCharge,

@@ -105,7 +105,7 @@ class _OrdersViewState extends State<_OrdersView>
                 getIt<RtvOrderBloc>()..add(const RtvOrderLoadRequested()),
             child: const RtvOrdersTab(),
           ),
-          // Warehouse Orders - TODO: Create WarehouseOrderBloc
+          
           const PlaceholderTabView(
             message:
                 'Warehouse Orders\n\nCreate WarehouseOrderBloc to fetch data',
@@ -141,7 +141,7 @@ class _OrdersViewState extends State<_OrdersView>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.8)],
+            colors: [theme.primaryColor, theme.primaryColor.withValues(alpha:  0.8)],
           ),
         ),
       ),

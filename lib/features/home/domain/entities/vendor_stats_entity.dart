@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class VendorStatsEntity extends Equatable {
+  final String vendorName;
   final double successPercent;
   final double returnPercent;
   final int staleOrders;
@@ -26,7 +27,6 @@ class VendorStatsEntity extends Equatable {
   final int todayOrderCreated;
   final ReturnedPackagesEntity trueReturnedPackages;
   final ReturnedPackagesEntity falseReturnedPackages;
-  final String vendorName;
   final ProcessingOrdersEntity processingOrders;
   final List<OrderDataEntity> orderThirtyDays;
   final List<OrderValueDataEntity> orderValueThirtyDays;
@@ -34,6 +34,7 @@ class VendorStatsEntity extends Equatable {
   final String lasstCodDate;
 
   const VendorStatsEntity({
+    required this.vendorName,
     required this.successPercent,
     required this.returnPercent,
     required this.staleOrders,
@@ -59,7 +60,6 @@ class VendorStatsEntity extends Equatable {
     required this.todayOrderCreated,
     required this.trueReturnedPackages,
     required this.falseReturnedPackages,
-    required this.vendorName,
     required this.processingOrders,
     required this.orderThirtyDays,
     required this.orderValueThirtyDays,
@@ -69,38 +69,38 @@ class VendorStatsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    successPercent,
-    returnPercent,
-    staleOrders,
-    todaysComment,
-    ordersInProcess,
-    ordersInProcessVal,
-    ordersInReturnProcess,
-    ordersInDeliveryProcess,
-    totalDelvCharge,
-    totalPackages,
-    deliveredPackages,
-    totalPackagesValue,
-    deliveredPackagesValue,
-    pendingCod,
-    totalRtvOrder,
-    totalHoldOrder,
-    todayDelivery,
-    redirectPercentage,
-    todaysReturnedDelivery,
-    redirectOrderReturnedPercent,
-    totalRedirectPercent,
-    incomingReturns,
-    todayOrderCreated,
-    trueReturnedPackages,
-    falseReturnedPackages,
-    vendorName,
-    processingOrders,
-    orderThirtyDays,
-    orderValueThirtyDays,
-    lastCodAmount,
-    lasstCodDate,
-  ];
+        vendorName,
+        successPercent,
+        returnPercent,
+        staleOrders,
+        todaysComment,
+        ordersInProcess,
+        ordersInProcessVal,
+        ordersInReturnProcess,
+        ordersInDeliveryProcess,
+        totalDelvCharge,
+        totalPackages,
+        deliveredPackages,
+        totalPackagesValue,
+        deliveredPackagesValue,
+        pendingCod,
+        totalRtvOrder,
+        totalHoldOrder,
+        todayDelivery,
+        redirectPercentage,
+        todaysReturnedDelivery,
+        redirectOrderReturnedPercent,
+        totalRedirectPercent,
+        incomingReturns,
+        todayOrderCreated,
+        trueReturnedPackages,
+        falseReturnedPackages,
+        processingOrders,
+        orderThirtyDays,
+        orderValueThirtyDays,
+        lastCodAmount,
+        lasstCodDate,
+      ];
 }
 
 class ReturnedPackagesEntity extends Equatable {
@@ -114,18 +114,49 @@ class ReturnedPackagesEntity extends Equatable {
 }
 
 class ProcessingOrdersEntity extends Equatable {
-  final int packed;
-  final int shipped;
-  final int qcPending;
+  final int dropOff;
+  final int pickup;
+  final int sentPickup;
+  final int pickupComplete;
+  final int dispatch;
+  final int rtvDispatch;
+  final int arrived;
+  final int rtvArrived;
+  final int sentForDeliv;
+  final int returnToWarehouse;
+  final int sentToVendor;
+  final int hold;
 
   const ProcessingOrdersEntity({
-    required this.packed,
-    required this.shipped,
-    required this.qcPending,
+    required this.dropOff,
+    required this.pickup,
+    required this.sentPickup,
+    required this.pickupComplete,
+    required this.dispatch,
+    required this.rtvDispatch,
+    required this.arrived,
+    required this.rtvArrived,
+    required this.sentForDeliv,
+    required this.returnToWarehouse,
+    required this.sentToVendor,
+    required this.hold,
   });
 
   @override
-  List<Object?> get props => [packed, shipped, qcPending];
+  List<Object?> get props => [
+        dropOff,
+        pickup,
+        sentPickup,
+        pickupComplete,
+        dispatch,
+        rtvDispatch,
+        arrived,
+        rtvArrived,
+        sentForDeliv,
+        returnToWarehouse,
+        sentToVendor,
+        hold,
+      ];
 }
 
 class OrderDataEntity extends Equatable {

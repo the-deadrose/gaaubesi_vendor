@@ -43,6 +43,101 @@ class CommentRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CommentsPage]
+class CommentsRoute extends PageRouteInfo<CommentsRouteArgs> {
+  CommentsRoute({Key? key, int initialTab = 0, List<PageRouteInfo>? children})
+    : super(
+        CommentsRoute.name,
+        args: CommentsRouteArgs(key: key, initialTab: initialTab),
+        initialChildren: children,
+      );
+
+  static const String name = 'CommentsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<CommentsRouteArgs>(
+        orElse: () => const CommentsRouteArgs(),
+      );
+      return CommentsPage(key: args.key, initialTab: args.initialTab);
+    },
+  );
+}
+
+class CommentsRouteArgs {
+  const CommentsRouteArgs({this.key, this.initialTab = 0});
+
+  final Key? key;
+
+  final int initialTab;
+
+  @override
+  String toString() {
+    return 'CommentsRouteArgs{key: $key, initialTab: $initialTab}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! CommentsRouteArgs) return false;
+    return key == other.key && initialTab == other.initialTab;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ initialTab.hashCode;
+}
+
+/// generated route for
+/// [CommentsPageNew]
+class CommentsRouteNew extends PageRouteInfo<CommentsRouteNewArgs> {
+  CommentsRouteNew({
+    Key? key,
+    int initialTab = 0,
+    List<PageRouteInfo>? children,
+  }) : super(
+         CommentsRouteNew.name,
+         args: CommentsRouteNewArgs(key: key, initialTab: initialTab),
+         initialChildren: children,
+       );
+
+  static const String name = 'CommentsRouteNew';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<CommentsRouteNewArgs>(
+        orElse: () => const CommentsRouteNewArgs(),
+      );
+      return CommentsPageNew(key: args.key, initialTab: args.initialTab);
+    },
+  );
+}
+
+class CommentsRouteNewArgs {
+  const CommentsRouteNewArgs({this.key, this.initialTab = 0});
+
+  final Key? key;
+
+  final int initialTab;
+
+  @override
+  String toString() {
+    return 'CommentsRouteNewArgs{key: $key, initialTab: $initialTab}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! CommentsRouteNewArgs) return false;
+    return key == other.key && initialTab == other.initialTab;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ initialTab.hashCode;
+}
+
+/// generated route for
 /// [ContactPage]
 class ContactRoute extends PageRouteInfo<void> {
   const ContactRoute({List<PageRouteInfo>? children})

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/rendering.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
@@ -14,7 +15,15 @@ class LoginUseCase implements UseCase<UserEntity, LoginParams> {
 
   @override
   Future<Either<Failure, UserEntity>> call(LoginParams params) async {
-    return await repository.login(params.username, params.password);
+    debugPrint('🔑 [LoginUseCase] Executing login for: ${params.username}');
+    final result = await repository.login(params.username, params.password);
+    
+    result.fold(
+      (failure) => debugPrint('❌ [LoginUseCase] Login failed: ${failure.message}'),
+      (user) => debugPrint('✅ [LoginUseCase] Login success for user: ${user.userId}'),
+    );
+    
+    return result;
   }
 }
 

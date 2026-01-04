@@ -61,11 +61,7 @@ class OrderModel extends OrderEntity {
   @JsonKey(name: 'last_delivery_status')
   String get lastDeliveryStatus => super.lastDeliveryStatus;
 
-  @override
-  String get source => super.source;
 
-  @override
-  String get destination => super.destination;
 
   @override
   @JsonKey(name: 'desc')

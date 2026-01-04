@@ -31,13 +31,13 @@ class OrderStatsCard extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+            colors: [color.withValues(alpha:  0.1), color.withValues(alpha:  0.05)],
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+          border: Border.all(color: color.withValues(alpha:  0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha:  0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -53,7 +53,7 @@ class OrderStatsCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha:  0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -66,8 +66,8 @@ class OrderStatsCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: trendValue! >= 0
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha:  0.1)
+                          : Colors.red.withValues(alpha:  0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(

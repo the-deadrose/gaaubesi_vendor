@@ -23,11 +23,7 @@ class ReturnedOrderModel extends ReturnedOrderEntity {
   @JsonKey(name: 'cod_charge')
   String get codCharge => super.codCharge;
 
-  @override
-  String get destination => super.destination;
 
-  @override
-  String get receiver => super.receiver;
 
   @override
   @JsonKey(name: 'delivery_charge')

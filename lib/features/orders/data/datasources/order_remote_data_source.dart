@@ -149,8 +149,9 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (destination != null) queryParameters['destination'] = destination;
       if (startDate != null) queryParameters['start_date'] = startDate;
       if (endDate != null) queryParameters['end_date'] = endDate;
-      if (receiverSearch != null)
+      if (receiverSearch != null) {
         queryParameters['receiver_search'] = receiverSearch;
+      }
       if (minCharge != null) queryParameters['min_charge'] = minCharge;
       if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
@@ -200,8 +201,9 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     if (destination != null) queryParameters['destination'] = destination;
     if (startDate != null) queryParameters['start_date'] = startDate;
     if (endDate != null) queryParameters['end_date'] = endDate;
-    if (receiverSearch != null)
+    if (receiverSearch != null) {
       queryParameters['receiver_search'] = receiverSearch;
+    }
     if (minCharge != null) queryParameters['min_charge'] = minCharge;
     if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
@@ -250,8 +252,9 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (destination != null) queryParameters['destination'] = destination;
       if (startDate != null) queryParameters['start_date'] = startDate;
       if (endDate != null) queryParameters['end_date'] = endDate;
-      if (receiverSearch != null)
+      if (receiverSearch != null) {
         queryParameters['receiver_search'] = receiverSearch;
+      }
       if (minCharge != null) queryParameters['min_charge'] = minCharge;
       if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 
@@ -300,8 +303,9 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (destination != null) queryParameters['destination'] = destination;
       if (startDate != null) queryParameters['start_date'] = startDate;
       if (endDate != null) queryParameters['end_date'] = endDate;
-      if (receiverSearch != null)
+      if (receiverSearch != null) {
         queryParameters['receiver_search'] = receiverSearch;
+      }
       if (minCharge != null) queryParameters['min_charge'] = minCharge;
       if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
 

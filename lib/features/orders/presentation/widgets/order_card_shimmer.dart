@@ -197,7 +197,7 @@ class _OrderCardShimmerState extends State<OrderCardShimmer>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha:  0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -257,7 +257,7 @@ class _OrderCardShimmerState extends State<OrderCardShimmer>
                 ),
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    top: BorderSide(color: Colors.white.withValues(alpha:  0.1)),
                   ),
                 ),
                 child: Row(

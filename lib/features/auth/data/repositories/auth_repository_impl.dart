@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
@@ -23,15 +24,23 @@ class AuthRepositoryImpl implements AuthRepository {
     String password,
   ) async {
     try {
+      debugPrint('📲 [AuthRepository] Login with username: $username');
       final user = await remoteDataSource.login(username, password);
+      debugPrint('✅ [AuthRepository] User fetched from remote');
+      
       // Save user data locally for persistence
       await localDataSource.saveUser(user);
+      debugPrint('✅ [AuthRepository] User saved to local storage');
+      
       return Right(user);
     } on ServerException catch (e) {
+      debugPrint('❌ [AuthRepository] ServerException: ${e.message}');
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {
+      debugPrint('❌ [AuthRepository] NetworkException: ${e.message}');
       return Left(NetworkFailure(e.message));
     } catch (e) {
+      debugPrint('❌ [AuthRepository] Unexpected error: $e');
       return Left(ServerFailure(e.toString()));
     }
   }

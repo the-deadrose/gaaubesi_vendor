@@ -17,9 +17,9 @@ RtvOrderModel _$RtvOrderModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$RtvOrderModelToJson(RtvOrderModel instance) =>
     <String, dynamic>{
+      'receiver': instance.receiver,
       'order_id': instance.orderId,
       'destination_branch': instance.destinationBranch,
-      'receiver': instance.receiver,
       'receiver_number': instance.receiverNumber,
       'rtv_date': instance.rtvDate,
     };

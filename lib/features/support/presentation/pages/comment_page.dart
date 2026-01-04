@@ -26,14 +26,14 @@ class CommentPage extends StatelessWidget {
             const SizedBox(height: 24),
             InputField(
               controller:
-                  TextEditingController(), // TODO: Use proper controller
+                  TextEditingController(), 
               label: 'Topic',
               hint: 'e.g., App Performance, Feature Request',
             ),
             const SizedBox(height: 16),
             InputField(
               controller:
-                  TextEditingController(), // TODO: Use proper controller
+                  TextEditingController(), 
               label: 'Your Comment',
               hint: 'Share your thoughts...',
               // maxLines not supported

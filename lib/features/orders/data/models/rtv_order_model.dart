@@ -21,8 +21,6 @@ class RtvOrderModel extends RtvOrderEntity {
   @JsonKey(name: 'destination_branch')
   String get destinationBranch => super.destinationBranch;
 
-  @override
-  String get receiver => super.receiver;
 
   @override
   @JsonKey(name: 'receiver_number')

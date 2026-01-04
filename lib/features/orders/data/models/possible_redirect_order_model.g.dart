@@ -20,10 +20,10 @@ PossibleRedirectOrderModel _$PossibleRedirectOrderModelFromJson(
 Map<String, dynamic> _$PossibleRedirectOrderModelToJson(
   PossibleRedirectOrderModel instance,
 ) => <String, dynamic>{
+  'destination': instance.destination,
+  'receiver': instance.receiver,
   'order_id': instance.orderId,
   'cod_charge': instance.codCharge,
-  'destination': instance.destination,
   'created_on': instance.createdOn,
-  'receiver': instance.receiver,
   'delivery_charge': instance.deliveryCharge,
 };

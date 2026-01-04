@@ -35,7 +35,7 @@ class PaymentsPage extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.8),
+            Theme.of(context).primaryColor.withValues(alpha:  0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -43,7 +43,7 @@ class PaymentsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            color: Theme.of(context).primaryColor.withValues(alpha:  0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -111,7 +111,7 @@ class PaymentsPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha:  0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.arrow_downward, color: Colors.green),

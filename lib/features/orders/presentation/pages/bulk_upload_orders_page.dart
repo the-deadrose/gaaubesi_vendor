@@ -19,8 +19,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
   int _invalidOrders = 0;
 
   void _pickFile() async {
-    // TODO: Implement file picker
-    // For now, simulate file selection
+ 
     setState(() {
       _selectedFileName = 'orders_sample.csv';
       _showPreview = true;
@@ -40,7 +39,6 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
   }
 
   void _downloadTemplate() {
-    // TODO: Implement template download
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Template download will be implemented'),
@@ -107,7 +105,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.8)],
+              colors: [theme.primaryColor, theme.primaryColor.withValues(alpha:  0.8)],
             ),
           ),
         ),
@@ -141,7 +139,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.blue.shade50,
+        color: isDark ? Colors.white.withValues(alpha:  0.05) : Colors.blue.shade50,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? Colors.blue.shade800 : Colors.blue.shade200,
@@ -195,7 +193,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: theme.primaryColor.withOpacity(0.1),
+              color: theme.primaryColor.withValues(alpha:  0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -269,7 +267,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:  0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -310,9 +308,9 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha:  0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                border: Border.all(color: Colors.orange.withValues(alpha:  0.3)),
               ),
               child: Row(
                 children: [
@@ -346,7 +344,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha:  0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -378,7 +376,7 @@ class _BulkUploadOrdersPageState extends State<BulkUploadOrdersPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:  0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

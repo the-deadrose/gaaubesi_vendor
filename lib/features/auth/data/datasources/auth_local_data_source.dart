@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/constants/constants.dart';
@@ -9,6 +10,10 @@ abstract class AuthLocalDataSource {
   Future<void> saveUser(UserModel user);
   Future<UserModel> getUser();
   Future<void> clearUser();
+  Future<String?> getAccessToken();
+  Future<String?> getRefreshToken();
+  Future<void> updateAccessToken(String accessToken);
+  Future<void> updateRefreshToken(String refreshToken);
 }
 
 @LazySingleton(as: AuthLocalDataSource)
@@ -21,13 +26,28 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> saveUser(UserModel user) async {
     try {
+      debugPrint('💾 [AuthLocalDataSource] Saving user data for: ${user.userId}');
+      
       // Save user data as JSON
       final jsonString = json.encode(user.toJson());
       await _secureStorage.write(key: _userKey, value: jsonString);
+      debugPrint('✅ [AuthLocalDataSource] User data saved');
 
-      // Also save the token separately for API authentication
-      await _secureStorage.write(key: AppConstants.tokenKey, value: user.token);
+      // Also save the access token separately for API authentication
+      await _secureStorage.write(
+        key: AppConstants.tokenKey,
+        value: user.accessToken,
+      );
+      debugPrint('✅ [AuthLocalDataSource] Access token saved (length: ${user.accessToken.length})');
+      
+      // Save refresh token separately for token refresh logic
+      await _secureStorage.write(
+        key: 'refresh_token',
+        value: user.refreshToken,
+      );
+      debugPrint('✅ [AuthLocalDataSource] Refresh token saved (length: ${user.refreshToken.length})');
     } catch (e) {
+      debugPrint('❌ [AuthLocalDataSource] Failed to save user data: $e');
       throw CacheException('Failed to save user data');
     }
   }
@@ -38,10 +58,14 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       final jsonString = await _secureStorage.read(key: _userKey);
       if (jsonString != null) {
         final user = UserModel.fromJson(json.decode(jsonString));
-        // Sync token to ensure DioClient can find it (migration for existing sessions)
+        // Sync tokens to ensure DioClient can find them
         await _secureStorage.write(
           key: AppConstants.tokenKey,
-          value: user.token,
+          value: user.accessToken,
+        );
+        await _secureStorage.write(
+          key: 'refresh_token',
+          value: user.refreshToken,
         );
         return user;
       } else {
@@ -56,10 +80,53 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> clearUser() async {
     try {
       await _secureStorage.delete(key: _userKey);
-      // Also clear the token
+      // Also clear the tokens
       await _secureStorage.delete(key: AppConstants.tokenKey);
+      await _secureStorage.delete(key: 'refresh_token');
     } catch (e) {
       throw CacheException('Failed to clear user data');
+    }
+  }
+
+  @override
+  Future<String?> getAccessToken() async {
+    try {
+      return await _secureStorage.read(key: AppConstants.tokenKey);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<String?> getRefreshToken() async {
+    try {
+      return await _secureStorage.read(key: 'refresh_token');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> updateAccessToken(String accessToken) async {
+    try {
+      await _secureStorage.write(
+        key: AppConstants.tokenKey,
+        value: accessToken,
+      );
+    } catch (e) {
+      throw CacheException('Failed to update access token');
+    }
+  }
+
+  @override
+  Future<void> updateRefreshToken(String refreshToken) async {
+    try {
+      await _secureStorage.write(
+        key: 'refresh_token',
+        value: refreshToken,
+      );
+    } catch (e) {
+      throw CacheException('Failed to update refresh token');
     }
   }
 }

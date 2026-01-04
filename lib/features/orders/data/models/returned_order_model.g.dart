@@ -19,10 +19,10 @@ ReturnedOrderModel _$ReturnedOrderModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ReturnedOrderModelToJson(ReturnedOrderModel instance) =>
     <String, dynamic>{
-      'order_id': instance.orderId,
-      'cod_charge': instance.codCharge,
       'destination': instance.destination,
       'receiver': instance.receiver,
+      'order_id': instance.orderId,
+      'cod_charge': instance.codCharge,
       'delivery_charge': instance.deliveryCharge,
       'delivered_date': instance.deliveredDate,
       'receiver_number': instance.receiverNumber,

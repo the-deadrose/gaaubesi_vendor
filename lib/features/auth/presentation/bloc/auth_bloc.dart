@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/usecase/base_usecase.dart';
@@ -43,15 +44,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthLoginRequested event,
     Emitter<AuthState> emit,
   ) async {
+    debugPrint('🚀 [AuthBloc] Login requested for: ${event.username}');
     emit(AuthLoading());
-    final result = await _loginUseCase(
-      LoginParams(username: event.username, password: event.password),
-    );
+    
+    try {
+      final result = await _loginUseCase(
+        LoginParams(username: event.username, password: event.password),
+      );
 
-    result.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (user) => emit(AuthAuthenticated(user)),
-    );
+      result.fold(
+        (failure) {
+          debugPrint('❌ [AuthBloc] Login failed: ${failure.message}');
+          emit(AuthFailure(failure.message));
+        },
+        (user) {
+          debugPrint('✅ [AuthBloc] Login successful for user: ${user.userId}');
+          debugPrint('👤 [AuthBloc] User role: ${user.role}, Department: ${user.department}');
+          emit(AuthAuthenticated(user));
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ [AuthBloc] Unexpected error during login: $e');
+      emit(AuthFailure('Unexpected error: $e'));
+    }
   }
 
   Future<void> _onLogoutRequested(

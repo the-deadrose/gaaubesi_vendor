@@ -1,73 +1,37 @@
-/// API Endpoints
-///
-/// Centralized configuration for all API endpoints used throughout the application.
-/// This file provides a single source of truth for all backend API routes.
+
 class ApiEndpoints {
-  // Private constructor to prevent instantiation
   ApiEndpoints._();
 
-  // ========================================
-  // Authentication Endpoints
-  // ========================================
 
-  /// POST - User authentication endpoint
-  /// Request body: { "username": string, "password": string }
-  /// Response: { "token": string, "user": object }
-  static const String login = '/login/';
+  static const String login = '/token/';
 
-  // ========================================
-  // Vendor Endpoints
-  // ========================================
 
-  /// GET - Fetch vendor dashboard statistics
-  /// Response: VendorStatsModel with dashboard metrics
-  static const String vendorStats = '/vendor/stats/';
+  static const String refreshToken = '/refresh-token/';
 
-  /// GET - Fetch list of delivered orders
-  /// Query params: page, destination, start_date, end_date, receiver_search, min_charge, max_charge
-  /// Response: PaginatedOrderResponseModel
-  static const String vendorDeliveredList = '/vendor/delivered_list/';
 
-  /// GET - Fetch orders that can be redirected
-  /// Query params: page, destination, start_date, end_date, receiver_search, min_charge, max_charge
-  /// Response: PaginatedOrderResponseModel
-  static const String vendorPossibleRedirect = '/vendor/possible_redirect/';
+  static const String logout = '/logout/';
 
-  /// GET - Fetch returned orders
-  /// Query params: page, destination, start_date, end_date, receiver_search, min_charge, max_charge
-  /// Response: PaginatedOrderResponseModel
-  static const String vendorReturnedOrders = '/vendor/returned_orders/';
+  static const String vendorStats = '/dashboard/stats/';
 
-  /// GET - Fetch RTV (Return to Vendor) orders
-  /// Query params: page, destination, start_date, end_date, receiver_search, min_charge, max_charge
-  /// Response: PaginatedOrderResponseModel
-  static const String vendorRtvList = '/vendor/rtv_list/';
+  static const String vendorDeliveredList = '/delivered_list/';
 
-  /// POST - Create a new order
-  /// Request body: CreateOrderModel
-  /// Response: OrderModel
-  static const String vendorCreateOrder = '/vendor/create_order/';
+  static const String vendorPossibleRedirect = '/possible_redirect/';
 
-  // ========================================
-  // Order Endpoints
-  // ========================================
+  static const String vendorReturnedOrders = '/returned_orders/';
 
-  /// GET - Fetch paginated list of orders
-  /// Query params: page, status, source_branch, destination_branch, start_date, end_date
-  /// Response: PaginatedOrderResponseModel
+  static const String vendorRtvList = '/rtv_list/';
+
+  static const String vendorCreateOrder = '/create_order/';
+
   static const String orderList = '/order/list/';
 
-  /// GET - Fetch detailed information about a specific order
-  /// Query params: order_id
-  /// Response: OrderDetailModel
+
   static const String orderDetail = '/order/detail/app';
+
+  static const String commentsTodays = '/comments/today/';
+
+  static const String commentsAll = '/comments/all/';
 }
-
-// ========================================
-// Query Parameter Keys
-// ========================================
-
-/// Common query parameter keys used across multiple endpoints
 class QueryParams {
   QueryParams._();
 

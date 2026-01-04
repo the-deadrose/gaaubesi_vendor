@@ -22,15 +22,11 @@ class PossibleRedirectOrderModel extends PossibleRedirectOrderEntity {
   @JsonKey(name: 'cod_charge')
   String get codCharge => super.codCharge;
 
-  @override
-  String get destination => super.destination;
 
   @override
   @JsonKey(name: 'created_on')
   String get createdOn => super.createdOn;
 
-  @override
-  String get receiver => super.receiver;
 
   @override
   @JsonKey(name: 'delivery_charge')

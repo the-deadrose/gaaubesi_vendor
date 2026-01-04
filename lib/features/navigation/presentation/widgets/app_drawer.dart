@@ -28,7 +28,7 @@ class AppDrawer extends StatelessWidget {
                 String vendorName = 'Vendor';
 
                 if (state is AuthAuthenticated) {
-                  vendorName = state.user.name;
+                  vendorName = state.user.fullName;
                 }
 
                 return Container(

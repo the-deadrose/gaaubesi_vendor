@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
             vendorName = state.stats.vendorName;
           }
           return Scaffold(
-            backgroundColor: const Color(0xFFF5F7FA), // Light grey background
+            backgroundColor: const Color(0xFFF5F7FA),
             appBar: AppBar(
               leading: IconButton(
                 icon: const Icon(Icons.menu, color: Colors.white),
@@ -87,23 +87,19 @@ class _HomeContent extends StatelessWidget {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
-            sliver: _KeyMetricsSection(stats: stats),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            sliver: SliverToBoxAdapter(
-              child: _SectionTitle(title: 'Financial Overview'),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          const SliverToBoxAdapter(child: SizedBox(height: 15)),
+
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             sliver: SliverToBoxAdapter(child: _FinancialCard(stats: stats)),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 15)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
+            sliver: _KeyMetricsSection(stats: stats),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 15)),
           const SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             sliver: SliverToBoxAdapter(
@@ -172,8 +168,6 @@ class _HomeContent extends StatelessWidget {
   }
 }
 
-
-
 class _KeyMetricsSection extends StatelessWidget {
   final VendorStatsEntity stats;
 
@@ -233,7 +227,7 @@ class _MetricCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -245,7 +239,7 @@ class _MetricCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -289,7 +283,7 @@ class _FinancialCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1A1F38).withOpacity(0.3),
+            color: const Color(0xFF1A1F38).withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -325,6 +319,9 @@ class _FinancialCard extends StatelessWidget {
                 child: _FinancialDetailItem(
                   label: 'Last COD',
                   value: 'Rs. ${_formatCurrency(stats.lastCodAmount)}',
+                  date: stats.lasstCodDate.isNotEmpty
+                      ? stats.lasstCodDate
+                      : null,
                 ),
               ),
               Container(width: 1, height: 40, color: Colors.white24),
@@ -334,6 +331,7 @@ class _FinancialCard extends StatelessWidget {
                   child: _FinancialDetailItem(
                     label: 'In Process',
                     value: 'Rs. ${_formatCurrency(stats.ordersInProcessVal)}',
+                    count: stats.ordersInProcess,
                   ),
                 ),
               ),
@@ -348,8 +346,15 @@ class _FinancialCard extends StatelessWidget {
 class _FinancialDetailItem extends StatelessWidget {
   final String label;
   final String value;
+  final String? date;
+  final int? count;
 
-  const _FinancialDetailItem({required this.label, required this.value});
+  const _FinancialDetailItem({
+    required this.label,
+    required this.value,
+    this.date,
+    this.count,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -370,6 +375,24 @@ class _FinancialDetailItem extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        if (date != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            date!,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.white54),
+          ),
+        ],
+        if (count != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            '$count orders',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.white54),
+          ),
+        ],
       ],
     );
   }
@@ -379,6 +402,10 @@ class _TodaysActivityGrid extends StatelessWidget {
   final VendorStatsEntity stats;
 
   const _TodaysActivityGrid({required this.stats});
+
+  void _navigateToComments(BuildContext context) {
+    context.router.push( CommentsRoute(initialTab: 0));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -407,10 +434,11 @@ class _TodaysActivityGrid extends StatelessWidget {
           color: Colors.red,
         ),
         _StatItem(
-          label: 'Comments',
+          label: "Today's Comments",
           value: stats.todaysComment.toString(),
           icon: Icons.comment,
           color: Colors.purple,
+          onTap: () => _navigateToComments(context),
         ),
       ],
     );
@@ -424,6 +452,14 @@ class _ProcessingBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final processing = stats.processingOrders;
+    final totalProcessing =
+        processing.dropOff +
+        processing.pickup +
+        processing.sentPickup +
+        processing.dispatch +
+        processing.arrived;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -431,7 +467,7 @@ class _ProcessingBreakdown extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -439,26 +475,53 @@ class _ProcessingBreakdown extends StatelessWidget {
       ),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Processing Orders',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '$totalProcessing total',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           _ProcessingItem(
-            label: 'Packed',
-            count: stats.processingOrders.packed,
+            label: 'Drop Off',
+            count: processing.dropOff,
             color: Colors.blue,
-            icon: Icons.inventory_2_outlined,
+            icon: Icons.file_upload,
           ),
           const Divider(height: 24),
           _ProcessingItem(
-            label: 'Shipped',
-            count: stats.processingOrders.shipped,
+            label: 'Pickup',
+            count: processing.pickup,
             color: Colors.indigo,
-            icon: Icons.local_shipping_outlined,
+            icon: Icons.inventory,
           ),
           const Divider(height: 24),
           _ProcessingItem(
-            label: 'QC Pending',
-            count: stats.processingOrders.qcPending,
+            label: 'Dispatch',
+            count: processing.dispatch,
             color: Colors.orange,
-            icon: Icons.fact_check_outlined,
+            icon: Icons.local_shipping,
           ),
+          if (processing.hold > 0) ...[
+            const Divider(height: 24),
+            _ProcessingItem(
+              label: 'On Hold',
+              count: processing.hold,
+              color: Colors.red,
+              icon: Icons.pause_circle,
+            ),
+          ],
         ],
       ),
     );
@@ -485,7 +548,7 @@ class _ProcessingItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -635,24 +698,26 @@ class _StatItem extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   const _StatItem({
     required this.label,
     required this.value,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Widget content = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -685,6 +750,16 @@ class _StatItem extends StatelessWidget {
         ],
       ),
     );
+    
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: content,
+      );
+    }
+    
+    return content;
   }
 }
 
@@ -708,7 +783,7 @@ class _MiniStatItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -763,7 +838,7 @@ class _ReturnStatItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

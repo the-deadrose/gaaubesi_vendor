@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:flutter/material.dart' as _i409;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:gaaubesi_vendor/core/di/register_module.dart' as _i769;
 import 'package:gaaubesi_vendor/core/network/dio_client.dart' as _i619;
@@ -32,6 +33,26 @@ import 'package:gaaubesi_vendor/features/auth/domain/usecases/logout_usecase.dar
     as _i357;
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart'
     as _i365;
+import 'package:gaaubesi_vendor/features/comments/data/datasource/comments_datasource.dart'
+    as _i170;
+import 'package:gaaubesi_vendor/features/comments/data/repository/comments_repo_imp.dart'
+    as _i944;
+import 'package:gaaubesi_vendor/features/comments/domain/repository/comments_repository.dart'
+    as _i92;
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/all_comments_usecase.dart'
+    as _i932;
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments_usecase.dart'
+    as _i427;
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/all_comments/all_comments_bloc.dart'
+    as _i667;
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart'
+    as _i11;
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/todays_comments/todays_comments_bloc.dart'
+    as _i886;
+import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart'
+    as _i876;
+import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page_new.dart'
+    as _i505;
 import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart'
     as _i630;
 import 'package:gaaubesi_vendor/features/home/data/repositories/home_repository_impl.dart'
@@ -90,6 +111,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
+    gh.factory<_i876.CommentsPage>(
+      () => _i876.CommentsPage(key: gh<_i409.Key>(), initialTab: gh<int>()),
+    );
+    gh.factory<_i505.CommentsPageNew>(
+      () => _i505.CommentsPageNew(key: gh<_i409.Key>(), initialTab: gh<int>()),
+    );
     gh.lazySingleton<_i18.AuthLocalDataSource>(
       () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
     );
@@ -101,6 +128,20 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i630.HomeRemoteDataSource>(
       () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i170.CommentsRemoteDatasource>(
+      () => _i170.CommentsDatasourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i92.CommentsRepository>(
+      () => _i944.CommentsRepoImp(
+        remoteDatasource: gh<_i170.CommentsRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i932.AllCommentsUsecase>(
+      () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
+    );
+    gh.lazySingleton<_i427.TodaysCommentsUsecase>(
+      () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
     );
     gh.lazySingleton<_i103.HomeRepository>(
       () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
@@ -118,6 +159,22 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i635.AuthRepositoryImpl(
         remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
         localDataSource: gh<_i18.AuthLocalDataSource>(),
+      ),
+    );
+    gh.factory<_i667.AllCommentsBloc>(
+      () => _i667.AllCommentsBloc(
+        allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
+      ),
+    );
+    gh.factory<_i11.CommentsBloc>(
+      () => _i11.CommentsBloc(
+        todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
+        allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
+      ),
+    );
+    gh.factory<_i886.TodaysCommentsBloc>(
+      () => _i886.TodaysCommentsBloc(
+        todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
       ),
     );
     gh.lazySingleton<_i532.OrderRepository>(
