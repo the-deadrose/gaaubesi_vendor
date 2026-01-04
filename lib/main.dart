@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
-import 'package:gaaubesi_vendor/app/auth/presentation/bloc/auth_bloc.dart';
-import 'package:gaaubesi_vendor/app/auth/presentation/bloc/auth_event.dart';
+import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
