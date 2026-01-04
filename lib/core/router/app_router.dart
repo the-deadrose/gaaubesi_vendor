@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page_new.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
