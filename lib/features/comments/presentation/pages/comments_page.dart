@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/entity/comments_entity.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/todays_comments/todays_comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/todays_comments/todays_comments_event.dart';
@@ -15,7 +14,6 @@ import 'package:gaaubesi_vendor/features/comments/presentation/widget/error_widg
 import 'package:gaaubesi_vendor/features/comments/presentation/widget/loading_indicator.dart';
 
 @RoutePage()
-@injectable
 class CommentsPage extends StatefulWidget {
   final int initialTab;
   
