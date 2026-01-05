@@ -10,14 +10,16 @@ abstract class CommentsEvent extends Equatable {
 class FetchCommentsEvent extends CommentsEvent {
   final String page;
   final bool isTodays;
+  final bool isRefresh;
 
   const FetchCommentsEvent({
     required this.page,
     this.isTodays = false,
+    this.isRefresh = false,
   });
 
   @override
-  List<Object?> get props => [page, isTodays];
+  List<Object?> get props => [page, isTodays, isRefresh];
 }
 
 class FetchMoreCommentsEvent extends CommentsEvent {

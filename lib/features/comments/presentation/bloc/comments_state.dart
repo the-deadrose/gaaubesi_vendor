@@ -19,125 +19,100 @@ class CommentsLoading extends CommentsState {
   List<Object?> get props => [isTodays];
 }
 
-class CommentsLoaded extends CommentsState {
+class TodaysCommentsLoaded extends CommentsState {
   final CommentsResponseEntity response;
   final bool hasReachedMax;
-  final bool isTodays;
+  final bool isLoadingMore;
+  final bool isRefreshing;
 
-  const CommentsLoaded({
+  const TodaysCommentsLoaded({
     required this.response,
     this.hasReachedMax = false,
-    this.isTodays = false,
+    this.isLoadingMore = false,
+    this.isRefreshing = false,
   });
 
-  @override
-  List<Object?> get props => [response, hasReachedMax, isTodays];
-}
-
-class CommentsError extends CommentsState {
-  final String message;
-  final bool isTodays;
-
-  const CommentsError({required this.message, this.isTodays = false});
-
-  @override
-  List<Object?> get props => [message, isTodays];
-}
-
-class CommentsRefreshing extends CommentsLoaded {
-  const CommentsRefreshing({
-    required super.response,
-    super.hasReachedMax,
-    super.isTodays,
-  });
+  TodaysCommentsLoaded copyWith({
+    CommentsResponseEntity? response,
+    bool? hasReachedMax,
+    bool? isLoadingMore,
+    bool? isRefreshing,
+  }) {
+    return TodaysCommentsLoaded(
+      response: response ?? this.response,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
+    );
+  }
 
   @override
-  List<Object?> get props => [...super.props, 'refreshing'];
+  List<Object?> get props => [
+        response,
+        hasReachedMax,
+        isLoadingMore,
+        isRefreshing,
+      ];
 }
 
-class CommentsLoadingMore extends CommentsLoaded {
-  const CommentsLoadingMore({
-    required super.response,
-    super.hasReachedMax,
-    super.isTodays,
-  });
+class AllCommentsLoaded extends CommentsState {
+  final CommentsResponseEntity response;
+  final bool hasReachedMax;
+  final bool isLoadingMore;
+  final bool isRefreshing;
 
-  @override
-  List<Object?> get props => [...super.props, 'loadingMore'];
-}
-
-// Today's specific states
-class TodaysCommentsLoaded extends CommentsLoaded {
-  const TodaysCommentsLoaded({
-    required super.response,
-    super.hasReachedMax,
-  }) : super(isTodays: true);
-
-  @override
-  List<Object?> get props => [...super.props, 'todays'];
-}
-
-class TodaysCommentsError extends CommentsError {
-  const TodaysCommentsError({required super.message}) : super(isTodays: true);
-
-  @override
-  List<Object?> get props => [...super.props, 'todays'];
-}
-
-class TodaysCommentsRefreshing extends CommentsRefreshing {
-  const TodaysCommentsRefreshing({
-    required super.response,
-    super.hasReachedMax,
-  }) : super(isTodays: true);
-
-  @override
-  List<Object?> get props => [...super.props, 'todays', 'refreshing'];
-}
-
-class TodaysCommentsLoadingMore extends CommentsLoadingMore {
-  const TodaysCommentsLoadingMore({
-    required super.response,
-    super.hasReachedMax,
-  }) : super(isTodays: true);
-
-  @override
-  List<Object?> get props => [...super.props, 'todays'];
-}
-
-// All time specific states
-class AllCommentsLoaded extends CommentsLoaded {
   const AllCommentsLoaded({
-    required super.response,
-    super.hasReachedMax,
-  }) : super(isTodays: false);
+    required this.response,
+    this.hasReachedMax = false,
+    this.isLoadingMore = false,
+    this.isRefreshing = false,
+  });
+
+  AllCommentsLoaded copyWith({
+    CommentsResponseEntity? response,
+    bool? hasReachedMax,
+    bool? isLoadingMore,
+    bool? isRefreshing,
+  }) {
+    return AllCommentsLoaded(
+      response: response ?? this.response,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
+    );
+  }
 
   @override
-  List<Object?> get props => [...super.props, 'all'];
+  List<Object?> get props => [
+        response,
+        hasReachedMax,
+        isLoadingMore,
+        isRefreshing,
+      ];
 }
 
-class AllCommentsError extends CommentsError {
-  const AllCommentsError({required super.message}) : super(isTodays: false);
+class TodaysCommentsError extends CommentsState {
+  final String message;
+  final CommentsResponseEntity? previousResponse;
+
+  const TodaysCommentsError({
+    required this.message,
+    this.previousResponse,
+  });
 
   @override
-  List<Object?> get props => [...super.props, 'all'];
+  List<Object?> get props => [message, previousResponse];
 }
 
-class AllCommentsRefreshing extends CommentsRefreshing {
-  const AllCommentsRefreshing({
-    required super.response,
-    super.hasReachedMax,
-  }) : super(isTodays: false);
+class AllCommentsError extends CommentsState {
+  final String message;
+  final CommentsResponseEntity? previousResponse;
+
+  const AllCommentsError({
+    required this.message,
+    this.previousResponse,
+  });
 
   @override
-  List<Object?> get props => [...super.props, 'all', 'refreshing'];
-}
-
-class AllCommentsLoadingMore extends CommentsLoadingMore {
-  const AllCommentsLoadingMore({
-    required super.response,
-    super.hasReachedMax,
-  }) : super(isTodays: false);
-
-  @override
-  List<Object?> get props => [...super.props, 'all'];
+  List<Object?> get props => [message, previousResponse];
 }

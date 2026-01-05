@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
@@ -18,37 +17,53 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
 
   @override
   Future<CommentsResponseEntity> fetchTodaysComments(String page) async {
-    try {
-      final response = await _dioClient.get(ApiEndpoints.commentsTodays);
+    // try {
+      final response = await _dioClient.get(
+        ApiEndpoints.commentsTodays,
+        queryParameters: {'page': page},
+      );
+      
       if (response.statusCode == 200) {
         final commentsResponse = CommentsResponse.fromJson(response.data);
         return commentsResponse.toEntity();
       } else {
         throw ServerException('Failed to fetch today\'s comments');
       }
-    } on DioException catch (e) {
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    }
+    // } on DioException catch (e) {
+    //   print('[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}');
+    //   throw ServerException(
+    //     e.message ?? 'Unknown error',
+    //     statusCode: e.response?.statusCode,
+    //   );
+    // } catch (e) {
+    //   print('[COMMENTS_DATASOURCE] Unexpected error: $e');
+    //   rethrow;
+    // }
   }
 
   @override
   Future<CommentsResponseEntity> fetchAllComments(String page) async {
-    try {
-      final response = await _dioClient.get(ApiEndpoints.commentsAll);
+    // try {
+      final response = await _dioClient.get(
+        ApiEndpoints.commentsAll,
+        queryParameters: {'page': page},
+      );
+      
       if (response.statusCode == 200) {
         final commentsResponse = CommentsResponse.fromJson(response.data);
         return commentsResponse.toEntity();
       } else {
         throw ServerException('Failed to fetch all comments');
       }
-    } on DioException catch (e) {
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    }
+  //   } on DioException catch (e) {
+  //     print('[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}');
+  //     throw ServerException(
+  //       e.message ?? 'Unknown error',
+  //       statusCode: e.response?.statusCode,
+  //     );
+  //   } catch (e) {
+  //     print('[COMMENTS_DATASOURCE] Unexpected error: $e');
+  //     rethrow;
+  //   }
   }
 }

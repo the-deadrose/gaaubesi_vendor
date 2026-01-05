@@ -11,6 +11,10 @@ import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_sta
 class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   final TodaysCommentsUsecase todaysCommentsUsecase;
   final AllCommentsUsecase allCommentsUsecase;
+  
+  // Track pagination progress
+  bool _isTodaysPaginationInProgress = false;
+  bool _isAllPaginationInProgress = false;
 
   CommentsBloc({
     required this.todaysCommentsUsecase,
@@ -25,18 +29,29 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     FetchCommentsEvent event,
     Emitter<CommentsState> emit,
   ) async {
+    // If this is a pagination request (page > 1), handle it differently
+    if (int.tryParse(event.page) != null && int.parse(event.page) > 1) {
+      await _handlePagination(event, emit);
+      return;
+    }
+
+    // Initial load or refresh
     emit(CommentsLoading(isTodays: event.isTodays));
-    
+
     final result = event.isTodays
         ? await todaysCommentsUsecase(event.page)
         : await allCommentsUsecase(event.page);
-    
+
     result.fold(
       (failure) {
         if (event.isTodays) {
-          emit(TodaysCommentsError(message: _mapFailureToMessage(failure)));
+          emit(TodaysCommentsError(
+            message: _mapFailureToMessage(failure),
+          ));
         } else {
-          emit(AllCommentsError(message: _mapFailureToMessage(failure)));
+          emit(AllCommentsError(
+            message: _mapFailureToMessage(failure),
+          ));
         }
       },
       (response) {
@@ -44,10 +59,88 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
           emit(TodaysCommentsLoaded(
             response: response,
             hasReachedMax: response.next == null,
+            isRefreshing: event.isRefresh,
           ));
         } else {
           emit(AllCommentsLoaded(
             response: response,
+            hasReachedMax: response.next == null,
+            isRefreshing: event.isRefresh,
+          ));
+        }
+      },
+    );
+  }
+
+  Future<void> _handlePagination(
+    FetchCommentsEvent event,
+    Emitter<CommentsState> emit,
+  ) async {
+    final currentState = state;
+    
+    if (event.isTodays) {
+      if (_isTodaysPaginationInProgress) return;
+      _isTodaysPaginationInProgress = true;
+      
+      if (currentState is TodaysCommentsLoaded) {
+        emit(currentState.copyWith(isLoadingMore: true));
+      }
+    } else {
+      if (_isAllPaginationInProgress) return;
+      _isAllPaginationInProgress = true;
+      
+      if (currentState is AllCommentsLoaded) {
+        emit(currentState.copyWith(isLoadingMore: true));
+      }
+    }
+
+    final result = event.isTodays
+        ? await todaysCommentsUsecase(event.page)
+        : await allCommentsUsecase(event.page);
+
+    if (event.isTodays) {
+      _isTodaysPaginationInProgress = false;
+    } else {
+      _isAllPaginationInProgress = false;
+    }
+
+    result.fold(
+      (failure) {
+        if (event.isTodays && currentState is TodaysCommentsLoaded) {
+          emit(currentState.copyWith(isLoadingMore: false));
+        } else if (!event.isTodays && currentState is AllCommentsLoaded) {
+          emit(currentState.copyWith(isLoadingMore: false));
+        }
+      },
+      (response) {
+        if (event.isTodays && currentState is TodaysCommentsLoaded) {
+          final currentComments = currentState.response.results ?? [];
+          final newComments = response.results ?? [];
+          final allComments = [...currentComments, ...newComments];
+          
+          emit(TodaysCommentsLoaded(
+            response: CommentsResponseEntity(
+              count: response.count,
+              next: response.next,
+              previous: response.previous,
+              results: allComments,
+              metadata: response.metadata,
+            ),
+            hasReachedMax: response.next == null,
+          ));
+        } else if (!event.isTodays && currentState is AllCommentsLoaded) {
+          final currentComments = currentState.response.results ?? [];
+          final newComments = response.results ?? [];
+          final allComments = [...currentComments, ...newComments];
+          
+          emit(AllCommentsLoaded(
+            response: CommentsResponseEntity(
+              count: response.count,
+              next: response.next,
+              previous: response.previous,
+              results: allComments,
+              metadata: response.metadata,
+            ),
             hasReachedMax: response.next == null,
           ));
         }
@@ -60,77 +153,31 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     Emitter<CommentsState> emit,
   ) async {
     final currentState = state;
-    
-    if (currentState is TodaysCommentsLoaded && event.isTodays) {
-      if (currentState.hasReachedMax) return;
-      
-      emit(TodaysCommentsLoadingMore(
-        response: currentState.response,
-        hasReachedMax: currentState.hasReachedMax,
-      ));
-      
-      final nextPage = _extractPageNumber(currentState.response.next ?? '');
-      if (nextPage == null) {
-        emit(TodaysCommentsError(message: 'Invalid next page URL'));
+
+    if (event.isTodays && currentState is TodaysCommentsLoaded) {
+      if (currentState.hasReachedMax || currentState.isLoadingMore) {
         return;
       }
-      
-      final result = await todaysCommentsUsecase(nextPage);
-      result.fold(
-        (failure) {
-          emit(TodaysCommentsError(message: _mapFailureToMessage(failure)));
-        },
-        (response) {
-          final updatedComments = List<CommentEntity>.from(currentState.response.results ?? [])
-            ..addAll(response.results ?? []);
-          
-          emit(TodaysCommentsLoaded(
-            response: CommentsResponseEntity(
-              count: response.count,
-              next: response.next,
-              previous: response.previous,
-              results: updatedComments,
-              metadata: response.metadata,
-            ),
-            hasReachedMax: response.next == null,
-          ));
-        },
-      );
-    } else if (currentState is AllCommentsLoaded && !event.isTodays) {
-      if (currentState.hasReachedMax) return;
-      
-      emit(AllCommentsLoadingMore(
-        response: currentState.response,
-        hasReachedMax: currentState.hasReachedMax,
-      ));
-      
+
       final nextPage = _extractPageNumber(currentState.response.next ?? '');
-      if (nextPage == null) {
-        emit(AllCommentsError(message: 'Invalid next page URL'));
+      if (nextPage != null) {
+        add(FetchCommentsEvent(
+          page: nextPage,
+          isTodays: true,
+        ));
+      }
+    } else if (!event.isTodays && currentState is AllCommentsLoaded) {
+      if (currentState.hasReachedMax || currentState.isLoadingMore) {
         return;
       }
-      
-      final result = await allCommentsUsecase(nextPage);
-      result.fold(
-        (failure) {
-          emit(AllCommentsError(message: _mapFailureToMessage(failure)));
-        },
-        (response) {
-          final updatedComments = List<CommentEntity>.from(currentState.response.results ?? [])
-            ..addAll(response.results ?? []);
-          
-          emit(AllCommentsLoaded(
-            response: CommentsResponseEntity(
-              count: response.count,
-              next: response.next,
-              previous: response.previous,
-              results: updatedComments,
-              metadata: response.metadata,
-            ),
-            hasReachedMax: response.next == null,
-          ));
-        },
-      );
+
+      final nextPage = _extractPageNumber(currentState.response.next ?? '');
+      if (nextPage != null) {
+        add(FetchCommentsEvent(
+          page: nextPage,
+          isTodays: false,
+        ));
+      }
     }
   }
 
@@ -138,48 +185,19 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     RefreshCommentsEvent event,
     Emitter<CommentsState> emit,
   ) async {
-    final currentState = state;
+    // Cancel any ongoing pagination
+    _isTodaysPaginationInProgress = false;
+    _isAllPaginationInProgress = false;
     
-    if (currentState is TodaysCommentsLoaded && event.isTodays) {
-      emit(TodaysCommentsRefreshing(
-        response: currentState.response,
-        hasReachedMax: currentState.hasReachedMax,
-      ));
-      
-      final result = await todaysCommentsUsecase('1');
-      result.fold(
-        (failure) {
-          emit(TodaysCommentsError(message: _mapFailureToMessage(failure)));
-        },
-        (response) {
-          emit(TodaysCommentsLoaded(
-            response: response,
-            hasReachedMax: response.next == null,
-          ));
-        },
-      );
-    } else if (currentState is AllCommentsLoaded && !event.isTodays) {
-      emit(AllCommentsRefreshing(
-        response: currentState.response,
-        hasReachedMax: currentState.hasReachedMax,
-      ));
-      
-      final result = await allCommentsUsecase('1');
-      result.fold(
-        (failure) {
-          emit(AllCommentsError(message: _mapFailureToMessage(failure)));
-        },
-        (response) {
-          emit(AllCommentsLoaded(
-            response: response,
-            hasReachedMax: response.next == null,
-          ));
-        },
-      );
-    }
+    add(FetchCommentsEvent(
+      page: '1',
+      isTodays: event.isTodays,
+      isRefresh: true,
+    ));
   }
 
   String? _extractPageNumber(String url) {
+    if (url.isEmpty) return null;
     try {
       final uri = Uri.parse(url);
       final page = uri.queryParameters['page'];

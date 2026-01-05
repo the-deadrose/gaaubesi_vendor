@@ -10,7 +10,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
-import 'package:flutter/material.dart' as _i409;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:gaaubesi_vendor/core/di/register_module.dart' as _i769;
 import 'package:gaaubesi_vendor/core/network/dio_client.dart' as _i619;
@@ -43,16 +42,8 @@ import 'package:gaaubesi_vendor/features/comments/domain/usecase/all_comments_us
     as _i932;
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments_usecase.dart'
     as _i427;
-import 'package:gaaubesi_vendor/features/comments/presentation/bloc/all_comments/all_comments_bloc.dart'
-    as _i667;
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart'
     as _i11;
-import 'package:gaaubesi_vendor/features/comments/presentation/bloc/todays_comments/todays_comments_bloc.dart'
-    as _i886;
-import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart'
-    as _i876;
-import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page_new.dart'
-    as _i505;
 import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart'
     as _i630;
 import 'package:gaaubesi_vendor/features/home/data/repositories/home_repository_impl.dart'
@@ -111,40 +102,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => registerModule.secureStorage,
     );
-    gh.factory<_i876.CommentsPage>(
-      () => _i876.CommentsPage(key: gh<_i409.Key>(), initialTab: gh<int>()),
-    );
-    gh.factory<_i505.CommentsPageNew>(
-      () => _i505.CommentsPageNew(key: gh<_i409.Key>(), initialTab: gh<int>()),
-    );
-    gh.lazySingleton<_i18.AuthLocalDataSource>(
-      () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
-    );
     gh.lazySingleton<_i14.SecureStorageService>(
       () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i619.DioClient>(
       () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
     );
-    gh.lazySingleton<_i630.HomeRemoteDataSource>(
-      () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i170.CommentsRemoteDatasource>(
-      () => _i170.CommentsDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i92.CommentsRepository>(
-      () => _i944.CommentsRepoImp(
-        remoteDatasource: gh<_i170.CommentsRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i932.AllCommentsUsecase>(
-      () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i427.TodaysCommentsUsecase>(
-      () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i103.HomeRepository>(
-      () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
+    gh.lazySingleton<_i18.AuthLocalDataSource>(
+      () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i700.OrderRemoteDataSource>(
       () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
@@ -152,53 +117,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i311.AuthRemoteDataSource>(
       () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
-    gh.lazySingleton<_i84.GetVendorStatsUseCase>(
-      () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
+    gh.lazySingleton<_i630.HomeRemoteDataSource>(
+      () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
-    gh.lazySingleton<_i40.AuthRepository>(
-      () => _i635.AuthRepositoryImpl(
-        remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
-        localDataSource: gh<_i18.AuthLocalDataSource>(),
-      ),
-    );
-    gh.factory<_i667.AllCommentsBloc>(
-      () => _i667.AllCommentsBloc(
-        allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
-      ),
-    );
-    gh.factory<_i11.CommentsBloc>(
-      () => _i11.CommentsBloc(
-        todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
-        allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
-      ),
-    );
-    gh.factory<_i886.TodaysCommentsBloc>(
-      () => _i886.TodaysCommentsBloc(
-        todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
-      ),
+    gh.lazySingleton<_i170.CommentsRemoteDatasource>(
+      () => _i170.CommentsDatasourceImpl(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i532.OrderRepository>(
       () => _i800.OrderRepositoryImpl(
         remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i277.GetCurrentUserUseCase>(
-      () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i634.LoginUseCase>(
-      () => _i634.LoginUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i357.LogoutUseCase>(
-      () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.factory<_i915.HomeBloc>(
-      () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
-    );
-    gh.singleton<_i365.AuthBloc>(
-      () => _i365.AuthBloc(
-        loginUseCase: gh<_i634.LoginUseCase>(),
-        logoutUseCase: gh<_i357.LogoutUseCase>(),
-        getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
       ),
     );
     gh.lazySingleton<_i353.CreateOrderUseCase>(
@@ -223,25 +150,47 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
       () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
     );
-    gh.factory<_i626.OrderBloc>(
-      () => _i626.OrderBloc(
-        fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
-        createOrderUseCase: gh<_i353.CreateOrderUseCase>(),
+    gh.lazySingleton<_i92.CommentsRepository>(
+      () => _i944.CommentsRepoImp(
+        remoteDatasource: gh<_i170.CommentsRemoteDatasource>(),
       ),
+    );
+    gh.lazySingleton<_i103.HomeRepository>(
+      () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i40.AuthRepository>(
+      () => _i635.AuthRepositoryImpl(
+        remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
+        localDataSource: gh<_i18.AuthLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i84.GetVendorStatsUseCase>(
+      () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
     );
     gh.factory<_i124.OrderDetailBloc>(
       () => _i124.OrderDetailBloc(
         fetchOrderDetailUseCase: gh<_i739.FetchOrderDetailUseCase>(),
       ),
     );
+    gh.lazySingleton<_i277.GetCurrentUserUseCase>(
+      () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
+    );
+    gh.lazySingleton<_i634.LoginUseCase>(
+      () => _i634.LoginUseCase(gh<_i40.AuthRepository>()),
+    );
+    gh.lazySingleton<_i357.LogoutUseCase>(
+      () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
+    );
+    gh.singleton<_i365.AuthBloc>(
+      () => _i365.AuthBloc(
+        loginUseCase: gh<_i634.LoginUseCase>(),
+        logoutUseCase: gh<_i357.LogoutUseCase>(),
+        getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
+      ),
+    );
     gh.factory<_i691.RtvOrderBloc>(
       () => _i691.RtvOrderBloc(
         fetchRtvOrdersUseCase: gh<_i287.FetchRtvOrdersUseCase>(),
-      ),
-    );
-    gh.factory<_i337.ReturnedOrderBloc>(
-      () => _i337.ReturnedOrderBloc(
-        fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
       ),
     );
     gh.factory<_i37.DeliveredOrderBloc>(
@@ -253,6 +202,32 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i894.PossibleRedirectOrderBloc(
         fetchPossibleRedirectOrdersUseCase:
             gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
+      ),
+    );
+    gh.factory<_i915.HomeBloc>(
+      () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
+    );
+    gh.lazySingleton<_i932.AllCommentsUsecase>(
+      () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
+    );
+    gh.lazySingleton<_i427.TodaysCommentsUsecase>(
+      () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
+    );
+    gh.factory<_i337.ReturnedOrderBloc>(
+      () => _i337.ReturnedOrderBloc(
+        fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
+      ),
+    );
+    gh.factory<_i626.OrderBloc>(
+      () => _i626.OrderBloc(
+        fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
+        createOrderUseCase: gh<_i353.CreateOrderUseCase>(),
+      ),
+    );
+    gh.factory<_i11.CommentsBloc>(
+      () => _i11.CommentsBloc(
+        todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
+        allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
       ),
     );
     return this;

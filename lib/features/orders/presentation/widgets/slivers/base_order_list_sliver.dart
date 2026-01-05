@@ -80,6 +80,7 @@ class GenericOrderListSliver<B extends StateStreamable<S>, S, T>
               }
 
               return Padding(
+                key: ValueKey(orders[index]),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,

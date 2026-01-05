@@ -404,7 +404,7 @@ class _TodaysActivityGrid extends StatelessWidget {
   const _TodaysActivityGrid({required this.stats});
 
   void _navigateToComments(BuildContext context) {
-    context.router.push( CommentsRoute(initialTab: 0));
+    context.router.push(CommentsRoute(initialTab: 0));
   }
 
   @override

@@ -22,87 +22,89 @@ CommentsResponse _$CommentsResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CommentsResponseToJson(CommentsResponse instance) =>
     <String, dynamic>{
       'count': instance.count,
-      'next': instance.next,
-      'previous': instance.previous,
-      'results': instance.results,
-      'metadata': instance.metadata,
+      'next': ?instance.next,
+      'previous': ?instance.previous,
+      'results': ?instance.results?.map((e) => e.toJson()).toList(),
+      'metadata': ?instance.metadata?.toJson(),
     };
 
 Comment _$CommentFromJson(Map<String, dynamic> json) => Comment(
   id: (json['id'] as num).toInt(),
-  orderId: json['orderId'] as String,
-  orderLink: json['orderLink'] as String,
-  comments: json['comments'] as String,
-  commentScope: json['commentScope'] as String,
-  commentType: json['commentType'] as String,
-  commentTypeDisplay: json['commentTypeDisplay'] as String,
+  orderId: json['order_id'] as String?,
+  orderLink: json['order_link'] as String?,
+  comments: json['comments'] as String?,
+  commentScope: json['comment_scope'] as String?,
+  commentType: json['comment_type'] as String?,
+  commentTypeDisplay: json['comment_type_display'] as String?,
   status: json['status'] as String?,
-  statusDisplay: json['statusDisplay'] as String?,
-  addedByName: json['addedByName'] as String,
-  addedByRole: json['addedByRole'] as String,
-  createdOn: json['createdOn'] as String,
-  createdOnFormatted: json['createdOnFormatted'] as String,
-  branchName: json['branchName'] as String,
-  hasChildComments: json['hasChildComments'] as bool,
-  childComments: (json['childComments'] as List<dynamic>?)
+  statusDisplay: json['status_display'] as String?,
+  addedByName: json['added_by_name'] as String?,
+  addedByRole: json['added_by_role'] as String?,
+  createdOn: json['created_on'] as String?,
+  createdOnFormatted: json['created_on_formatted'] as String?,
+  branchName: json['branch_name'] as String?,
+  hasChildComments: json['has_child_comments'] as bool,
+  childComments: (json['child_comments'] as List<dynamic>?)
       ?.map((e) => ChildComment.fromJson(e as Map<String, dynamic>))
       .toList(),
-  canReply: json['canReply'] as bool,
-  isImportant: json['isImportant'] as bool,
+  canReply: json['can_reply'] as bool,
+  isImportant: json['is_important'] as bool,
 );
 
 Map<String, dynamic> _$CommentToJson(Comment instance) => <String, dynamic>{
   'id': instance.id,
-  'orderId': instance.orderId,
-  'orderLink': instance.orderLink,
-  'comments': instance.comments,
-  'commentScope': instance.commentScope,
-  'commentType': instance.commentType,
-  'commentTypeDisplay': instance.commentTypeDisplay,
-  'status': instance.status,
-  'statusDisplay': instance.statusDisplay,
-  'addedByName': instance.addedByName,
-  'addedByRole': instance.addedByRole,
-  'createdOn': instance.createdOn,
-  'createdOnFormatted': instance.createdOnFormatted,
-  'branchName': instance.branchName,
-  'hasChildComments': instance.hasChildComments,
-  'childComments': instance.childComments,
-  'canReply': instance.canReply,
-  'isImportant': instance.isImportant,
+  'order_id': ?instance.orderId,
+  'order_link': ?instance.orderLink,
+  'comments': ?instance.comments,
+  'comment_scope': ?instance.commentScope,
+  'comment_type': ?instance.commentType,
+  'comment_type_display': ?instance.commentTypeDisplay,
+  'status': ?instance.status,
+  'status_display': ?instance.statusDisplay,
+  'added_by_name': ?instance.addedByName,
+  'added_by_role': ?instance.addedByRole,
+  'created_on': ?instance.createdOn,
+  'created_on_formatted': ?instance.createdOnFormatted,
+  'branch_name': ?instance.branchName,
+  'has_child_comments': instance.hasChildComments,
+  'child_comments': ?instance.childComments?.map((e) => e.toJson()).toList(),
+  'can_reply': instance.canReply,
+  'is_important': instance.isImportant,
 };
 
 ChildComment _$ChildCommentFromJson(Map<String, dynamic> json) => ChildComment(
   id: (json['id'] as num).toInt(),
-  comments: json['comments'] as String,
-  addedByName: json['addedByName'] as String,
-  addedByRole: json['addedByRole'] as String,
-  createdOnFormatted: json['createdOnFormatted'] as String,
-  commentScope: json['commentScope'] as String,
+  comments: json['comments'] as String?,
+  addedByName: json['added_by_name'] as String?,
+  addedByRole: json['added_by_role'] as String?,
+  createdOnFormatted: json['created_on_formatted'] as String?,
+  commentScope: json['comment_scope'] as String?,
 );
 
 Map<String, dynamic> _$ChildCommentToJson(ChildComment instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'comments': instance.comments,
-      'addedByName': instance.addedByName,
-      'addedByRole': instance.addedByRole,
-      'createdOnFormatted': instance.createdOnFormatted,
-      'commentScope': instance.commentScope,
+      'comments': ?instance.comments,
+      'added_by_name': ?instance.addedByName,
+      'added_by_role': ?instance.addedByRole,
+      'created_on_formatted': ?instance.createdOnFormatted,
+      'comment_scope': ?instance.commentScope,
     };
 
 Metadata _$MetadataFromJson(Map<String, dynamic> json) => Metadata(
-  todayMode: json['todayMode'] as bool,
-  totalCount: (json['totalCount'] as num).toInt(),
-  filtersApplied: json['filtersApplied'] == null
+  todayMode: json['today_mode'] as bool,
+  totalCount: (json['total_count'] as num).toInt(),
+  filtersApplied: json['filters_applied'] == null
       ? null
-      : FiltersApplied.fromJson(json['filtersApplied'] as Map<String, dynamic>),
+      : FiltersApplied.fromJson(
+          json['filters_applied'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$MetadataToJson(Metadata instance) => <String, dynamic>{
-  'todayMode': instance.todayMode,
-  'totalCount': instance.totalCount,
-  'filtersApplied': instance.filtersApplied,
+  'today_mode': instance.todayMode,
+  'total_count': instance.totalCount,
+  'filters_applied': ?instance.filtersApplied?.toJson(),
 };
 
 FiltersApplied _$FiltersAppliedFromJson(Map<String, dynamic> json) =>

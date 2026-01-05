@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'comments_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class CommentsResponse {
   final int count;
   final String? next;
@@ -33,42 +33,57 @@ class CommentsResponse {
   );
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class Comment {
   final int id;
-  final String orderId;
-  final String orderLink;
-  final String comments;
-  final String commentScope;
-  final String commentType;
-  final String commentTypeDisplay;
+  @JsonKey(name: 'order_id')
+  final String? orderId;
+  @JsonKey(name: 'order_link')
+  final String? orderLink;
+  final String? comments;
+  @JsonKey(name: 'comment_scope')
+  final String? commentScope;
+  @JsonKey(name: 'comment_type')
+  final String? commentType;
+  @JsonKey(name: 'comment_type_display')
+  final String? commentTypeDisplay;
   final String? status;
+  @JsonKey(name: 'status_display')
   final String? statusDisplay;
-  final String addedByName;
-  final String addedByRole;
-  final String createdOn;
-  final String createdOnFormatted;
-  final String branchName;
+  @JsonKey(name: 'added_by_name')
+  final String? addedByName;
+  @JsonKey(name: 'added_by_role')
+  final String? addedByRole;
+  @JsonKey(name: 'created_on')
+  final String? createdOn;
+  @JsonKey(name: 'created_on_formatted')
+  final String? createdOnFormatted;
+  @JsonKey(name: 'branch_name')
+  final String? branchName;
+  @JsonKey(name: 'has_child_comments')
   final bool hasChildComments;
+  @JsonKey(name: 'child_comments')
   final List<ChildComment>? childComments;
+  @JsonKey(name: 'can_reply')
   final bool canReply;
+  @JsonKey(name: 'is_important')
   final bool isImportant;
 
   const Comment({
     required this.id,
-    required this.orderId,
-    required this.orderLink,
-    required this.comments,
-    required this.commentScope,
-    required this.commentType,
-    required this.commentTypeDisplay,
+    this.orderId,
+    this.orderLink,
+    this.comments,
+    this.commentScope,
+    this.commentType,
+    this.commentTypeDisplay,
     this.status,
     this.statusDisplay,
-    required this.addedByName,
-    required this.addedByRole,
-    required this.createdOn,
-    required this.createdOnFormatted,
-    required this.branchName,
+    this.addedByName,
+    this.addedByRole,
+    this.createdOn,
+    this.createdOnFormatted,
+    this.branchName,
     required this.hasChildComments,
     this.childComments,
     required this.canReply,
@@ -82,19 +97,19 @@ class Comment {
 
   CommentEntity toEntity() => CommentEntity(
     id: id,
-    orderId: orderId,
-    orderLink: orderLink,
-    comments: comments,
-    commentScope: commentScope,
-    commentType: commentType,
-    commentTypeDisplay: commentTypeDisplay,
+    orderId: orderId ?? '',
+    orderLink: orderLink ?? '',
+    comments: comments ?? '',
+    commentScope: commentScope ?? '',
+    commentType: commentType ?? '',
+    commentTypeDisplay: commentTypeDisplay ?? '',
     status: status,
     statusDisplay: statusDisplay,
-    addedByName: addedByName,
-    addedByRole: addedByRole,
-    createdOn: createdOn,
-    createdOnFormatted: createdOnFormatted,
-    branchName: branchName,
+    addedByName: addedByName ?? '',
+    addedByRole: addedByRole ?? '',
+    createdOn: createdOn ?? '',
+    createdOnFormatted: createdOnFormatted ?? '',
+    branchName: branchName ?? '',
     hasChildComments: hasChildComments,
     childComments: childComments?.map((e) => e.toEntity()).toList() ?? [],
     canReply: canReply,
@@ -102,22 +117,26 @@ class Comment {
   );
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class ChildComment {
   final int id;
-  final String comments;
-  final String addedByName;
-  final String addedByRole;
-  final String createdOnFormatted;
-  final String commentScope;
+  final String? comments;
+  @JsonKey(name: 'added_by_name')
+  final String? addedByName;
+  @JsonKey(name: 'added_by_role')
+  final String? addedByRole;
+  @JsonKey(name: 'created_on_formatted')
+  final String? createdOnFormatted;
+  @JsonKey(name: 'comment_scope')
+  final String? commentScope;
 
   const ChildComment({
     required this.id,
-    required this.comments,
-    required this.addedByName,
-    required this.addedByRole,
-    required this.createdOnFormatted,
-    required this.commentScope,
+    this.comments,
+    this.addedByName,
+    this.addedByRole,
+    this.createdOnFormatted,
+    this.commentScope,
   });
 
   factory ChildComment.fromJson(Map<String, dynamic> json) =>
@@ -127,18 +146,21 @@ class ChildComment {
 
   ChildCommentEntity toEntity() => ChildCommentEntity(
     id: id,
-    comments: comments,
-    addedByName: addedByName,
-    addedByRole: addedByRole,
-    createdOnFormatted: createdOnFormatted,
-    commentScope: commentScope,
+    comments: comments ?? '',
+    addedByName: addedByName ?? '',
+    addedByRole: addedByRole ?? '',
+    createdOnFormatted: createdOnFormatted ?? '',
+    commentScope: commentScope ?? '',
   );
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class Metadata {
+  @JsonKey(name: 'today_mode')
   final bool todayMode;
+  @JsonKey(name: 'total_count')
   final int totalCount;
+  @JsonKey(name: 'filters_applied')
   final FiltersApplied? filtersApplied;
 
   const Metadata({
@@ -163,7 +185,7 @@ class Metadata {
   );
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true, includeIfNull: false)
 class FiltersApplied {
   final String branch;
   final String status;

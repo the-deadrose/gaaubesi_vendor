@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page_new.dart';
+import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
@@ -15,7 +15,6 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/return_orders
 import 'package:gaaubesi_vendor/features/payments/presentation/pages/payments_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
-import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/pages/main_scaffold.dart';
 import 'package:gaaubesi_vendor/core/router/auth_guard.dart';

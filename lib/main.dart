@@ -5,9 +5,8 @@ import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
-import 'package:gaaubesi_vendor/features/comments/presentation/bloc/todays_comments/todays_comments_bloc.dart';
-import 'package:gaaubesi_vendor/features/comments/presentation/bloc/all_comments/all_comments_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,13 +30,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        
         BlocProvider<AuthBloc>.value(value: getIt<AuthBloc>()),
         BlocProvider<HomeBloc>.value(value: getIt<HomeBloc>()),
-        BlocProvider<TodaysCommentsBloc>.value(value: getIt<TodaysCommentsBloc>()),
-        BlocProvider<AllCommentsBloc>.value(value: getIt<AllCommentsBloc>()),
-        
-         ],
+        BlocProvider(create: (_) => getIt<CommentsBloc>()),
+      ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',
         theme: AppTheme.lightTheme,
