@@ -58,7 +58,7 @@ class _OrderDetailViewState extends State<_OrderDetailView>
                   onPressed: () {
                     context.read<OrderDetailBloc>().add(
                           OrderDetailRefreshRequested(
-                            orderId: state.order.orderId,
+                            orderId: state.order.orderId ?? 0,
                           ),
                         );
                   },
@@ -138,7 +138,7 @@ class _OrderDetailViewState extends State<_OrderDetailView>
     return RefreshIndicator(
       onRefresh: () async {
         context.read<OrderDetailBloc>().add(
-              OrderDetailRefreshRequested(orderId: order.orderId),
+              OrderDetailRefreshRequested(orderId: order.orderId ?? 0),
             );
       },
       child: SingleChildScrollView(
@@ -167,14 +167,14 @@ class _OrderDetailViewState extends State<_OrderDetailView>
         children: [
           OrderDetailInfoTile(
             label: 'Name',
-            value: order.receiver,
+            value: order.receiver ?? '',
             icon: Icons.person_outline_rounded,
           ),
           OrderDetailInfoTile(
             label: 'Phone',
-            value: order.receiverNumber,
+            value: order.receiverNumber ?? '',
             icon: Icons.phone_rounded,
-            onTap: () => makePhoneCall(order.receiverNumber),
+            onTap: () => makePhoneCall(order.receiverNumber ?? ''),
           ),
           if (order.altReceiverNumber?.isNotEmpty == true)
             OrderDetailInfoTile(
@@ -185,9 +185,9 @@ class _OrderDetailViewState extends State<_OrderDetailView>
             ),
           OrderDetailInfoTile(
             label: 'Address',
-            value: order.receiverAddress,
+            value: order.receiverAddress ?? '',
             icon: Icons.location_on_rounded,
-            onTap: () => openMaps(order.receiverAddress),
+            onTap: () => openMaps(order.receiverAddress ?? ''),
           ),
           if (order.orderContactName?.isNotEmpty == true)
             OrderDetailInfoTile(
@@ -209,12 +209,12 @@ class _OrderDetailViewState extends State<_OrderDetailView>
         children: [
           OrderDetailInfoTile(
             label: 'From',
-            value: order.sourceBranch,
+            value: order.sourceBranch ?? '',
             icon: Icons.store_rounded,
           ),
           OrderDetailInfoTile(
             label: 'To',
-            value: order.destinationBranch,
+            value: order.destinationBranch ?? '',
             icon: Icons.location_city_rounded,
           ),
           if (order.orderDeliveryInstruction?.isNotEmpty == true)
@@ -237,21 +237,21 @@ class _OrderDetailViewState extends State<_OrderDetailView>
         children: [
           OrderDetailInfoRow(
             label1: 'COD Amount',
-            value1: 'Rs. ${order.codCharge.toStringAsFixed(2)}',
+            value1: 'Rs. ${order.codCharge?.toStringAsFixed(2) ?? '0.00'}',
             value1Color: Colors.green,
             label2: 'Delivery Charge',
-            value2: 'Rs. ${order.deliveryCharge.toStringAsFixed(2)}',
+            value2: 'Rs. ${order.deliveryCharge?.toStringAsFixed(2) ?? '0.00'}',
           ),
           const SizedBox(height: 8),
           OrderDetailInfoRow(
             label1: 'COD Status',
-            value1: order.codPaid,
-            value1Color: order.codPaid.toLowerCase().contains('pending')
+            value1: order.codPaid ?? '',
+            value1Color: (order.codPaid?.toLowerCase().contains('pending') ?? false)
                 ? Colors.orange
                 : Colors.green,
             label2: 'Payment',
-            value2: order.paymentCollection,
-            value2Color: order.paymentCollection.toLowerCase().contains('pending')
+            value2: order.paymentCollection ?? '',
+            value2Color: (order.paymentCollection?.toLowerCase().contains('pending') ?? false)
                 ? Colors.orange
                 : Colors.green,
           ),
@@ -269,7 +269,7 @@ class _OrderDetailViewState extends State<_OrderDetailView>
         children: [
           OrderDetailInfoTile(
             label: 'Description',
-            value: order.description,
+            value: order.description ?? '',
             icon: Icons.description_rounded,
           ),
           if (order.vendorReferenceId?.isNotEmpty == true)
@@ -292,17 +292,17 @@ class _OrderDetailViewState extends State<_OrderDetailView>
         children: [
           OrderDetailInfoTile(
             label: 'Created On',
-            value: order.createdOn,
+            value: order.createdOn ?? '',
             icon: Icons.event_rounded,
           ),
           OrderDetailInfoTile(
             label: 'Created By',
-            value: order.createdBy,
+            value: order.createdBy ?? '',
             icon: Icons.person_add_rounded,
           ),
           OrderDetailInfoTile(
             label: 'Last Updated',
-            value: order.lastUpdated,
+            value: order.lastUpdated ?? '',
             icon: Icons.update_rounded,
           ),
         ],
@@ -333,7 +333,7 @@ class _OrderDetailViewState extends State<_OrderDetailView>
               child: CardActionButton(
                 icon: Icons.call_rounded,
                 label: 'Call',
-                onTap: () => makePhoneCall(order.receiverNumber),
+                onTap: () => makePhoneCall(order.receiverNumber ?? ''),
                 color: Colors.green,
               ),
             ),
@@ -342,7 +342,7 @@ class _OrderDetailViewState extends State<_OrderDetailView>
               child: CardActionButton(
                 icon: Icons.map_rounded,
                 label: 'Track',
-                onTap: () => openMaps(order.receiverAddress),
+                onTap: () => openMaps(order.receiverAddress ?? ''),
                 color: Colors.blue,
               ),
             ),

@@ -24,10 +24,10 @@ class OrderDetailHeader extends StatelessWidget {
 
   void _copyTrackId(BuildContext context) {
     HapticFeedback.lightImpact();
-    Clipboard.setData(ClipboardData(text: order.trackId));
+    Clipboard.setData(ClipboardData(text: order.trackId ?? ''));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Track ID ${order.trackId} copied!'),
+        content: Text('Track ID ${order.trackId ?? ''} copied!'),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 1),
       ),
@@ -37,7 +37,7 @@ class OrderDetailHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final statusColor = OrderStatusColors.getAccentColor(order.lastDeliveryStatus);
+    final statusColor = OrderStatusColors.getAccentColor(order.lastDeliveryStatus ?? '');
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -91,7 +91,7 @@ class OrderDetailHeader extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              order.vendor,
+                              order.vendor ?? '',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.textTheme.bodySmall?.color
                                     ?.withValues(alpha: 0.7),
@@ -105,7 +105,7 @@ class OrderDetailHeader extends StatelessWidget {
                 ),
               ),
               StatusBadge(
-                status: order.lastDeliveryStatus,
+                status: order.lastDeliveryStatus ?? '',
                 color: statusColor,
                 fontSize: 12,
               ),
@@ -130,7 +130,7 @@ class OrderDetailHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Track ID: ${order.trackId}',
+                    'Track ID: ${order.trackId ?? ''}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                       letterSpacing: 0.5,
@@ -161,7 +161,7 @@ class OrderDetailHeader extends StatelessWidget {
 
   Widget _buildPriorityBadge(BuildContext context) {
     final theme = Theme.of(context);
-    final isUrgent = order.priority.toLowerCase() != 'normal';
+    final isUrgent = (order.priority?.toLowerCase() ?? 'normal') != 'normal';
     final color = isUrgent ? Colors.orange : Colors.grey;
 
     return Container(
@@ -177,7 +177,7 @@ class OrderDetailHeader extends StatelessWidget {
           Icon(Icons.flag_rounded, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
-            order.priority,
+            order.priority ?? 'Normal',
             style: theme.textTheme.bodySmall?.copyWith(
               color: color,
               fontWeight: FontWeight.w600,

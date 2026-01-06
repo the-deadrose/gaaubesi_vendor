@@ -1,172 +1,197 @@
 import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/core/theme/text_styles.dart';
 
-class AppTheme {
-  // Primary colors (keeping as is)
-  static const _marianBlue = Color(0xFF21428A);
-  static const _rojo = Color(0xFFD91F2A);
-  static const _blackBean = Color(0xFF3C1518);
-  static const _powerBlue = Color(0xFFA9B4C2);
-  
-  // Additional colors
-  static const _successGreen = Color(0xFF28A745);
-  static const _warningYellow = Color(0xFFFFC107);
-  static const _infoBlue = Color(0xFF17A2B8);
-  static const _lightGray = Color(0xFFF8F9FA);
-  static const _darkGray = Color(0xFF6C757D);
-  static const _disabledGray = Color(0xFFE9ECEF);
-  static const _accentPurple = Color(0xFF6F42C1);
-  static const _accentOrange = Color(0xFFFD7E14);
-  static const _accentCyan = Color(0xFF20C997);
-  
-  // Semantic color extensions
-  static const success = _successGreen;
-  static const warning = _warningYellow;
-  static const info = _infoBlue;
-  static const accent = _accentPurple;
+///this is made according to the brand guidelines provided by the client don't change the colors unless you have permission from the client
 
-  static final lightTheme = ThemeData(
+class AppTheme {
+  // ─────────────────────────────────────────────
+  // Brand Colors (DO NOT CHANGE)
+  // ─────────────────────────────────────────────
+  static const marianBlue = Color(0xFF21428A); // Primary
+  static const rojo = Color(0xFFD91F2A); // Secondary / Error
+  static const blackBean = Color(0xFF3C1518); // Dark text / surface
+  static const powerBlue = Color(0xFFA9B4C2); // Outline / borders
+  static const whiteSmoke = Color(0xFFF5F5F5); // Light background
+
+  // ─────────────────────────────────────────────
+  // Semantic Utility Colors (UI only)
+  // ─────────────────────────────────────────────
+  static const successGreen = Color(0xFF28A745);
+  static const warningYellow = Color(0xFFFFC107);
+  static const infoBlue = Color(0xFF17A2B8);
+
+  static const lightGray = Color(0xFFF8F9FA);
+  static const darkGray = Color(0xFF6C757D);
+  static const disabledGray = Color(0xFFE9ECEF);
+
+  // ─────────────────────────────────────────────
+  // LIGHT THEME
+  // ─────────────────────────────────────────────
+  static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+
     colorScheme: const ColorScheme(
       brightness: Brightness.light,
-      primary: _marianBlue,
+      primary: marianBlue,
       onPrimary: Colors.white,
-      secondary: _rojo,
+
+      secondary: rojo,
       onSecondary: Colors.white,
-      tertiary: _blackBean,
-      onTertiary: Colors.white,
+
+      tertiary: powerBlue,
+      onTertiary: blackBean,
+
       surface: Colors.white,
-      onSurface: _blackBean,
-      error: _rojo,
+      onSurface: blackBean,
+
+      error: rojo,
       onError: Colors.white,
-      outline: _powerBlue,
+
+      outline: powerBlue,
     ),
+
     scaffoldBackgroundColor: Colors.white,
+
     textTheme: TextTheme(
-      displayLarge: AppTextStyles.displayLarge.copyWith(color: _marianBlue),
-      displayMedium: AppTextStyles.displayMedium.copyWith(color: _marianBlue),
-      headlineLarge: AppTextStyles.headlineLarge.copyWith(color: _blackBean),
-      headlineMedium: AppTextStyles.headlineMedium.copyWith(color: _blackBean),
-      titleLarge: AppTextStyles.titleLarge.copyWith(color: _blackBean),
-      bodyLarge: AppTextStyles.bodyLarge.copyWith(color: _blackBean),
-      bodyMedium: AppTextStyles.bodyMedium.copyWith(color: _blackBean),
-      labelLarge: AppTextStyles.labelLarge.copyWith(color: _marianBlue),
+      displayLarge: AppTextStyles.displayLarge.copyWith(color: marianBlue),
+      displayMedium: AppTextStyles.displayMedium.copyWith(color: marianBlue),
+
+      headlineLarge: AppTextStyles.headlineLarge.copyWith(color: blackBean),
+      headlineMedium: AppTextStyles.headlineMedium.copyWith(color: blackBean),
+
+      titleLarge: AppTextStyles.titleLarge.copyWith(color: blackBean),
+
+      bodyLarge: AppTextStyles.bodyLarge.copyWith(color: blackBean),
+      bodyMedium: AppTextStyles.bodyMedium.copyWith(color: blackBean),
+
+      labelLarge: AppTextStyles.labelLarge.copyWith(color: marianBlue),
     ),
+
     inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: lightGray,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _powerBlue),
+        borderSide: const BorderSide(color: powerBlue),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _powerBlue),
+        borderSide: const BorderSide(color: powerBlue),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _marianBlue, width: 2),
+        borderSide: const BorderSide(color: marianBlue, width: 2),
       ),
-      filled: true,
-      fillColor: Colors.grey.shade50,
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: _marianBlue,
+        backgroundColor: marianBlue,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 2,
       ),
     ),
-    // Additional theme extensions
-    extensions: const <ThemeExtension<dynamic>>[
+
+    extensions: const [
       AdditionalColors(
-        success: _successGreen,
-        warning: _warningYellow,
-        info: _infoBlue,
-        accent: _accentPurple,
-        lightGray: _lightGray,
-        darkGray: _darkGray,
-        disabled: _disabledGray,
-        orange: _accentOrange,
-        cyan: _accentCyan,
+        success: successGreen,
+        warning: warningYellow,
+        info: infoBlue,
+        accent: rojo,
+        lightGray: lightGray,
+        darkGray: darkGray,
+        disabled: disabledGray,
       ),
     ],
   );
 
-  static final darkTheme = ThemeData(
+  // ─────────────────────────────────────────────
+  // DARK THEME
+  // ─────────────────────────────────────────────
+  static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+
     colorScheme: const ColorScheme(
       brightness: Brightness.dark,
-      primary: _marianBlue,
+      primary: marianBlue,
       onPrimary: Colors.white,
-      secondary: _rojo,
+
+      secondary: rojo,
       onSecondary: Colors.white,
-      tertiary: _powerBlue,
-      onTertiary: _blackBean,
-      surface: _blackBean,
+
+      tertiary: powerBlue,
+      onTertiary: Colors.white,
+
+      surface: blackBean,
       onSurface: Colors.white,
-      error: _rojo,
+
+      error: rojo,
       onError: Colors.white,
-      outline: _powerBlue,
+
+      outline: powerBlue,
     ),
-    scaffoldBackgroundColor: const Color(0xFF1A090A),
+
+    scaffoldBackgroundColor: blackBean,
+
     textTheme: TextTheme(
       displayLarge: AppTextStyles.displayLarge.copyWith(color: Colors.white),
       displayMedium: AppTextStyles.displayMedium.copyWith(color: Colors.white),
+
       headlineLarge: AppTextStyles.headlineLarge.copyWith(color: Colors.white),
       headlineMedium: AppTextStyles.headlineMedium.copyWith(
         color: Colors.white,
       ),
+
       titleLarge: AppTextStyles.titleLarge.copyWith(color: Colors.white),
+
       bodyLarge: AppTextStyles.bodyLarge.copyWith(color: Colors.white),
       bodyMedium: AppTextStyles.bodyMedium.copyWith(color: Colors.white),
-      labelLarge: AppTextStyles.labelLarge.copyWith(color: Colors.white),
     ),
+
     inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.05),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _powerBlue),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _powerBlue),
+        borderSide: const BorderSide(color: powerBlue),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _rojo, width: 2),
+        borderSide: const BorderSide(color: rojo, width: 2),
       ),
-      filled: true,
-      fillColor: Colors.white.withAlpha(5),
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: _rojo,
+        backgroundColor: rojo,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 2,
       ),
     ),
-    // Additional theme extensions for dark mode
-    extensions: const <ThemeExtension<dynamic>>[
+
+    extensions: const [
       AdditionalColors(
         success: Color(0xFF20D96F),
         warning: Color(0xFFFFD166),
         info: Color(0xFF4CC9F0),
-        accent: Color(0xFF9D4EDD),
+        accent: rojo,
         lightGray: Color(0xFF343A40),
         darkGray: Color(0xFFADB5BD),
         disabled: Color(0xFF495057),
-        orange: Color(0xFFFF9F1C),
-        cyan: Color(0xFF06D6A0),
       ),
     ],
   );
 }
 
-// Custom ThemeExtension for additional colors
+// ─────────────────────────────────────────────
+// THEME EXTENSION
+// ─────────────────────────────────────────────
 class AdditionalColors extends ThemeExtension<AdditionalColors> {
   const AdditionalColors({
     required this.success,
@@ -176,8 +201,6 @@ class AdditionalColors extends ThemeExtension<AdditionalColors> {
     required this.lightGray,
     required this.darkGray,
     required this.disabled,
-    required this.orange,
-    required this.cyan,
   });
 
   final Color success;
@@ -187,11 +210,9 @@ class AdditionalColors extends ThemeExtension<AdditionalColors> {
   final Color lightGray;
   final Color darkGray;
   final Color disabled;
-  final Color orange;
-  final Color cyan;
 
   @override
-  ThemeExtension<AdditionalColors> copyWith({
+  AdditionalColors copyWith({
     Color? success,
     Color? warning,
     Color? info,
@@ -199,8 +220,6 @@ class AdditionalColors extends ThemeExtension<AdditionalColors> {
     Color? lightGray,
     Color? darkGray,
     Color? disabled,
-    Color? orange,
-    Color? cyan,
   }) {
     return AdditionalColors(
       success: success ?? this.success,
@@ -210,19 +229,12 @@ class AdditionalColors extends ThemeExtension<AdditionalColors> {
       lightGray: lightGray ?? this.lightGray,
       darkGray: darkGray ?? this.darkGray,
       disabled: disabled ?? this.disabled,
-      orange: orange ?? this.orange,
-      cyan: cyan ?? this.cyan,
     );
   }
 
   @override
-  ThemeExtension<AdditionalColors> lerp(
-    ThemeExtension<AdditionalColors>? other,
-    double t,
-  ) {
-    if (other is! AdditionalColors) {
-      return this;
-    }
+  AdditionalColors lerp(ThemeExtension<AdditionalColors>? other, double t) {
+    if (other is! AdditionalColors) return this;
 
     return AdditionalColors(
       success: Color.lerp(success, other.success, t)!,
@@ -232,24 +244,23 @@ class AdditionalColors extends ThemeExtension<AdditionalColors> {
       lightGray: Color.lerp(lightGray, other.lightGray, t)!,
       darkGray: Color.lerp(darkGray, other.darkGray, t)!,
       disabled: Color.lerp(disabled, other.disabled, t)!,
-      orange: Color.lerp(orange, other.orange, t)!,
-      cyan: Color.lerp(cyan, other.cyan, t)!,
     );
   }
 }
 
-// Helper extension to easily access additional colors
-extension AdditionalColorsExtension on ThemeData {
-  AdditionalColors get additionalColors =>
-      extension<AdditionalColors>() ?? const AdditionalColors(
-        success: Color(0xFF28A745),
-        warning: Color(0xFFFFC107),
-        info: Color(0xFF17A2B8),
-        accent: Color(0xFF6F42C1),
-        lightGray: Color(0xFFF8F9FA),
-        darkGray: Color(0xFF6C757D),
-        disabled: Color(0xFFE9ECEF),
-        orange: Color(0xFFFD7E14),
-        cyan: Color(0xFF20C997),
+// ─────────────────────────────────────────────
+// EXTENSION ACCESSOR
+// ─────────────────────────────────────────────
+extension AdditionalColorsX on ThemeData {
+  AdditionalColors get extra =>
+      extension<AdditionalColors>() ??
+      const AdditionalColors(
+        success: AppTheme.successGreen,
+        warning: AppTheme.warningYellow,
+        info: AppTheme.infoBlue,
+        accent: AppTheme.rojo,
+        lightGray: AppTheme.lightGray,
+        darkGray: AppTheme.darkGray,
+        disabled: AppTheme.disabledGray,
       );
 }

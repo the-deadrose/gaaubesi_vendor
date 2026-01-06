@@ -26,11 +26,13 @@ class ApiEndpoints {
   static const String orderList = '/order/list/';
 
 
-  static const String orderDetail = '/order/detail/app';
+  static const String orderDetail = '/order/detail/';
 
   static const String commentsTodays = '/comments/today/';
 
   static const String commentsAll = '/comments/all/';
+
+  static const String replyToComment = '/comments/reply/';
 }
 class QueryParams {
   QueryParams._();

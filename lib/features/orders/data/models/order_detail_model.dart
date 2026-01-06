@@ -6,67 +6,67 @@ part 'order_detail_model.g.dart';
 @JsonSerializable()
 class OrderDetailModel extends OrderDetailEntity {
   const OrderDetailModel({
-    required super.orderId,
-    required super.sourceBranch,
-    required super.destinationBranch,
-    required super.vendor,
-    required super.codCharge,
-    required super.deliveryCharge,
-    required super.lastDeliveryStatus,
-    required super.receiver,
-    required super.receiverNumber,
+    super.orderId,
+    super.sourceBranch,
+    super.destinationBranch,
+    super.vendor,
+    super.codCharge,
+    super.deliveryCharge,
+    super.lastDeliveryStatus,
+    super.receiver,
+    super.receiverNumber,
     super.altReceiverNumber,
-    required super.receiverAddress,
-    required super.createdOn,
-    required super.createdBy,
-    required super.trackId,
+    super.receiverAddress,
+    super.createdOn,
+    super.createdBy,
+    super.trackId,
     super.packageAccess,
     super.orderDeliveryInstruction,
-    required super.description,
+    super.description,
     super.vendorReferenceId,
-    required super.priority,
+    super.priority,
     super.orderContactName,
     super.orderContactNumber,
-    required super.codPaid,
-    required super.paymentCollection,
-    required super.lastUpdated,
+    super.codPaid,
+    super.paymentCollection,
+    super.lastUpdated,
   });
 
   @override
   @JsonKey(name: 'order_id')
-  int get orderId => super.orderId;
+  int? get orderId => super.orderId;
 
   @override
   @JsonKey(name: 'source_branch')
-  String get sourceBranch => super.sourceBranch;
+  String? get sourceBranch => super.sourceBranch;
 
   @override
   @JsonKey(name: 'destination_branch')
-  String get destinationBranch => super.destinationBranch;
+  String? get destinationBranch => super.destinationBranch;
 
   @override
   @JsonKey(name: 'vendor')
-  String get vendor => super.vendor;
+  String? get vendor => super.vendor;
 
   @override
   @JsonKey(name: 'cod_charge')
-  double get codCharge => super.codCharge;
+  double? get codCharge => super.codCharge;
 
   @override
   @JsonKey(name: 'delivery_charge')
-  double get deliveryCharge => super.deliveryCharge;
+  double? get deliveryCharge => super.deliveryCharge;
 
   @override
   @JsonKey(name: 'last_delivery_status')
-  String get lastDeliveryStatus => super.lastDeliveryStatus;
+  String? get lastDeliveryStatus => super.lastDeliveryStatus;
 
   @override
   @JsonKey(name: 'receiver')
-  String get receiver => super.receiver;
+  String? get receiver => super.receiver;
 
   @override
   @JsonKey(name: 'receiver_number')
-  String get receiverNumber => super.receiverNumber;
+  String? get receiverNumber => super.receiverNumber;
 
   @override
   @JsonKey(name: 'alt_receiver_number')
@@ -74,19 +74,19 @@ class OrderDetailModel extends OrderDetailEntity {
 
   @override
   @JsonKey(name: 'receiver_address')
-  String get receiverAddress => super.receiverAddress;
+  String? get receiverAddress => super.receiverAddress;
 
   @override
   @JsonKey(name: 'created_on')
-  String get createdOn => super.createdOn;
+  String? get createdOn => super.createdOn;
 
   @override
   @JsonKey(name: 'created_by')
-  String get createdBy => super.createdBy;
+  String? get createdBy => super.createdBy;
 
   @override
   @JsonKey(name: 'track_id')
-  String get trackId => super.trackId;
+  String? get trackId => super.trackId;
 
   @override
   @JsonKey(name: 'package_access')
@@ -98,7 +98,7 @@ class OrderDetailModel extends OrderDetailEntity {
 
   @override
   @JsonKey(name: 'description')
-  String get description => super.description;
+  String? get description => super.description;
 
   @override
   @JsonKey(name: 'vendor_reference_id')
@@ -106,7 +106,7 @@ class OrderDetailModel extends OrderDetailEntity {
 
   @override
   @JsonKey(name: 'priority')
-  String get priority => super.priority;
+  String? get priority => super.priority;
 
   @override
   @JsonKey(name: 'order_contact_name')
@@ -118,15 +118,15 @@ class OrderDetailModel extends OrderDetailEntity {
 
   @override
   @JsonKey(name: 'cod_paid')
-  String get codPaid => super.codPaid;
+  String? get codPaid => super.codPaid;
 
   @override
   @JsonKey(name: 'payment_collection')
-  String get paymentCollection => super.paymentCollection;
+  String? get paymentCollection => super.paymentCollection;
 
   @override
   @JsonKey(name: 'last_updated')
-  String get lastUpdated => super.lastUpdated;
+  String? get lastUpdated => super.lastUpdated;
 
   factory OrderDetailModel.fromJson(Map<String, dynamic> json) =>
       _$OrderDetailModelFromJson(json);

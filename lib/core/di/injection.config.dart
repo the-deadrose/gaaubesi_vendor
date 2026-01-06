@@ -40,6 +40,10 @@ import 'package:gaaubesi_vendor/features/comments/domain/repository/comments_rep
     as _i92;
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/all_comments_usecase.dart'
     as _i932;
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/comment_reply_usecase.dart'
+    as _i383;
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/filtered_comments_usecase.dart'
+    as _i625;
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments_usecase.dart'
     as _i427;
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart'
@@ -210,6 +214,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i932.AllCommentsUsecase>(
       () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
     );
+    gh.lazySingleton<_i383.CommentReplyUsecase>(
+      () => _i383.CommentReplyUsecase(gh<_i92.CommentsRepository>()),
+    );
+    gh.lazySingleton<_i625.FilteredCommentsUsecase>(
+      () => _i625.FilteredCommentsUsecase(gh<_i92.CommentsRepository>()),
+    );
     gh.lazySingleton<_i427.TodaysCommentsUsecase>(
       () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
     );
@@ -228,6 +238,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i11.CommentsBloc(
         todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
         allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
+        filteredCommentsUsecase: gh<_i625.FilteredCommentsUsecase>(),
+        commentReplyUsecase: gh<_i383.CommentReplyUsecase>(),
       ),
     );
     return this;

@@ -4,6 +4,8 @@ import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/entity/comments_entity.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments_usecase.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/all_comments_usecase.dart';
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/filtered_comments_usecase.dart';
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/comment_reply_usecase.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_state.dart';
 
@@ -11,18 +13,25 @@ import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_sta
 class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   final TodaysCommentsUsecase todaysCommentsUsecase;
   final AllCommentsUsecase allCommentsUsecase;
+  final FilteredCommentsUsecase filteredCommentsUsecase;
+  final CommentReplyUsecase commentReplyUsecase;
   
   // Track pagination progress
   bool _isTodaysPaginationInProgress = false;
   bool _isAllPaginationInProgress = false;
+  bool _isFilterPaginationInProgress = false;
 
   CommentsBloc({
     required this.todaysCommentsUsecase,
     required this.allCommentsUsecase,
+    required this.filteredCommentsUsecase,
+    required this.commentReplyUsecase,
   }) : super(CommentsInitial()) {
     on<FetchCommentsEvent>(_onFetchComments);
     on<FetchMoreCommentsEvent>(_onFetchMoreComments);
     on<RefreshCommentsEvent>(_onRefreshComments);
+    on<FilterCommentsEvent>(_onFilterComments);
+    on<ReplyToCommentEvent>(_onReplyToComment);
   }
 
   Future<void> _onFetchComments(
@@ -210,11 +219,138 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   String _mapFailureToMessage(Failure failure) {
     switch (failure.runtimeType) {
       case ServerFailure _:
-        return 'Server error occurred';
+        final serverFailure = failure as ServerFailure;
+        return serverFailure.message.isNotEmpty
+            ? serverFailure.message
+            : 'Server error occurred';
       case NetworkFailure _:
         return 'No internet connection';
       default:
         return 'An unexpected error occurred';
     }
+  }
+
+  Future<void> _onFilterComments(
+    FilterCommentsEvent event,
+    Emitter<CommentsState> emit,
+  ) async {
+    // If this is a pagination request (page > 1), handle it differently
+    if (int.tryParse(event.page) != null && int.parse(event.page) > 1) {
+      await _handleFilterPagination(event, emit);
+      return;
+    }
+
+    // Initial filter load
+    emit(CommentsLoading());
+
+    final result = await filteredCommentsUsecase(
+      FilteredCommentsParams(
+        page: event.page,
+        status: event.status,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        searchId: event.searchId,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(AllCommentsError(
+          message: _mapFailureToMessage(failure),
+        ));
+      },
+      (response) {
+        emit(FilteredCommentsLoaded(
+          response: response,
+          hasReachedMax: response.next == null,
+          status: event.status,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          searchId: event.searchId,
+        ));
+      },
+    );
+  }
+
+  Future<void> _handleFilterPagination(
+    FilterCommentsEvent event,
+    Emitter<CommentsState> emit,
+  ) async {
+    final currentState = state;
+
+    if (_isFilterPaginationInProgress) return;
+    _isFilterPaginationInProgress = true;
+
+    if (currentState is FilteredCommentsLoaded) {
+      emit(currentState.copyWith(isLoadingMore: true));
+    }
+
+    final result = await filteredCommentsUsecase(
+      FilteredCommentsParams(
+        page: event.page,
+        status: event.status,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        searchId: event.searchId,
+      ),
+    );
+
+    _isFilterPaginationInProgress = false;
+
+    result.fold(
+      (failure) {
+        if (currentState is FilteredCommentsLoaded) {
+          emit(currentState.copyWith(isLoadingMore: false));
+        }
+      },
+      (response) {
+        if (currentState is FilteredCommentsLoaded) {
+          final currentComments = currentState.response.results ?? [];
+          final newComments = response.results ?? [];
+          final allComments = [...currentComments, ...newComments];
+
+          emit(FilteredCommentsLoaded(
+            response: CommentsResponseEntity(
+              count: response.count,
+              next: response.next,
+              previous: response.previous,
+              results: allComments,
+              metadata: response.metadata,
+            ),
+            hasReachedMax: response.next == null,
+            status: currentState.status,
+            startDate: currentState.startDate,
+            endDate: currentState.endDate,
+            searchId: currentState.searchId,
+          ));
+        }
+      },
+    );
+  }
+
+  Future<void> _onReplyToComment(
+    ReplyToCommentEvent event,
+    Emitter<CommentsState> emit,
+  ) async {
+    emit(CommentReplyLoading(commentId: event.commentId));
+
+    final result = await commentReplyUsecase(
+      CommentReplyParams(
+        commentId: event.commentId,
+        comment: event.comment,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(CommentReplyError(
+          message: _mapFailureToMessage(failure),
+          commentId: event.commentId,
+        ));
+      },
+      (_) {
+        emit(CommentReplySuccess(commentId: event.commentId));
+      },
+    );
   }
 }

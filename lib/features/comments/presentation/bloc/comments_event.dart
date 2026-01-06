@@ -39,3 +39,35 @@ class RefreshCommentsEvent extends CommentsEvent {
   @override
   List<Object?> get props => [isTodays];
 }
+
+class FilterCommentsEvent extends CommentsEvent {
+  final String page;
+  final String? status;
+  final String? startDate;
+  final String? endDate;
+  final String? searchId;
+
+  const FilterCommentsEvent({
+    required this.page,
+    this.status,
+    this.startDate,
+    this.endDate,
+    this.searchId,
+  });
+
+  @override
+  List<Object?> get props => [page, status, startDate, endDate, searchId];
+}
+
+class ReplyToCommentEvent extends CommentsEvent {
+  final String commentId;
+  final String comment;
+
+  const ReplyToCommentEvent({
+    required this.commentId,
+    required this.comment,
+  });
+
+  @override
+  List<Object?> get props => [commentId, comment];
+}

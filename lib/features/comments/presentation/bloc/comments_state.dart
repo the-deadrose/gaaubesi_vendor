@@ -116,3 +116,99 @@ class AllCommentsError extends CommentsState {
   @override
   List<Object?> get props => [message, previousResponse];
 }
+
+class FilteredCommentsLoaded extends CommentsState {
+  final CommentsResponseEntity response;
+  final bool hasReachedMax;
+  final bool isLoadingMore;
+  final String? status;
+  final String? startDate;
+  final String? endDate;
+  final String? searchId;
+
+  const FilteredCommentsLoaded({
+    required this.response,
+    this.hasReachedMax = false,
+    this.isLoadingMore = false,
+    this.status,
+    this.startDate,
+    this.endDate,
+    this.searchId,
+  });
+
+  FilteredCommentsLoaded copyWith({
+    CommentsResponseEntity? response,
+    bool? hasReachedMax,
+    bool? isLoadingMore,
+    String? status,
+    String? startDate,
+    String? endDate,
+    String? searchId,
+  }) {
+    return FilteredCommentsLoaded(
+      response: response ?? this.response,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      status: status ?? this.status,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      searchId: searchId ?? this.searchId,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        response,
+        hasReachedMax,
+        isLoadingMore,
+        status,
+        startDate,
+        endDate,
+        searchId,
+      ];
+}
+
+class FilteredCommentsError extends CommentsState {
+  final String message;
+  final CommentsResponseEntity? previousResponse;
+
+  const FilteredCommentsError({
+    required this.message,
+    this.previousResponse,
+  });
+
+  @override
+  List<Object?> get props => [message, previousResponse];
+}
+
+class CommentReplySuccess extends CommentsState {
+  final String commentId;
+
+  const CommentReplySuccess({required this.commentId});
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
+class CommentReplyError extends CommentsState {
+  final String message;
+  final String commentId;
+
+  const CommentReplyError({
+    required this.message,
+    required this.commentId,
+  });
+
+  @override
+  List<Object?> get props => [message, commentId];
+}
+
+class CommentReplyLoading extends CommentsState {
+  final String commentId;
+
+  const CommentReplyLoading({required this.commentId});
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
