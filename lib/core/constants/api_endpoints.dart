@@ -33,6 +33,8 @@ class ApiEndpoints {
   static const String commentsAll = '/comments/all/';
 
   static const String replyToComment = '/comments/reply/';
+
+  static const String  orderDetailComments = '/order/';
 }
 class QueryParams {
   QueryParams._();

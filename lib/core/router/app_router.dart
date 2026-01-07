@@ -8,7 +8,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.d
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/bulk_upload_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/extra_mileage_page.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/pages/order_detail_page.dart';
+import 'package:gaaubesi_vendor/features/orderdetail/presentation/screen/order_detail_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/stale_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/return_orders_page.dart';

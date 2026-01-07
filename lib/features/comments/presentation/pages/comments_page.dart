@@ -628,152 +628,147 @@ class _CommentsPageState extends State<CommentsPage>
         }
       },
       borderRadius: BorderRadius.circular(12),
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        elevation: 2,
-        shape: RoundedRectangleBorder(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
+          border: Border.all(
             color: comment.isImportant
-                ? AppTheme.rojo.withValues(alpha: 0.4)
-                : Colors.transparent,
-            width: comment.isImportant ? 1.5 : 0,
+                ? AppTheme.rojo.withValues(alpha: 0.3)
+                : AppTheme.lightGray,
+            width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.marianBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.document_scanner,
-                          size: 16,
-                          color: AppTheme.marianBlue,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          comment.orderId,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.marianBlue,
-                          ),
-                        ),
-                      ],
-                    ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with order ID and timestamp
+            Row(
+              children: [
+                Text(
+                  '#${comment.orderId}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.marianBlue,
                   ),
-                  const Spacer(),
+                ),
+                const Spacer(),
+                Text(
+                  comment.createdOnFormatted,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.darkGray.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
 
-                  Text(
-                    comment.createdOnFormatted,
-                    style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+            const SizedBox(height: 12),
+
+            // Comment text
+            Text(
+              comment.comments,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: AppTheme.blackBean,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Footer with branch info and action buttons
+            Row(
+              children: [
+                Icon(
+                  Icons.store_outlined,
+                  size: 16,
+                  color: AppTheme.marianBlue.withValues(alpha: 0.7),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    comment.branchName,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.blackBean.withValues(alpha: 0.8),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (comment.canReply) ...[
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () {
+                      _showCloseCommentDialog(comment);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppTheme.marianBlue.withValues(alpha: 0.1),
+                      foregroundColor: AppTheme.marianBlue,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Reply',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ],
-              ),
+              ],
+            ),
 
+            // Important indicator (if applicable)
+            if (comment.isImportant) ...[
               const SizedBox(height: 12),
-
-              Text(
-                comment.comments,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.4,
-                  color: AppTheme.blackBean,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 6,
                 ),
-              ),
-
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Icon(Icons.store, size: 16, color: AppTheme.marianBlue),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      comment.branchName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.blackBean,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                decoration: BoxDecoration(
+                  color: AppTheme.rojo.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.priority_high_outlined,
+                      size: 14,
+                      color: AppTheme.rojo.withValues(alpha: 0.8),
                     ),
-                  ),
-                  if (comment.canReply) ...[
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        _showCloseCommentDialog(comment);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.successGreen,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.reply, size: 14),
-                          const SizedBox(width: 4),
-                          const Text(
-                            'Mark as Closed',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ],
+                    const SizedBox(width: 4),
+                    Text(
+                      'Important',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.rojo.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
-                ],
-              ),
-              SizedBox(height: 8),
-              if (comment.isImportant)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.rojo.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.priority_high, size: 14, color: AppTheme.rojo),
-                      SizedBox(width: 4),
-                      Text(
-                        'Important',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.rojo,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -784,77 +779,102 @@ class _CommentsPageState extends State<CommentsPage>
       padding: const EdgeInsets.all(12),
       itemCount: 5,
       itemBuilder: (context, index) {
-        return Card(
+        return Container(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.lightGray, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          elevation: 0,
-          child: const Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 120,
-                  height: 20,
-                  child: DecoratedBox(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header skeleton
+              Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 16,
                     decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                ),
-                SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 16,
-                  child: DecoratedBox(
+                  const Spacer(),
+                  Container(
+                    width: 80,
+                    height: 12,
                     decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Comment text skeleton
+              Container(
+                width: double.infinity,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                SizedBox(height: 8),
-                SizedBox(
-                  width: 200,
-                  height: 16,
-                  child: DecoratedBox(
+              ),
+              const SizedBox(height: 6),
+              Container(
+                width: double.infinity * 0.8,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Footer skeleton
+              Row(
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
                     decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                ),
-                SizedBox(height: 12),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 80,
-                      height: 16,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                        ),
-                      ),
+                  const SizedBox(width: 6),
+                  Container(
+                    width: 100,
+                    height: 13,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    SizedBox(width: 16),
-                    SizedBox(
-                      width: 60,
-                      height: 16,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.all(Radius.circular(4)),
-                        ),
-                      ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    width: 40,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
@@ -868,26 +888,43 @@ class _CommentsPageState extends State<CommentsPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.rojo.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppTheme.rojo.withValues(alpha: 0.7),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Text(
               'Something went wrong',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.blackBean,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 15,
+                color: AppTheme.darkGray.withValues(alpha: 0.8),
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -928,17 +965,35 @@ class _CommentsPageState extends State<CommentsPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.comment_outlined, size: 80, color: Colors.grey.shade400),
-            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.marianBlue.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.comment_outlined,
+                size: 64,
+                color: AppTheme.marianBlue.withValues(alpha: 0.4),
+              ),
+            ),
+            const SizedBox(height: 24),
             Text(
               'No comments yet',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.blackBean,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Comments will appear here when added',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+              style: TextStyle(
+                fontSize: 15,
+                color: AppTheme.darkGray.withValues(alpha: 0.8),
+              ),
             ),
           ],
         ),
@@ -966,9 +1021,20 @@ class _CommentsPageState extends State<CommentsPage>
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Center(
-        child: Text(
-          'No more comments',
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: AppTheme.lightGray,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            'You\'ve reached the end',
+            style: TextStyle(
+              fontSize: 13,
+              color: AppTheme.darkGray.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );
@@ -1459,86 +1525,159 @@ class _CommentsPageState extends State<CommentsPage>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.comment, color: AppTheme.marianBlue, size: 24),
-              const SizedBox(width: 12),
-              const Text(
-                'Close Comment',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Order #${comment.orderId}',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.marianBlue,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.marianBlue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.reply,
+                        color: AppTheme.marianBlue,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Reply to Comment',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.blackBean,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                      color: AppTheme.darkGray,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                comment.comments,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.blackBean,
-                  height: 1.4,
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.lightGray,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Order #${comment.orderId}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.marianBlue,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        comment.comments,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.blackBean,
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Add a reply (optional):',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _replyController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Type your reply...',
-                  hintStyle: TextStyle(
-                    color: AppTheme.darkGray.withValues(alpha: 0.6),
+                const SizedBox(height: 16),
+                const Text(
+                  'Your reply (optional):',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.blackBean,
                   ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: AppTheme.powerBlue),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppTheme.marianBlue),
-                  ),
-                  contentPadding: const EdgeInsets.all(12),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _replyController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Type your reply...',
+                    hintStyle: TextStyle(
+                      color: AppTheme.darkGray.withValues(alpha: 0.6),
+                    ),
+                    filled: true,
+                    fillColor: AppTheme.lightGray,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.marianBlue),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppTheme.darkGray,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _closeComment(comment.id.toString(), _replyController.text);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.marianBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Send Reply',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _closeComment(comment.id.toString(), _replyController.text);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.marianBlue,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Close'),
-            ),
-          ],
         );
       },
     );

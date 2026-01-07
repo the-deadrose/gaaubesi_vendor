@@ -9,7 +9,7 @@ import 'package:gaaubesi_vendor/features/orders/data/models/paginated_possible_r
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_returned_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_rtv_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
-import 'package:gaaubesi_vendor/features/orders/data/models/order_detail_model.dart';
+import 'package:gaaubesi_vendor/features/orderdetail/data/model/order_detail_model.dart';
 
 abstract class OrderRemoteDataSource {
   Future<PaginatedOrderResponseModel> fetchOrders({
@@ -379,9 +379,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return OrderDetailModel.fromJson(
-          response.data as Map<String, dynamic>,
-        );
+        final data = response.data;
+        print('Raw API response: $data');
+        
+        // Check if response has a nested 'data' field
+        final jsonData = data is Map<String, dynamic>
+            ? (data['data'] as Map<String, dynamic>? ?? data)
+            : data as Map<String, dynamic>;
+        
+        print('Processed JSON data: $jsonData');
+        print('Keys in JSON: ${jsonData.keys.toList()}');
+        
+        final orderDetail = OrderDetailModel.fromJson(jsonData);
+        print('Messages in order detail: ${orderDetail.messages?.length ?? 0}');
+        
+        return orderDetail;
       } else {
         throw ServerException('Failed to fetch order details');
       }

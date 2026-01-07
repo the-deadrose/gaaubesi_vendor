@@ -159,7 +159,9 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
           throw ServerException(errorMessage);
         }
       } else {
-        throw ServerException('Failed to reply to comment: Status code ${response.statusCode}');
+        throw ServerException(
+          'Failed to reply to comment: Status code ${response.statusCode}',
+        );
       }
     } on DioException catch (e) {
       debugPrint(

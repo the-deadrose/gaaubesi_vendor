@@ -3,6 +3,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gaaubesi_vendor/features/home/domain/entities/vendor_stats_entity.dart';
@@ -25,7 +26,7 @@ class HomePage extends StatelessWidget {
             vendorName = state.stats.vendorName;
           }
           return Scaffold(
-            backgroundColor: const Color(0xFFF5F7FA),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             appBar: AppBar(
               leading: IconButton(
                 icon: const Icon(Icons.menu, color: Colors.white),
@@ -43,7 +44,7 @@ class HomePage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               elevation: 0,
             ),
             body: BlocListener<AuthBloc, AuthState>(
@@ -87,81 +88,81 @@ class _HomeContent extends StatelessWidget {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          const SliverToBoxAdapter(child: SizedBox(height: 15)),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(child: _FinancialCard(stats: stats)),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 15)),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: _KeyMetricsSection(stats: stats),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 15)),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
           const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(
               child: _SectionTitle(title: "Today's Activity"),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: _TodaysActivityGrid(stats: stats),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
           const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(
               child: _SectionTitle(title: 'Processing Status'),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(
               child: _ProcessingBreakdown(stats: stats),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
           const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(
               child: _SectionTitle(title: 'Package Overview'),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: _PackageOverviewGrid(stats: stats),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
           const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(
               child: _SectionTitle(title: 'Order Status'),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: _OrderStatusGrid(stats: stats),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
           const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
             sliver: SliverToBoxAdapter(
               child: _SectionTitle(title: 'Returns Analysis'),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             sliver: _ReturnsAnalysisGrid(stats: stats),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 56)),
+          const SliverToBoxAdapter(child: SizedBox(height: 60)),
         ],
       ),
     );
@@ -183,7 +184,7 @@ class _KeyMetricsSection extends StatelessWidget {
               title: 'Success Rate',
               value: '${stats.successPercent.toStringAsFixed(1)}%',
               icon: Icons.trending_up,
-              color: Colors.green,
+              color: AppTheme.successGreen,
               isPercent: true,
             ),
           ),
@@ -193,7 +194,7 @@ class _KeyMetricsSection extends StatelessWidget {
               title: 'Return Rate',
               value: '${stats.returnPercent.toStringAsFixed(1)}%',
               icon: Icons.trending_down,
-              color: Colors.orange,
+              color: AppTheme.warningYellow,
               isPercent: true,
             ),
           ),
@@ -221,15 +222,24 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 12,
             offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+            blurRadius: 1,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -237,27 +247,28 @@ class _MetricCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Text(
             value,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -419,25 +430,25 @@ class _TodaysActivityGrid extends StatelessWidget {
           label: 'Orders Created',
           value: stats.todayOrderCreated.toString(),
           icon: Icons.add_shopping_cart,
-          color: Colors.blue,
+          color: AppTheme.infoBlue,
         ),
         _StatItem(
           label: 'Deliveries',
           value: stats.todayDelivery.toString(),
           icon: Icons.local_shipping,
-          color: Colors.green,
+          color: AppTheme.successGreen,
         ),
         _StatItem(
           label: 'Returns',
           value: stats.todaysReturnedDelivery.toString(),
           icon: Icons.assignment_return,
-          color: Colors.red,
+          color: AppTheme.rojo,
         ),
         _StatItem(
           label: "Today's Comments",
           value: stats.todaysComment.toString(),
           icon: Icons.comment,
-          color: Colors.purple,
+          color: AppTheme.marianBlue,
           onTap: () => _navigateToComments(context),
         ),
       ],
@@ -463,13 +474,17 @@ class _ProcessingBreakdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -480,15 +495,24 @@ class _ProcessingBreakdown extends StatelessWidget {
             children: [
               Text(
                 'Processing Orders',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-              Text(
-                '$totalProcessing total',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.marianBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$totalProcessing total',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppTheme.marianBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -496,21 +520,21 @@ class _ProcessingBreakdown extends StatelessWidget {
           _ProcessingItem(
             label: 'Drop Off',
             count: processing.dropOff,
-            color: Colors.blue,
+            color: AppTheme.infoBlue,
             icon: Icons.file_upload,
           ),
           const Divider(height: 24),
           _ProcessingItem(
             label: 'Pickup',
             count: processing.pickup,
-            color: Colors.indigo,
+            color: AppTheme.marianBlue,
             icon: Icons.inventory,
           ),
           const Divider(height: 24),
           _ProcessingItem(
             label: 'Dispatch',
             count: processing.dispatch,
-            color: Colors.orange,
+            color: AppTheme.warningYellow,
             icon: Icons.local_shipping,
           ),
           if (processing.hold > 0) ...[
@@ -518,7 +542,7 @@ class _ProcessingBreakdown extends StatelessWidget {
             _ProcessingItem(
               label: 'On Hold',
               count: processing.hold,
-              color: Colors.red,
+              color: AppTheme.rojo,
               icon: Icons.pause_circle,
             ),
           ],
@@ -556,9 +580,10 @@ class _ProcessingItem extends StatelessWidget {
         const SizedBox(width: 16),
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         const Spacer(),
         Text(
@@ -590,25 +615,25 @@ class _PackageOverviewGrid extends StatelessWidget {
           label: 'Total Packages',
           value: stats.totalPackages.toString(),
           icon: Icons.inventory,
-          color: Colors.indigo,
+          color: AppTheme.marianBlue,
         ),
         _StatItem(
           label: 'Delivered',
           value: stats.deliveredPackages.toString(),
           icon: Icons.check_circle,
-          color: Colors.teal,
+          color: AppTheme.successGreen,
         ),
         _StatItem(
           label: 'Total Value',
           value: 'Rs. ${_formatCurrency(stats.totalPackagesValue)}',
           icon: Icons.monetization_on,
-          color: Colors.green,
+          color: AppTheme.successGreen,
         ),
         _StatItem(
           label: 'Delivered Value',
           value: 'Rs. ${_formatCurrency(stats.deliveredPackagesValue)}',
           icon: Icons.price_check,
-          color: Colors.teal,
+          color: AppTheme.successGreen,
         ),
       ],
     );
@@ -631,32 +656,32 @@ class _OrderStatusGrid extends StatelessWidget {
         _MiniStatItem(
           label: 'In Process',
           value: stats.ordersInProcess.toString(),
-          color: Colors.blue,
+          color: AppTheme.infoBlue,
         ),
         _MiniStatItem(
           label: 'In Delivery',
           value: stats.ordersInDeliveryProcess.toString(),
-          color: Colors.indigo,
+          color: AppTheme.marianBlue,
         ),
         _MiniStatItem(
           label: 'In Return',
           value: stats.ordersInReturnProcess.toString(),
-          color: Colors.orange,
+          color: AppTheme.warningYellow,
         ),
         _MiniStatItem(
           label: 'Incoming',
           value: stats.incomingReturns.toString(),
-          color: Colors.red,
+          color: AppTheme.rojo,
         ),
         _MiniStatItem(
           label: 'Hold',
           value: stats.totalHoldOrder.toString(),
-          color: Colors.amber,
+          color: AppTheme.warningYellow,
         ),
         _MiniStatItem(
           label: 'RTV',
           value: stats.totalRtvOrder.toString(),
-          color: Colors.deepOrange,
+          color: AppTheme.rojo,
         ),
       ],
     );
@@ -680,13 +705,13 @@ class _ReturnsAnalysisGrid extends StatelessWidget {
           label: 'True Returns',
           count: stats.trueReturnedPackages.count,
           value: stats.trueReturnedPackages.value,
-          color: Colors.red,
+          color: AppTheme.rojo,
         ),
         _ReturnStatItem(
           label: 'False Returns',
           count: stats.falseReturnedPackages.count,
           value: stats.falseReturnedPackages.value,
-          color: Colors.orange,
+          color: AppTheme.warningYellow,
         ),
       ],
     );
@@ -711,15 +736,24 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget content = Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
+            blurRadius: 12,
             offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+            blurRadius: 1,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -727,23 +761,31 @@ class _StatItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: color, size: 24),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
           const Spacer(),
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w500,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -755,6 +797,8 @@ class _StatItem extends StatelessWidget {
       return InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
+        splashColor: color.withValues(alpha: 0.1),
+        highlightColor: color.withValues(alpha: 0.05),
         child: content,
       );
     }
@@ -777,34 +821,52 @@ class _MiniStatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
+          ),
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+            blurRadius: 1,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: color,
+                fontSize: 18,
+              ),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
               fontSize: 11,
+              fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
             maxLines: 1,
@@ -832,15 +894,19 @@ class _ReturnStatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -848,36 +914,57 @@ class _ReturnStatItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
             ),
           ),
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Count', style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                'Count',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               Text(
                 count.toString(),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Value', style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                'Value',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               Text(
                 _formatCurrency(value),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ],
           ),
@@ -898,7 +985,7 @@ class _SectionTitle extends StatelessWidget {
       title,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
         fontWeight: FontWeight.bold,
-        color: Colors.black87,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -917,18 +1004,24 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
               'Error loading stats',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

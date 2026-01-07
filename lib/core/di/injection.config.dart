@@ -68,7 +68,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_use
     as _i353;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
     as _i451;
-import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_order_detail_usecase.dart'
+import 'package:gaaubesi_vendor/features/orderdetail/domain/usecase/fetch_order_detail_usecase.dart'
     as _i739;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart'
     as _i340;

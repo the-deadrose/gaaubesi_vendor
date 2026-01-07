@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:gaaubesi_vendor/features/orders/domain/entities/order_detail_entity.dart';
+import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
 
 abstract class OrderDetailState extends Equatable {
   const OrderDetailState();
