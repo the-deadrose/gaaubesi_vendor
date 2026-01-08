@@ -187,53 +187,43 @@ class MainScaffoldRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [OrderDetailPage]
 class OrderDetailRoute extends PageRouteInfo<OrderDetailRouteArgs> {
-  OrderDetailRoute({
-    Key? key,
-    required int orderId,
-    List<PageRouteInfo>? children,
-  }) : super(
-         OrderDetailRoute.name,
-         args: OrderDetailRouteArgs(key: key, orderId: orderId),
-         rawPathParams: {'orderId': orderId},
-         initialChildren: children,
-       );
+  OrderDetailRoute({required int orderId, List<PageRouteInfo>? children})
+    : super(
+        OrderDetailRoute.name,
+        args: OrderDetailRouteArgs(orderId: orderId),
+        initialChildren: children,
+      );
 
   static const String name = 'OrderDetailRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final pathParams = data.inheritedPathParams;
-      final args = data.argsAs<OrderDetailRouteArgs>(
-        orElse: () =>
-            OrderDetailRouteArgs(orderId: pathParams.getInt('orderId')),
-      );
-      return OrderDetailPage(key: args.key, orderId: args.orderId);
+      final args = data.argsAs<OrderDetailRouteArgs>();
+      return OrderDetailPage(orderId: args.orderId);
     },
   );
 }
 
 class OrderDetailRouteArgs {
-  const OrderDetailRouteArgs({this.key, required this.orderId});
-
-  final Key? key;
+  const OrderDetailRouteArgs({required this.orderId});
 
   final int orderId;
 
   @override
   String toString() {
-    return 'OrderDetailRouteArgs{key: $key, orderId: $orderId}';
+    return 'OrderDetailRouteArgs{orderId: $orderId}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! OrderDetailRouteArgs) return false;
-    return key == other.key && orderId == other.orderId;
+    return orderId == other.orderId;
   }
 
   @override
-  int get hashCode => key.hashCode ^ orderId.hashCode;
+  int get hashCode => orderId.hashCode;
 }
 
 /// generated route for

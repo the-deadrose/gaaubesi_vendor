@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../../../orderdetail/data/model/order_detail_model.dart';
+part of 'order_detail_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -23,6 +23,36 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
       'sent_on': MessageModel._dateTimeToJson(instance.sentOn),
       'sent_on_formatted': instance.sentOnFormatted,
       'sent_by_name': instance.sentByName,
+    };
+
+CommentsModel _$CommentsModelFromJson(Map<String, dynamic> json) =>
+    CommentsModel(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      comments: json['comments'] as String? ?? '',
+      commentType: json['comment_type'] as String? ?? '',
+      commentTypeDisplay: json['comment_type_display'] as String? ?? '',
+      status: json['status'] as String?,
+      statusDisplay: json['status_display'] as String?,
+      addedByName: json['added_by_name'] as String? ?? '',
+      createdOn: json['created_on'] as String? ?? '',
+      createdOnFormatted: json['created_on_formatted'] as String? ?? '',
+      isImportant: json['is_important'] as bool? ?? false,
+      canReply: json['can_reply'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$CommentsModelToJson(CommentsModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'comments': instance.comments,
+      'comment_type': instance.commentType,
+      'comment_type_display': instance.commentTypeDisplay,
+      'status': instance.status,
+      'status_display': instance.statusDisplay,
+      'added_by_name': instance.addedByName,
+      'created_on': instance.createdOn,
+      'created_on_formatted': instance.createdOnFormatted,
+      'is_important': instance.isImportant,
+      'can_reply': instance.canReply,
     };
 
 OrderDetailModel _$OrderDetailModelFromJson(Map<String, dynamic> json) =>
@@ -70,6 +100,11 @@ OrderDetailModel _$OrderDetailModelFromJson(Map<String, dynamic> json) =>
               ?.map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      comments:
+          (json['comment'] as List<dynamic>?)
+              ?.map((e) => CommentsModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$OrderDetailModelToJson(OrderDetailModel instance) =>
@@ -111,4 +146,5 @@ Map<String, dynamic> _$OrderDetailModelToJson(OrderDetailModel instance) =>
       'is_active': instance.isActive,
       'qr_code': instance.qrCode,
       'message': instance.messages?.map((e) => e.toJson()).toList(),
+      'comment': instance.comments?.map((e) => e.toJson()).toList(),
     };

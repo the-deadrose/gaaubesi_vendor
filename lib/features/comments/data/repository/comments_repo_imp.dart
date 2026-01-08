@@ -18,8 +18,8 @@ class CommentsRepoImp implements CommentsRepository {
     String page,
   ) async {
     // try {
-      final todaysComments = await remoteDatasource.fetchTodaysComments(page);
-      return Right(todaysComments);
+    final todaysComments = await remoteDatasource.fetchTodaysComments(page);
+    return Right(todaysComments);
     // } on ServerException catch (e) {
     //   return Left(ServerFailure(e.message));
     // } catch (e) {
@@ -32,8 +32,8 @@ class CommentsRepoImp implements CommentsRepository {
     String page,
   ) async {
     // try {
-      final allComments = await remoteDatasource.fetchAllComments(page);
-      return Right(allComments);
+    final allComments = await remoteDatasource.fetchAllComments(page);
+    return Right(allComments);
     // } on ServerException catch (e) {
     //   return Left(ServerFailure(e.message));
     // } catch (e) {
@@ -79,5 +79,49 @@ class CommentsRepoImp implements CommentsRepository {
     }
   }
 
+  @override
+  Future<Either<ServerFailure, void>> createCommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String commentType,
+  }) async {
+    try {
+      await remoteDatasource.createACommentOrderDetail(
+        commentId: commentId,
+        comment: comment,
+        commentType: commentType,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      debugPrint('[COMMENTS_REPO] ServerException: ${e.message}');
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      debugPrint('[COMMENTS_REPO] Unexpected error: $e');
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
 
+  @override
+  Future<Either<ServerFailure, void>> replyToCommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String reply,
+    required String commentType,
+  }) async {
+    try {
+      await remoteDatasource.replyToCommentOrderDetail(
+        commentId: commentId,
+        comment: comment,
+        reply: reply,
+        commentType: commentType,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      debugPrint('[COMMENTS_REPO] ServerException: ${e.message}');
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      debugPrint('[COMMENTS_REPO] Unexpected error: $e');
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
 }

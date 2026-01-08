@@ -21,6 +21,18 @@ abstract class CommentsRemoteDatasource {
     String? endDate,
     String? searchId,
   });
+  Future<void> createACommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String commentType,
+  });
+
+  Future<void> replyToCommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String reply,
+    required String commentType,
+  });
 }
 
 @LazySingleton(as: CommentsRemoteDatasource)
@@ -146,7 +158,10 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
 
       debugPrint('[COMMENTS_DATASOURCE] Response: ${response.data}');
 
-      if (response.statusCode == 200) {
+      // Accept all 2xx status codes
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
         // Check if the response indicates success
         if (response.data is Map && response.data['success'] == true) {
           debugPrint('[COMMENTS_DATASOURCE] Reply successful');
@@ -171,6 +186,130 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         e.message ?? 'Unknown error',
         statusCode: e.response?.statusCode,
       );
+    } on ServerException {
+      // Re-throw ServerException without wrapping
+      rethrow;
+    } catch (e) {
+      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
+      // Don't rethrow the exception, instead convert it to a ServerException
+      throw ServerException('An unexpected error occurred: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> createACommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String commentType,
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        ApiEndpoints.createCommentOrderDetail,
+        data: {
+          'order_id': commentId,
+          'comment': comment,
+          'comment_type': commentType,
+        },
+      );
+
+      debugPrint('[COMMENTS_DATASOURCE] Status Code: ${response.statusCode}');
+      debugPrint(
+        '[COMMENTS_DATASOURCE] Response Data Type: ${response.data.runtimeType}',
+      );
+      debugPrint('[COMMENTS_DATASOURCE] Response Data: ${response.data}');
+
+      // Accept all 2xx status codes
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        // Check if the response indicates success
+        if (response.data is Map && response.data['success'] == true) {
+          debugPrint('[COMMENTS_DATASOURCE] Comment creation successful');
+          return;
+        } else {
+          final errorMessage = response.data is Map
+              ? response.data['message'] ?? 'Failed to create comment'
+              : 'Failed to create comment: Invalid response';
+          debugPrint('[COMMENTS_DATASOURCE] API returned error: $errorMessage');
+          debugPrint(
+            '[COMMENTS_DATASOURCE] response.data is Map: ${response.data is Map}',
+          );
+          debugPrint(
+            '[COMMENTS_DATASOURCE] response.data[\'success\']: ${response.data is Map ? response.data['success'] : 'N/A'}',
+          );
+          throw ServerException(errorMessage);
+        }
+      } else {
+        throw ServerException(
+          'Failed to create comment: Status code ${response.statusCode}',
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(
+        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
+      );
+      throw ServerException(
+        e.message ?? 'Unknown error',
+        statusCode: e.response?.statusCode,
+      );
+    } on ServerException {
+      // Re-throw ServerException without wrapping
+      rethrow;
+    } catch (e) {
+      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
+      throw ServerException('An unexpected error occurred: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> replyToCommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String reply,
+    required String commentType,
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        ApiEndpoints.replyToCommentOrderDetail,
+        data: {
+          'comment_id': commentId,
+          'comment': comment,
+          'reply': reply,
+          'comment_type': commentType,
+        },
+      );
+      debugPrint('[COMMENTS_DATASOURCE] Response: ${response.data}');
+      // Accept all 2xx status codes
+      if (response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 300) {
+        // Check if the response indicates success
+        if (response.data is Map && response.data['success'] == true) {
+          debugPrint('[COMMENTS_DATASOURCE] Reply successful');
+          return;
+        } else {
+          final errorMessage = response.data is Map
+              ? response.data['message'] ?? 'Failed to reply to comment'
+              : 'Failed to reply to comment: Invalid response';
+          debugPrint('[COMMENTS_DATASOURCE] API returned error: $errorMessage');
+          throw ServerException(errorMessage);
+        }
+      } else {
+        throw ServerException(
+          'Failed to reply to comment: Status code ${response.statusCode}',
+        );
+      }
+    } on DioException catch (e) {
+      debugPrint(
+        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
+      );
+      throw ServerException(
+        e.message ?? 'Unknown error',
+        statusCode: e.response?.statusCode,
+      );
+    } on ServerException {
+      // Re-throw ServerException without wrapping
+      rethrow;
     } catch (e) {
       debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
       // Don't rethrow the exception, instead convert it to a ServerException

@@ -6,6 +6,8 @@ import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/all_comments_usecase.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/filtered_comments_usecase.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/comment_reply_usecase.dart';
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/create_comment_orderdetail_usecase.dart';
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/reply_comment_order_detail_usecase.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_state.dart';
 
@@ -15,6 +17,8 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   final AllCommentsUsecase allCommentsUsecase;
   final FilteredCommentsUsecase filteredCommentsUsecase;
   final CommentReplyUsecase commentReplyUsecase;
+  final CreateCommentOrderdetailUsecase createCommentOrderdetailUsecase;
+  final ReplyCommentOrderDetailUsecase replyCommentOrderDetailUsecase;
   
   // Track pagination progress
   bool _isTodaysPaginationInProgress = false;
@@ -26,12 +30,16 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     required this.allCommentsUsecase,
     required this.filteredCommentsUsecase,
     required this.commentReplyUsecase,
+    required this.createCommentOrderdetailUsecase,
+    required this.replyCommentOrderDetailUsecase,
   }) : super(CommentsInitial()) {
     on<FetchCommentsEvent>(_onFetchComments);
     on<FetchMoreCommentsEvent>(_onFetchMoreComments);
     on<RefreshCommentsEvent>(_onRefreshComments);
     on<FilterCommentsEvent>(_onFilterComments);
     on<ReplyToCommentEvent>(_onReplyToComment);
+    on<CreateCommentOrderdetailEvent>(_onCreateCommentOrderdetail);
+    on<ReplyCommentOrderDetailEvent>(_onReplyCommentOrderDetail);
   }
 
   Future<void> _onFetchComments(
@@ -350,6 +358,61 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       },
       (_) {
         emit(CommentReplySuccess(commentId: event.commentId));
+      },
+    );
+  }
+
+  Future<void> _onCreateCommentOrderdetail(
+    CreateCommentOrderdetailEvent event,
+    Emitter<CommentsState> emit,
+  ) async {
+    emit(CreateCommentOrderdetailLoading(commentId: event.commentId));
+
+    final result = await createCommentOrderdetailUsecase(
+      CreateCommentOrderdetailParams(
+        commentId: event.commentId,
+        comment: event.comment,
+        commentType: event.commentType,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(CreateCommentOrderdetailError(
+          message: _mapFailureToMessage(failure),
+          commentId: event.commentId,
+        ));
+      },
+      (_) {
+        emit(CreateCommentOrderdetailSuccess(commentId: event.commentId));
+      },
+    );
+  }
+
+  Future<void> _onReplyCommentOrderDetail(
+    ReplyCommentOrderDetailEvent event,
+    Emitter<CommentsState> emit,
+  ) async {
+    emit(ReplyCommentOrderDetailLoading(commentId: event.commentId));
+
+    final result = await replyCommentOrderDetailUsecase(
+      ReplyCommentOrderdetailParams(
+        commentId: event.commentId,
+        comment: event.comment,
+        reply: event.reply,
+        commentType: event.commentType,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(ReplyCommentOrderDetailError(
+          message: _mapFailureToMessage(failure),
+          commentId: event.commentId,
+        ));
+      },
+      (_) {
+        emit(ReplyCommentOrderDetailSuccess(commentId: event.commentId));
       },
     );
   }

@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
 
-part '../../../orders/data/models/order_detail_model.g.dart';
+part 'order_detail_model.g.dart';
 
 @JsonSerializable(
   fieldRename: FieldRename.snake,
@@ -67,6 +67,87 @@ class MessageModel extends MessageEntity {
   static String _dateTimeToJson(DateTime value) {
     return value.toIso8601String();
   }
+}
+
+@JsonSerializable(
+  fieldRename: FieldRename.snake,
+  explicitToJson: true,
+)
+class CommentsModel extends CommentsEntity {
+  @JsonKey(defaultValue: 0)
+  @override
+  final int id;
+
+  @JsonKey(defaultValue: '')
+  @override
+  final String comments;
+
+  @JsonKey(defaultValue: '')
+  @override
+  final String commentType;
+
+  @JsonKey(defaultValue: '')
+  @override
+  final String commentTypeDisplay;
+
+  @JsonKey(name: 'status')
+  @override
+  final String? status;
+
+  @JsonKey(name: 'status_display')
+  @override
+  final String? statusDisplay;
+
+  @JsonKey(defaultValue: '', name: 'added_by_name')
+  @override
+  final String addedByName;
+
+  @JsonKey(defaultValue: '', name: 'created_on')
+  @override
+  final String createdOn;
+
+  @JsonKey(defaultValue: '', name: 'created_on_formatted')
+  @override
+  final String createdOnFormatted;
+
+  @JsonKey(defaultValue: false)
+  @override
+  final bool isImportant;
+
+  @JsonKey(defaultValue: false, name: 'can_reply')
+  @override
+  final bool canReply;
+
+  const CommentsModel({
+    required this.id,
+    required this.comments,
+    required this.commentType,
+    required this.commentTypeDisplay,
+    this.status,
+    this.statusDisplay,
+    required this.addedByName,
+    required this.createdOn,
+    required this.createdOnFormatted,
+    required this.isImportant,
+    required this.canReply,
+  }) : super(
+          id: id,
+          comments: comments,
+          commentType: commentType,
+          commentTypeDisplay: commentTypeDisplay,
+          status: status,
+          statusDisplay: statusDisplay,
+          addedByName: addedByName,
+          createdOn: createdOn,
+          createdOnFormatted: createdOnFormatted,
+          isImportant: isImportant,
+          canReply: canReply,
+        );
+
+  factory CommentsModel.fromJson(Map<String, dynamic> json) =>
+      _$CommentsModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CommentsModelToJson(this);
 }
 
 @JsonSerializable(
@@ -220,6 +301,10 @@ class OrderDetailModel extends OrderDetailEntity {
   @override
   final List<MessageModel>? messages;
 
+  @JsonKey(defaultValue: [], name: 'comment')
+  @override
+  final List<CommentsModel>? comments;
+
   const OrderDetailModel({
     required this.orderId,
     required this.orderIdWithStatus,
@@ -256,6 +341,7 @@ class OrderDetailModel extends OrderDetailEntity {
     required this.isActive,
     required this.qrCode,
     this.messages,
+    this.comments,
   }) : super(
           orderId: orderId,
           orderIdWithStatus: orderIdWithStatus,
@@ -292,12 +378,16 @@ class OrderDetailModel extends OrderDetailEntity {
           isActive: isActive,
           qrCode: qrCode,
           messages: messages,
+          comments: comments,
         );
 
   factory OrderDetailModel.fromJson(Map<String, dynamic> json) {
     print('JSON keys in order detail: ${json.keys.toList()}');
     if (json.containsKey('messages')) {
       print('Messages in JSON: ${json['messages']}');
+    }
+    if (json.containsKey('comments')) {
+      print('Comments in JSON: ${json['comments']}');
     }
     return _$OrderDetailModelFromJson(json);
   }
@@ -326,4 +416,3 @@ class OrderDetailModel extends OrderDetailEntity {
     return value?.toIso8601String();
   }
 }
-

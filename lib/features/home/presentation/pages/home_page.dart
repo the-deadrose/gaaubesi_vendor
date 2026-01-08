@@ -85,193 +85,114 @@ class _HomeContent extends StatelessWidget {
         context.read<HomeBloc>().add(const HomeRefreshStats());
         await Future.delayed(const Duration(seconds: 1));
       },
-      child: CustomScrollView(
+      child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        slivers: [
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(child: _FinancialCard(stats: stats)),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: _KeyMetricsSection(stats: stats),
-          ),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(
-              child: _SectionTitle(title: "Today's Activity"),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: _TodaysActivityGrid(stats: stats),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(
-              child: _SectionTitle(title: 'Processing Status'),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(
-              child: _ProcessingBreakdown(stats: stats),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(
-              child: _SectionTitle(title: 'Package Overview'),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: _PackageOverviewGrid(stats: stats),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(
-              child: _SectionTitle(title: 'Order Status'),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: _OrderStatusGrid(stats: stats),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: SliverToBoxAdapter(
-              child: _SectionTitle(title: 'Returns Analysis'),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            sliver: _ReturnsAnalysisGrid(stats: stats),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 60)),
-        ],
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _FinancialCard(stats: stats),
+            const SizedBox(height: 24),
+            _SimplifiedMetricsSection(stats: stats),
+            const SizedBox(height: 24),
+            _SimplifiedActivitySection(stats: stats),
+            const SizedBox(height: 24),
+            _SimplifiedProcessingSection(stats: stats),
+            const SizedBox(height: 24),
+            _SimplifiedPackagesSection(stats: stats),
+            const SizedBox(height: 24),
+            _SimplifiedOrderStatusSection(stats: stats),
+            const SizedBox(height: 24),
+            _SimplifiedReturnsSection(stats: stats),
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _KeyMetricsSection extends StatelessWidget {
+class _SimplifiedMetricsSection extends StatelessWidget {
   final VendorStatsEntity stats;
 
-  const _KeyMetricsSection({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Row(
-        children: [
-          Expanded(
-            child: _MetricCard(
-              title: 'Success Rate',
-              value: '${stats.successPercent.toStringAsFixed(1)}%',
-              icon: Icons.trending_up,
-              color: AppTheme.successGreen,
-              isPercent: true,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: _MetricCard(
-              title: 'Return Rate',
-              value: '${stats.returnPercent.toStringAsFixed(1)}%',
-              icon: Icons.trending_down,
-              color: AppTheme.warningYellow,
-              isPercent: true,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MetricCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final bool isPercent;
-
-  const _MetricCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-    this.isPercent = false,
-  });
+  const _SimplifiedMetricsSection({required this.stats});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 0.5,
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 1,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(height: 18),
           Text(
-            value,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurface,
+            'Key Metrics',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w500,
-            ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedMetricItem(
+                  title: 'Success Rate',
+                  value: '${stats.successPercent.toStringAsFixed(1)}%',
+                  color: AppTheme.successGreen,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedMetricItem(
+                  title: 'Return Rate',
+                  value: '${stats.returnPercent.toStringAsFixed(1)}%',
+                  color: AppTheme.warningYellow,
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SimplifiedMetricItem extends StatelessWidget {
+  final String title;
+  final String value;
+  final Color color;
+
+  const _SimplifiedMetricItem({
+    required this.title,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -409,10 +330,10 @@ class _FinancialDetailItem extends StatelessWidget {
   }
 }
 
-class _TodaysActivityGrid extends StatelessWidget {
+class _SimplifiedActivitySection extends StatelessWidget {
   final VendorStatsEntity stats;
 
-  const _TodaysActivityGrid({required this.stats});
+  const _SimplifiedActivitySection({required this.stats});
 
   void _navigateToComments(BuildContext context) {
     context.router.push(CommentsRoute(initialTab: 0));
@@ -420,46 +341,76 @@ class _TodaysActivityGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverGrid.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.5,
-      children: [
-        _StatItem(
-          label: 'Orders Created',
-          value: stats.todayOrderCreated.toString(),
-          icon: Icons.add_shopping_cart,
-          color: AppTheme.infoBlue,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
-        _StatItem(
-          label: 'Deliveries',
-          value: stats.todayDelivery.toString(),
-          icon: Icons.local_shipping,
-          color: AppTheme.successGreen,
-        ),
-        _StatItem(
-          label: 'Returns',
-          value: stats.todaysReturnedDelivery.toString(),
-          icon: Icons.assignment_return,
-          color: AppTheme.rojo,
-        ),
-        _StatItem(
-          label: "Today's Comments",
-          value: stats.todaysComment.toString(),
-          icon: Icons.comment,
-          color: AppTheme.marianBlue,
-          onTap: () => _navigateToComments(context),
-        ),
-      ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Today's Activity",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedActivityItem(
+                  label: 'Orders Created',
+                  value: stats.todayOrderCreated.toString(),
+                  color: AppTheme.infoBlue,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedActivityItem(
+                  label: 'Deliveries',
+                  value: stats.todayDelivery.toString(),
+                  color: AppTheme.successGreen,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedActivityItem(
+                  label: 'Returns',
+                  value: stats.todaysReturnedDelivery.toString(),
+                  color: AppTheme.rojo,
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _navigateToComments(context),
+                  child: _SimplifiedActivityItem(
+                    label: "Today's Comments",
+                    value: stats.todaysComment.toString(),
+                    color: AppTheme.marianBlue,
+                    isInteractive: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _ProcessingBreakdown extends StatelessWidget {
+class _SimplifiedProcessingSection extends StatelessWidget {
   final VendorStatsEntity stats;
 
-  const _ProcessingBreakdown({required this.stats});
+  const _SimplifiedProcessingSection({required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -472,32 +423,24 @@ class _ProcessingBreakdown extends StatelessWidget {
         processing.arrived;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-          width: 0.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Processing Orders',
+                'Processing Status',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Container(
@@ -517,476 +460,450 @@ class _ProcessingBreakdown extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _ProcessingItem(
+          _SimplifiedProcessingRow(
             label: 'Drop Off',
             count: processing.dropOff,
             color: AppTheme.infoBlue,
-            icon: Icons.file_upload,
           ),
-          const Divider(height: 24),
-          _ProcessingItem(
+          _SimplifiedProcessingRow(
             label: 'Pickup',
             count: processing.pickup,
             color: AppTheme.marianBlue,
-            icon: Icons.inventory,
           ),
-          const Divider(height: 24),
-          _ProcessingItem(
+          _SimplifiedProcessingRow(
             label: 'Dispatch',
             count: processing.dispatch,
             color: AppTheme.warningYellow,
-            icon: Icons.local_shipping,
           ),
-          if (processing.hold > 0) ...[
-            const Divider(height: 24),
-            _ProcessingItem(
+          if (processing.hold > 0)
+            _SimplifiedProcessingRow(
               label: 'On Hold',
               count: processing.hold,
               color: AppTheme.rojo,
-              icon: Icons.pause_circle,
             ),
-          ],
         ],
       ),
     );
   }
 }
 
-class _ProcessingItem extends StatelessWidget {
+class _SimplifiedProcessingRow extends StatelessWidget {
   final String label;
   final int count;
   final Color color;
-  final IconData icon;
 
-  const _ProcessingItem({
+  const _SimplifiedProcessingRow({
     required this.label,
     required this.count,
     required this.color,
-    required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+            ),
           ),
-          child: Icon(icon, color: color, size: 20),
+          Text(
+            count.toString(),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SimplifiedPackagesSection extends StatelessWidget {
+  final VendorStatsEntity stats;
+
+  const _SimplifiedPackagesSection({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
         ),
-        const SizedBox(width: 16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Package Overview',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedPackageItem(
+                  label: 'Total Packages',
+                  value: stats.totalPackages.toString(),
+                  color: AppTheme.marianBlue,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedPackageItem(
+                  label: 'Delivered',
+                  value: stats.deliveredPackages.toString(),
+                  color: AppTheme.successGreen,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedPackageItem(
+                  label: 'Total Value',
+                  value: 'Rs. ${_formatCurrency(stats.totalPackagesValue)}',
+                  color: AppTheme.successGreen,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedPackageItem(
+                  label: 'Delivered Value',
+                  value: 'Rs. ${_formatCurrency(stats.deliveredPackagesValue)}',
+                  color: AppTheme.successGreen,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SimplifiedOrderStatusSection extends StatelessWidget {
+  final VendorStatsEntity stats;
+
+  const _SimplifiedOrderStatusSection({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Order Status',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedStatusItem(
+                  label: 'In Process',
+                  value: stats.ordersInProcess.toString(),
+                  color: AppTheme.infoBlue,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedStatusItem(
+                  label: 'In Delivery',
+                  value: stats.ordersInDeliveryProcess.toString(),
+                  color: AppTheme.marianBlue,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedStatusItem(
+                  label: 'In Return',
+                  value: stats.ordersInReturnProcess.toString(),
+                  color: AppTheme.warningYellow,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedStatusItem(
+                  label: 'Incoming',
+                  value: stats.incomingReturns.toString(),
+                  color: AppTheme.rojo,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedStatusItem(
+                  label: 'Hold',
+                  value: stats.totalHoldOrder.toString(),
+                  color: AppTheme.warningYellow,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedStatusItem(
+                  label: 'RTV',
+                  value: stats.totalRtvOrder.toString(),
+                  color: AppTheme.rojo,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SimplifiedReturnsSection extends StatelessWidget {
+  final VendorStatsEntity stats;
+
+  const _SimplifiedReturnsSection({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Returns Analysis',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _SimplifiedReturnItem(
+                  label: 'True Returns',
+                  count: stats.trueReturnedPackages.count,
+                  value: stats.trueReturnedPackages.value,
+                  color: AppTheme.rojo,
+                ),
+              ),
+              Expanded(
+                child: _SimplifiedReturnItem(
+                  label: 'False Returns',
+                  count: stats.falseReturnedPackages.count,
+                  value: stats.falseReturnedPackages.value,
+                  color: AppTheme.warningYellow,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SimplifiedActivityItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  final bool isInteractive;
+
+  const _SimplifiedActivityItem({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.isInteractive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurface,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
-        const Spacer(),
+        const SizedBox(height: 4),
         Text(
-          count.toString(),
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+            decoration: isInteractive ? TextDecoration.underline : null,
+            decorationColor: isInteractive ? color.withValues(alpha: 0.5) : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SimplifiedStatusItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _SimplifiedStatusItem({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+class _SimplifiedReturnItem extends StatelessWidget {
+  final String label;
+  final int count;
+  final double value;
+  final Color color;
+
+  const _SimplifiedReturnItem({
+    required this.label,
+    required this.count,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Count',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            Text(
+              count.toString(),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Value',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            Text(
+              _formatCurrency(value),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _SimplifiedPackageItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _SimplifiedPackageItem({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: color,
           ),
         ),
       ],
-    );
-  }
-}
-
-class _PackageOverviewGrid extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _PackageOverviewGrid({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverGrid.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.3,
-      children: [
-        _StatItem(
-          label: 'Total Packages',
-          value: stats.totalPackages.toString(),
-          icon: Icons.inventory,
-          color: AppTheme.marianBlue,
-        ),
-        _StatItem(
-          label: 'Delivered',
-          value: stats.deliveredPackages.toString(),
-          icon: Icons.check_circle,
-          color: AppTheme.successGreen,
-        ),
-        _StatItem(
-          label: 'Total Value',
-          value: 'Rs. ${_formatCurrency(stats.totalPackagesValue)}',
-          icon: Icons.monetization_on,
-          color: AppTheme.successGreen,
-        ),
-        _StatItem(
-          label: 'Delivered Value',
-          value: 'Rs. ${_formatCurrency(stats.deliveredPackagesValue)}',
-          icon: Icons.price_check,
-          color: AppTheme.successGreen,
-        ),
-      ],
-    );
-  }
-}
-
-class _OrderStatusGrid extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _OrderStatusGrid({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverGrid.count(
-      crossAxisCount: 3,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 0.9,
-      children: [
-        _MiniStatItem(
-          label: 'In Process',
-          value: stats.ordersInProcess.toString(),
-          color: AppTheme.infoBlue,
-        ),
-        _MiniStatItem(
-          label: 'In Delivery',
-          value: stats.ordersInDeliveryProcess.toString(),
-          color: AppTheme.marianBlue,
-        ),
-        _MiniStatItem(
-          label: 'In Return',
-          value: stats.ordersInReturnProcess.toString(),
-          color: AppTheme.warningYellow,
-        ),
-        _MiniStatItem(
-          label: 'Incoming',
-          value: stats.incomingReturns.toString(),
-          color: AppTheme.rojo,
-        ),
-        _MiniStatItem(
-          label: 'Hold',
-          value: stats.totalHoldOrder.toString(),
-          color: AppTheme.warningYellow,
-        ),
-        _MiniStatItem(
-          label: 'RTV',
-          value: stats.totalRtvOrder.toString(),
-          color: AppTheme.rojo,
-        ),
-      ],
-    );
-  }
-}
-
-class _ReturnsAnalysisGrid extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _ReturnsAnalysisGrid({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverGrid.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 1.4,
-      children: [
-        _ReturnStatItem(
-          label: 'True Returns',
-          count: stats.trueReturnedPackages.count,
-          value: stats.trueReturnedPackages.value,
-          color: AppTheme.rojo,
-        ),
-        _ReturnStatItem(
-          label: 'False Returns',
-          count: stats.falseReturnedPackages.count,
-          value: stats.falseReturnedPackages.value,
-          color: AppTheme.warningYellow,
-        ),
-      ],
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const _StatItem({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Widget content = Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 1,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-    
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        splashColor: color.withValues(alpha: 0.1),
-        highlightColor: color.withValues(alpha: 0.05),
-        child: content,
-      );
-    }
-    
-    return content;
-  }
-}
-
-class _MiniStatItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _MiniStatItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 1,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: color,
-                fontSize: 18,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ReturnStatItem extends StatelessWidget {
-  final String label;
-  final int count;
-  final double value;
-  final Color color;
-
-  const _ReturnStatItem({
-    required this.label,
-    required this.count,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ),
-          const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Count',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                count.toString(),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Value',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                _formatCurrency(value),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-
-  const _SectionTitle({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
     );
   }
 }

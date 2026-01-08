@@ -1,51 +1,49 @@
 import 'dart:convert';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
-import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_state.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_card_actions.dart';
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';
+import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_state.dart';
 
 @RoutePage()
-class OrderDetailPage extends StatelessWidget {
+class OrderDetailPage extends StatefulWidget {
   final int orderId;
 
-  const OrderDetailPage({
-    super.key,
-    @PathParam('orderId') required this.orderId,
-  });
+  const OrderDetailPage({super.key, required this.orderId});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          getIt<OrderDetailBloc>()..add(OrderDetailRequested(orderId: orderId)),
-      child: const _OrderDetailView(),
-    );
-  }
+  State<OrderDetailPage> createState() => _OrderDetailPageState();
 }
 
-class _OrderDetailView extends StatefulWidget {
-  const _OrderDetailView();
-
-  @override
-  State<_OrderDetailView> createState() => _OrderDetailViewState();
-}
-
-class _OrderDetailViewState extends State<_OrderDetailView>
+class _OrderDetailPageState extends State<OrderDetailPage>
     with OrderCardActionsMixin {
   bool _isMessagesExpanded = true;
+  bool _isCommentsExpanded = true;
+  final TextEditingController _newCommentController = TextEditingController();
+  String _selectedCommentType = 'Information';
+
+  @override
+  void initState() {
+    super.initState();
+    // Load order details when the page is first created
+    context.read<OrderDetailBloc>().add(
+      OrderDetailRequested(orderId: widget.orderId),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
@@ -133,14 +131,11 @@ class _OrderDetailViewState extends State<_OrderDetailView>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildOrderHeader(context, order),
-            const SizedBox(height: 16),
-            _buildBasicInfoSection(context, order),
-            const SizedBox(height: 16),
-            _buildAdditionalInfoSection(context, order),
-            const SizedBox(height: 16),
-            _buildQRCodeSection(context, order),
+            _buildCombinedInfoSection(context, order),
             const SizedBox(height: 16),
             _buildStatusUpdatesSection(context, order),
+            const SizedBox(height: 16),
+            _buildCommentsSection(context, order),
             const SizedBox(height: 16),
             _buildMessageSection(context, order),
             const SizedBox(height: 100),
@@ -178,7 +173,10 @@ class _OrderDetailViewState extends State<_OrderDetailView>
     );
   }
 
-  Widget _buildBasicInfoSection(BuildContext context, OrderDetailEntity order) {
+  Widget _buildCombinedInfoSection(
+    BuildContext context,
+    OrderDetailEntity order,
+  ) {
     final theme = Theme.of(context);
 
     return Container(
@@ -194,8 +192,9 @@ class _OrderDetailViewState extends State<_OrderDetailView>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Basic Info Section
           Text(
-            'Basic Info',
+            'Order Information',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -253,126 +252,144 @@ class _OrderDetailViewState extends State<_OrderDetailView>
           _buildInfoRow('Created On:', order.createdOnFormatted, theme),
           const SizedBox(height: 8),
           _buildInfoRow('Created By:', 'Demo Vendor', theme),
+          const SizedBox(height: 16),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: GestureDetector(
+                  onTap: () => _EditAdditionalInfoDialog.show(
+                    context,
+                    initialPriority: 'Normal',
+                    initialDescription: order.orderDescription,
+                    initialVendorReferenceId: order.vendorReferenceId.isEmpty
+                        ? null
+                        : order.vendorReferenceId,
+                    initialDeliveryInstruction:
+                        order.deliveryInstruction.isEmpty
+                        ? null
+                        : order.deliveryInstruction,
+                    onUpdate: (data) {
+                      
+                    },
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Additional Info',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _buildCompactInfoRow(
+                        'Tracking Code:',
+                        order.orderId.toString(),
+                        theme,
+                      ),
+                      const SizedBox(height: 6),
+                      _buildCompactInfoRow(
+                        'Package Access:',
+                        'Can\'t Open',
+                        theme,
+                      ),
+                      const SizedBox(height: 6),
+                      _buildCompactInfoRow(
+                        'Delivery Instruction:',
+                        order.deliveryInstruction.isEmpty
+                            ? '-'
+                            : order.deliveryInstruction,
+                        theme,
+                      ),
+                      const SizedBox(height: 6),
+                      _buildCompactInfoRow(
+                        'Vendor Reference ID:',
+                        order.vendorReferenceId.isEmpty
+                            ? 'None'
+                            : order.vendorReferenceId,
+                        theme,
+                      ),
+                      const SizedBox(height: 6),
+                      _buildCompactInfoRow(
+                        'Description:',
+                        order.orderDescription,
+                        theme,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              // QR Code Section
+              Expanded(
+                flex: 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: theme.colorScheme.outline),
+                  ),
+                  child: Center(
+                    child: Image.memory(
+                      base64Decode(order.qrCode),
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.qr_code_2,
+                          size: 80,
+                          color: Colors.grey,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAdditionalInfoSection(
-    BuildContext context,
-    OrderDetailEntity order,
-  ) {
-    final theme = Theme.of(context);
-
-    return GestureDetector(
-      onTap: () => _EditAdditionalInfoDialog.show(
-        context,
-        initialPriority: 'Normal',
-        initialDescription: order.orderDescription,
-        initialVendorReferenceId: order.vendorReferenceId.isEmpty
-            ? null
-            : order.vendorReferenceId,
-        initialDeliveryInstruction: order.deliveryInstruction.isEmpty
-            ? null
-            : order.deliveryInstruction,
-        onUpdate: (data) {
-          // Handle the update here
-          // You might want to dispatch an event to update the order
-          // context.read<OrderDetailBloc>().add(UpdateOrderAdditionalInfo(orderId: order.orderId, data: data));
-        },
-      ),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.scaffoldBackgroundColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Additional Info',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.edit_outlined,
-                  size: 20,
-                  color: theme.colorScheme.primary,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow('Tracking Code:', order.orderId.toString(), theme),
-            const SizedBox(height: 8),
-            _buildInfoRow('Package Access:', 'Can\'t Open', theme),
-            const SizedBox(height: 8),
-            _buildInfoRow(
-              'Delivery Instruction:',
-              order.deliveryInstruction.isEmpty
-                  ? '-'
-                  : order.deliveryInstruction,
-              theme,
-            ),
-            const SizedBox(height: 8),
-            _buildInfoRow(
-              'Vendor Reference ID:',
-              order.vendorReferenceId.isEmpty
-                  ? 'None'
-                  : order.vendorReferenceId,
-              theme,
-            ),
-            const SizedBox(height: 8),
-            _buildInfoRow('Description:', order.orderDescription, theme),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQRCodeSection(BuildContext context, OrderDetailEntity order) {
-    final theme = Theme.of(context);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Center(
-        child: Container(
-          width: 200,
-          height: 200,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: theme.colorScheme.outline),
-          ),
-          child: Center(
-            child: Image.memory(
-              base64Decode(order.qrCode),
-              width: 195,
-              height: 195,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.qr_code_2, size: 100, color: Colors.grey);
-              },
+  Widget _buildCompactInfoRow(String label, String value, ThemeData theme) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 120,
+          child: Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ),
-      ),
+        Expanded(
+          child: Text(
+            value,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 
@@ -596,6 +613,236 @@ class _OrderDetailViewState extends State<_OrderDetailView>
     );
   }
 
+  Widget _buildCommentsSection(BuildContext context, OrderDetailEntity order) {
+    final theme = Theme.of(context);
+    final comments = order.comments ?? [];
+
+    // Debug print to check if comments are being received
+    print('Comments in order: ${comments.length}');
+    for (var comment in comments) {
+      print(
+        'Comment: ${comment.comments}, Type: ${comment.commentType}, Added by: ${comment.addedByName}',
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _isCommentsExpanded = !_isCommentsExpanded;
+              });
+            },
+            child: Row(
+              children: [
+                Text(
+                  'Comments',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.comment_outlined,
+                  size: 24,
+                  color: theme.colorScheme.onSurface,
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {
+                    _showAddCommentDialog(context, theme);
+                  },
+                  icon: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.marianBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 18),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Add New Comment',
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  _isCommentsExpanded
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
+                  size: 24,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ],
+            ),
+          ),
+          if (_isCommentsExpanded) ...[
+            const SizedBox(height: 16),
+            if (comments.isEmpty)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Text(
+                    'No comments yet. Click + to add one.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: comments.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final comment = comments[index];
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: comment.isImportant
+                                    ? theme.colorScheme.error.withValues(
+                                        alpha: 0.1,
+                                      )
+                                    : theme.colorScheme.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                comment.commentTypeDisplay,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: comment.isImportant
+                                      ? theme.colorScheme.error
+                                      : theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            if (comment.isImportant)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.error.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.priority_high,
+                                      size: 14,
+                                      color: theme.colorScheme.error,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Important',
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: theme.colorScheme.error,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            const Spacer(),
+                            Text(
+                              comment.createdOnFormatted,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          comment.comments,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Added by ${comment.addedByName}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                        ),
+                        if (comment.canReply) ...[
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: () {
+                                _showAddCommentDialog(
+                                  context,
+                                  theme,
+                                  commentToReply: comment,
+                                );
+                              },
+                              icon: const Icon(Icons.reply, size: 16),
+                              label: const Text('Reply'),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoRow(String label, String value, ThemeData theme) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,6 +865,439 @@ class _OrderDetailViewState extends State<_OrderDetailView>
           ),
         ),
       ],
+    );
+  }
+
+  void _showAddCommentDialog(
+    BuildContext context,
+    ThemeData theme, {
+    CommentsEntity? commentToReply,
+  }) {
+    _newCommentController.clear();
+    _selectedCommentType = 'Information';
+
+    final parentContext = context;
+    final isReply = commentToReply != null;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return BlocListener<CommentsBloc, CommentsState>(
+          listener: (listenerContext, state) {
+            debugPrint(
+              '[DIALOG] CommentsBloc state changed: ${state.runtimeType}',
+            );
+            if (state is CreateCommentOrderdetailSuccess) {
+              debugPrint(
+                '[DIALOG] Success state commentId: ${state.commentId}, widget.orderId: ${widget.orderId}',
+              );
+              // Only handle if this is for the current order
+              if (state.commentId == widget.orderId.toString()) {
+                debugPrint('[DIALOG] IDs match, adding comment to UI...');
+                // Add comment optimistically to the UI without full refresh
+                final newComment = CommentsEntity(
+                  id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
+                  comments: _newCommentController.text,
+                  commentType: _selectedCommentType,
+                  commentTypeDisplay: _selectedCommentType,
+                  status: null,
+                  statusDisplay: null,
+                  addedByName:
+                      'You', // Placeholder, will be updated on next fetch
+                  createdOn: DateTime.now().toIso8601String(),
+                  createdOnFormatted: 'Just now',
+                  isImportant: false,
+                  canReply: false,
+                );
+
+                // Use parent context to access OrderDetailBloc
+                parentContext.read<OrderDetailBloc>().add(
+                  OrderDetailCommentAdded(comment: newComment),
+                );
+
+                // Clear the text field
+                _newCommentController.clear();
+
+                // Safely close dialog
+                if (Navigator.of(dialogContext).canPop()) {
+                  Navigator.of(dialogContext).pop();
+                }
+
+                // Show success message
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  const SnackBar(
+                    content: Text('Comment added successfully'),
+                    duration: Duration(seconds: 2),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            } else if (state is ReplyCommentOrderDetailSuccess) {
+              // Handle reply success
+              if (commentToReply != null &&
+                  state.commentId == commentToReply.id.toString()) {
+                // Clear the text field
+                _newCommentController.clear();
+
+                // Safely close dialog
+                if (Navigator.of(dialogContext).canPop()) {
+                  Navigator.of(dialogContext).pop();
+                }
+
+                // Show success message
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  const SnackBar(
+                    content: Text('Reply added successfully'),
+                    duration: Duration(seconds: 2),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                // Refresh order details to show the new reply
+                parentContext.read<OrderDetailBloc>().add(
+                  OrderDetailRefreshRequested(orderId: widget.orderId),
+                );
+              }
+            } else if (state is CreateCommentOrderdetailError) {
+              // Only show error if this is for the current order
+              if (state.commentId == widget.orderId.toString()) {
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            } else if (state is ReplyCommentOrderDetailError) {
+              // Handle reply error
+              if (commentToReply != null &&
+                  state.commentId == commentToReply.id.toString()) {
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          },
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return BlocBuilder<CommentsBloc, CommentsState>(
+                builder: (context, state) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Header
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
+                              ),
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: AppTheme.lightGray,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  isReply
+                                      ? 'Reply to Comment'
+                                      : 'Add New Comment',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.blackBean,
+                                  ),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  onPressed: () =>
+                                      Navigator.of(dialogContext).pop(),
+                                  icon: const Icon(Icons.close),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  iconSize: 24,
+                                  color: AppTheme.darkGray,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Content
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Comments field
+                                Text(
+                                  isReply ? 'Reply*' : 'Comments*',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppTheme.blackBean,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: _newCommentController,
+                                  maxLines: 5,
+                                  decoration: InputDecoration(
+                                    hintText: isReply
+                                        ? 'Enter your reply here...'
+                                        : 'Enter your comment here...',
+                                    hintStyle: TextStyle(
+                                      color: AppTheme.darkGray.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.lightGray,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.lightGray,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.marianBlue,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.all(12),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                // Comment Type dropdown (for both new comments and replies)
+                                Text(
+                                  'Comment Type*',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppTheme.blackBean,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<String>(
+                                  initialValue: _selectedCommentType,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.lightGray,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.lightGray,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.marianBlue,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                  items: ['Information', 'Actionable'].map((
+                                    String value,
+                                  ) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(() {
+                                        _selectedCommentType = newValue;
+                                      });
+                                    }
+                                  },
+                                ),
+
+                                const SizedBox(height: 24),
+
+                                // Buttons
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop();
+                                      },
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppTheme.darkGray,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 12,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    ElevatedButton(
+                                      onPressed:
+                                          (isReply
+                                              ? state
+                                                        is ReplyCommentOrderDetailLoading &&
+                                                    state.commentId ==
+                                                        commentToReply.id
+                                                            .toString()
+                                              : state
+                                                    is CreateCommentOrderdetailLoading)
+                                          ? null
+                                          : () {
+                                              if (_newCommentController
+                                                  .text
+                                                  .isEmpty) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      isReply
+                                                          ? 'Please enter a reply'
+                                                          : 'Please enter a comment',
+                                                    ),
+                                                    duration: const Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
+                                              if (isReply) {
+                                                // Use the CommentsBloc to reply to a comment
+                                                context.read<CommentsBloc>().add(
+                                                  ReplyCommentOrderDetailEvent(
+                                                    commentId: commentToReply.id
+                                                        .toString(),
+                                                    comment: commentToReply
+                                                        .comments, // Include original comment text
+                                                    reply: _newCommentController
+                                                        .text,
+                                                    commentType:
+                                                        _selectedCommentType, // Use selected comment type
+                                                  ),
+                                                );
+                                              } else {
+                                                // Use the CommentsBloc to create a comment
+                                                context.read<CommentsBloc>().add(
+                                                  CreateCommentOrderdetailEvent(
+                                                    commentId: widget.orderId
+                                                        .toString(),
+                                                    comment:
+                                                        _newCommentController
+                                                            .text,
+                                                    commentType:
+                                                        _selectedCommentType,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.marianBlue,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 12,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child:
+                                          (isReply
+                                              ? state
+                                                        is ReplyCommentOrderDetailLoading &&
+                                                    state.commentId ==
+                                                        commentToReply.id
+                                                            .toString()
+                                              : state
+                                                    is CreateCommentOrderdetailLoading)
+                                          ? const SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.white),
+                                              ),
+                                            )
+                                          : Text(
+                                              isReply
+                                                  ? 'Send Reply'
+                                                  : 'Add Comment',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -752,7 +1432,9 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
         ),
       ),
       child: Row(
@@ -761,7 +1443,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             child: Text(
               'Update Description',
               style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -770,7 +1452,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(
               Icons.close_rounded,
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -788,7 +1470,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           text: TextSpan(
             text: 'Priority',
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
             ),
             children: [
@@ -805,7 +1487,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             color: theme.scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(0.3),
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
             ),
           ),
           child: DropdownButtonHideUnderline(
@@ -815,7 +1497,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               icon: Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               style: theme.textTheme.bodyLarge,
               items: _priorities.map((priority) {
@@ -845,7 +1527,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         Text(
           'Description',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -856,20 +1538,20 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           decoration: InputDecoration(
             hintText: 'Enter description',
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             filled: true,
             fillColor: theme.scaffoldBackgroundColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -893,7 +1575,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         Text(
           'Vendor reference id',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -903,20 +1585,20 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           decoration: InputDecoration(
             hintText: 'Enter vendor reference id',
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             filled: true,
             fillColor: theme.scaffoldBackgroundColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -940,7 +1622,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         Text(
           'Delivery instruction',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -951,20 +1633,20 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           decoration: InputDecoration(
             hintText: 'Enter delivery instruction',
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             filled: true,
             fillColor: theme.scaffoldBackgroundColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -986,7 +1668,9 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+          top: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
         ),
       ),
       child: Row(
@@ -1017,7 +1701,9 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             child: ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.onSurface.withOpacity(0.5),
+                backgroundColor: theme.colorScheme.onSurface.withValues(
+                  alpha: 0.5,
+                ),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

@@ -63,11 +63,40 @@ class ReplyToCommentEvent extends CommentsEvent {
   final String commentId;
   final String comment;
 
-  const ReplyToCommentEvent({
-    required this.commentId,
-    required this.comment,
-  });
+  const ReplyToCommentEvent({required this.commentId, required this.comment});
 
   @override
   List<Object?> get props => [commentId, comment];
+}
+
+class CreateCommentOrderdetailEvent extends CommentsEvent {
+  final String commentId;
+  final String comment;
+  final String commentType;
+
+  const CreateCommentOrderdetailEvent({
+    required this.commentId,
+    required this.comment,
+    required this.commentType,
+  });
+
+  @override
+  List<Object?> get props => [commentId, comment, commentType];
+}
+
+class ReplyCommentOrderDetailEvent extends CommentsEvent {
+  final String commentId;
+  final String comment;
+  final String reply;
+  final String commentType;
+
+  const ReplyCommentOrderDetailEvent({
+    required this.commentId,
+    required this.comment,
+    required this.reply,
+    required this.commentType,
+  });
+
+  @override
+  List<Object?> get props => [commentId, comment, reply, commentType];
 }

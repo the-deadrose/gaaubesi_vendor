@@ -42,8 +42,12 @@ import 'package:gaaubesi_vendor/features/comments/domain/usecase/all_comments_us
     as _i932;
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/comment_reply_usecase.dart'
     as _i383;
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/create_comment_orderdetail_usecase.dart'
+    as _i350;
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/filtered_comments_usecase.dart'
     as _i625;
+import 'package:gaaubesi_vendor/features/comments/domain/usecase/reply_comment_order_detail_usecase.dart'
+    as _i942;
 import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments_usecase.dart'
     as _i427;
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart'
@@ -58,6 +62,8 @@ import 'package:gaaubesi_vendor/features/home/domain/usecases/get_vendor_stats_u
     as _i84;
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart'
     as _i915;
+import 'package:gaaubesi_vendor/features/orderdetail/domain/usecase/fetch_order_detail_usecase.dart'
+    as _i170;
 import 'package:gaaubesi_vendor/features/orders/data/datasources/order_remote_data_source.dart'
     as _i700;
 import 'package:gaaubesi_vendor/features/orders/data/repositories/order_repository_impl.dart'
@@ -68,8 +74,6 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_use
     as _i353;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
     as _i451;
-import 'package:gaaubesi_vendor/features/orderdetail/domain/usecase/fetch_order_detail_usecase.dart'
-    as _i739;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart'
     as _i340;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_possible_redirect_orders_usecase.dart'
@@ -132,14 +136,14 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
       ),
     );
+    gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
+      () => _i170.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
+    );
     gh.lazySingleton<_i353.CreateOrderUseCase>(
       () => _i353.CreateOrderUseCase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
       () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i739.FetchOrderDetailUseCase>(
-      () => _i739.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i340.FetchOrdersUseCase>(
       () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
@@ -170,11 +174,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i84.GetVendorStatsUseCase>(
       () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
-    );
-    gh.factory<_i124.OrderDetailBloc>(
-      () => _i124.OrderDetailBloc(
-        fetchOrderDetailUseCase: gh<_i739.FetchOrderDetailUseCase>(),
-      ),
     );
     gh.lazySingleton<_i277.GetCurrentUserUseCase>(
       () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
@@ -208,6 +207,11 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
       ),
     );
+    gh.factory<_i124.OrderDetailBloc>(
+      () => _i124.OrderDetailBloc(
+        fetchOrderDetailUseCase: gh<_i170.FetchOrderDetailUseCase>(),
+      ),
+    );
     gh.factory<_i915.HomeBloc>(
       () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
     );
@@ -217,8 +221,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i383.CommentReplyUsecase>(
       () => _i383.CommentReplyUsecase(gh<_i92.CommentsRepository>()),
     );
+    gh.lazySingleton<_i350.CreateCommentOrderdetailUsecase>(
+      () =>
+          _i350.CreateCommentOrderdetailUsecase(gh<_i92.CommentsRepository>()),
+    );
     gh.lazySingleton<_i625.FilteredCommentsUsecase>(
       () => _i625.FilteredCommentsUsecase(gh<_i92.CommentsRepository>()),
+    );
+    gh.lazySingleton<_i942.ReplyCommentOrderDetailUsecase>(
+      () => _i942.ReplyCommentOrderDetailUsecase(gh<_i92.CommentsRepository>()),
     );
     gh.lazySingleton<_i427.TodaysCommentsUsecase>(
       () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
@@ -240,6 +251,10 @@ extension GetItInjectableX on _i174.GetIt {
         allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
         filteredCommentsUsecase: gh<_i625.FilteredCommentsUsecase>(),
         commentReplyUsecase: gh<_i383.CommentReplyUsecase>(),
+        createCommentOrderdetailUsecase:
+            gh<_i350.CreateCommentOrderdetailUsecase>(),
+        replyCommentOrderDetailUsecase:
+            gh<_i942.ReplyCommentOrderDetailUsecase>(),
       ),
     );
     return this;

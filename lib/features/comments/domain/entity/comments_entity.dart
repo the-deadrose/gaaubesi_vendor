@@ -140,3 +140,4 @@ class FiltersAppliedEntity extends Equatable {
   @override
   List<Object?> get props => [branch, status, keyword];
 }
+

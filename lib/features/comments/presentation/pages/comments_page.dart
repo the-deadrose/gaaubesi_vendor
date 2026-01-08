@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'dart:async';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
-import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/entity/comments_entity.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_state.dart';
+
+// Global RouteObserver for tracking route lifecycle
+final RouteObserver<PageRoute> commentsRouteObserver =
+    RouteObserver<PageRoute>();
 
 @RoutePage()
 class CommentsPage extends StatefulWidget {
@@ -20,7 +24,10 @@ class CommentsPage extends StatefulWidget {
 }
 
 class _CommentsPageState extends State<CommentsPage>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        SingleTickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        RouteAware {
   late TabController _tabController;
   final ScrollController _todayScrollController = ScrollController();
   final ScrollController _allScrollController = ScrollController();
@@ -39,6 +46,7 @@ class _CommentsPageState extends State<CommentsPage>
   bool _isFilterExpanded = false;
   Timer? _debounceTimer;
   final TextEditingController _replyController = TextEditingController();
+  bool _hasLoadedOnce = false;
 
   @override
   void initState() {
@@ -50,19 +58,83 @@ class _CommentsPageState extends State<CommentsPage>
     );
     _currentTabIndex = widget.initialTab;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.initialTab == 0) {
-        context.read<CommentsBloc>().add(
-          const FetchCommentsEvent(page: '1', isTodays: true),
-        );
-      } else {
-        context.read<CommentsBloc>().add(
-          const FetchCommentsEvent(page: '1', isTodays: false),
-        );
-      }
+      _loadInitialData();
     });
 
     _tabController.addListener(_onTabChanged);
     _setupScrollListeners();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    commentsRouteObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void didPopNext() {
+    // Called when a route has been popped off, and the current route shows up.
+    // This is when we navigate BACK to this page
+    print('[CommentsPage] didPopNext - User navigated back to this page');
+    if (_hasLoadedOnce) {
+      _refreshCurrentTab();
+    }
+  }
+
+  @override
+  void didPush() {
+    // Called when the current route has been pushed.
+    print('[CommentsPage] didPush - Route pushed');
+  }
+
+  @override
+  void didPop() {
+    // Called when the current route has been popped off.
+    print('[CommentsPage] didPop - Route popped');
+  }
+
+  @override
+  void didPushNext() {
+    // Called when a new route has been pushed, and the current route is no longer visible.
+    print('[CommentsPage] didPushNext - User navigated away from this page');
+  }
+
+  @override
+  void didUpdateWidget(CommentsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the page is re-rendered with new parameters, refresh data
+    if (_hasLoadedOnce && widget.initialTab != oldWidget.initialTab) {
+      _currentTabIndex = widget.initialTab;
+      _tabController.animateTo(widget.initialTab);
+      _refreshCurrentTab();
+    }
+  }
+
+  void _loadInitialData() {
+    _hasLoadedOnce = true;
+    if (widget.initialTab == 0) {
+      context.read<CommentsBloc>().add(
+        const FetchCommentsEvent(page: '1', isTodays: true),
+      );
+    } else {
+      context.read<CommentsBloc>().add(
+        const FetchCommentsEvent(page: '1', isTodays: false),
+      );
+    }
+  }
+
+  void _refreshCurrentTab() {
+    print('[CommentsPage] Refreshing current tab: $_currentTabIndex');
+    // Refresh the current tab's data
+    if (_currentTabIndex == 0) {
+      context.read<CommentsBloc>().add(
+        const RefreshCommentsEvent(isTodays: true),
+      );
+    } else {
+      context.read<CommentsBloc>().add(
+        const RefreshCommentsEvent(isTodays: false),
+      );
+    }
   }
 
   void _applyCurrentFilter() {
@@ -239,6 +311,7 @@ class _CommentsPageState extends State<CommentsPage>
 
   @override
   void dispose() {
+    commentsRouteObserver.unsubscribe(this);
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _todayScrollController.dispose();
@@ -253,94 +326,106 @@ class _CommentsPageState extends State<CommentsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-        leading: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white),
-            shape: BoxShape.circle,
-          ),
-          margin: const EdgeInsets.all(12.0),
-          padding: const EdgeInsets.all(2.0),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            iconSize: 20,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            onPressed: () {
-              context.router.pop();
-            },
-          ),
-        ),
-        title: const Text(
-          'Comments',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
-        ),
-        centerTitle: true,
-        backgroundColor: AppTheme.marianBlue,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
-        children: [
-          _buildFilterSection(),
-          const SizedBox(height: 8),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
-            padding: const EdgeInsets.all(4.0),
+
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        // This is called when navigating away from this page
+        // We don't need to do anything here
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Container(
             decoration: BoxDecoration(
-              color: AppTheme.lightGray,
-              borderRadius: BorderRadius.circular(16.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              border: Border.all(color: Colors.white),
+              shape: BoxShape.circle,
             ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
+            margin: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(2.0),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              iconSize: 20,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: () {
+                context.router.pop();
+              },
+            ),
+          ),
+          title: const Text(
+            'Comments',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+          ),
+          centerTitle: true,
+          backgroundColor: AppTheme.marianBlue,
+          foregroundColor: Colors.white,
+        ),
+        body: Column(
+          children: [
+            _buildFilterSection(),
+            const SizedBox(height: 8),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                color: AppTheme.lightGray,
+                borderRadius: BorderRadius.circular(16.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              labelColor: AppTheme.marianBlue,
-              unselectedLabelColor: AppTheme.darkGray,
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-              dividerHeight: 0,
-              indicatorSize: TabBarIndicatorSize.tab,
-              tabs: const [
-                Tab(
-                  icon: Icon(Icons.today, size: 20),
-                  text: 'Today\'s',
-                  height: 46,
+              child: TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                Tab(icon: Icon(Icons.list, size: 20), text: 'All', height: 46),
-              ],
+                labelColor: AppTheme.marianBlue,
+                unselectedLabelColor: AppTheme.darkGray,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+                dividerHeight: 0,
+                indicatorSize: TabBarIndicatorSize.tab,
+                tabs: const [
+                  Tab(
+                    icon: Icon(Icons.today, size: 20),
+                    text: 'Today\'s',
+                    height: 46,
+                  ),
+                  Tab(
+                    icon: Icon(Icons.list, size: 20),
+                    text: 'All',
+                    height: 46,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [_buildTodayTab(), _buildAllTab()],
+            const SizedBox(height: 8),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [_buildTodayTab(), _buildAllTab()],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -714,7 +799,9 @@ class _CommentsPageState extends State<CommentsPage>
                       _showCloseCommentDialog(comment);
                     },
                     style: TextButton.styleFrom(
-                      backgroundColor: AppTheme.marianBlue.withValues(alpha: 0.1),
+                      backgroundColor: AppTheme.marianBlue.withValues(
+                        alpha: 0.1,
+                      ),
                       foregroundColor: AppTheme.marianBlue,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -728,7 +815,10 @@ class _CommentsPageState extends State<CommentsPage>
                     ),
                     child: const Text(
                       'Reply',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -739,10 +829,7 @@ class _CommentsPageState extends State<CommentsPage>
             if (comment.isImportant) ...[
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppTheme.rojo.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(6),
@@ -924,7 +1011,10 @@ class _CommentsPageState extends State<CommentsPage>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.marianBlue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1655,7 +1745,10 @@ class _CommentsPageState extends State<CommentsPage>
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        _closeComment(comment.id.toString(), _replyController.text);
+                        _closeComment(
+                          comment.id.toString(),
+                          _replyController.text,
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.marianBlue,

@@ -17,5 +17,16 @@ abstract class CommentsRepository {
     String? searchId,
   });
 
+  Future<Either<Failure, void>> createCommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String commentType,
+  });
 
+  Future<Either<Failure, void>> replyToCommentOrderDetail({
+    required String commentId,
+    required String comment,
+    required String reply,
+    required String commentType,
+  });
 }

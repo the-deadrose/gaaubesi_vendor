@@ -19,13 +19,55 @@ class MessageEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        messageType,
-        messageText,
-        sentOn,
-        sentOnFormatted,
-        sentByName,
-      ];
+    id,
+    messageType,
+    messageText,
+    sentOn,
+    sentOnFormatted,
+    sentByName,
+  ];
+}
+
+class CommentsEntity extends Equatable {
+  final int id;
+  final String comments;
+  final String commentType;
+  final String commentTypeDisplay;
+  final String? status;
+  final String? statusDisplay;
+  final String addedByName;
+  final String createdOn;
+  final String createdOnFormatted;
+  final bool isImportant;
+  final bool canReply;
+  const CommentsEntity({
+    required this.id,
+    required this.comments,
+    required this.commentType,
+    required this.commentTypeDisplay,
+    this.status,
+    this.statusDisplay,
+    required this.addedByName,
+    required this.createdOn,
+    required this.createdOnFormatted,
+    required this.isImportant,
+    required this.canReply,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    comments,
+    commentType,
+    commentTypeDisplay,
+    status,
+    statusDisplay,
+    addedByName,
+    createdOn,
+    createdOnFormatted,
+    isImportant,
+    canReply,
+  ];
 }
 
 class OrderDetailEntity extends Equatable {
@@ -64,6 +106,7 @@ class OrderDetailEntity extends Equatable {
   final bool isActive;
   final String qrCode;
   final List<MessageEntity>? messages;
+  final List<CommentsEntity>? comments;
 
   const OrderDetailEntity({
     required this.orderId,
@@ -101,44 +144,46 @@ class OrderDetailEntity extends Equatable {
     required this.isActive,
     required this.qrCode,
     this.messages,
+    this.comments,
   });
 
   @override
   List<Object?> get props => [
-        orderId,
-        orderIdWithStatus,
-        trackId,
-        orderType,
-        vendorName,
-        vendorReferenceId,
-        sourceBranch,
-        sourceBranchCode,
-        destinationBranch,
-        destinationBranchCode,
-        warehouseBranch,
-        receiverName,
-        receiverNumber,
-        altReceiverNumber,
-        receiverAddress,
-        weight,
-        codCharge,
-        deliveryCharge,
-        packageAccess,
-        pickupType,
-        paymentType,
-        lastDeliveryStatus,
-        orderDescription,
-        deliveryInstruction,
-        createdOn,
-        createdOnFormatted,
-        deliveredDate,
-        deliveredDateFormatted,
-        hold,
-        vendorReturn,
-        isExchangeOrder,
-        isRefundOrder,
-        isActive,
-        qrCode,
-        messages,
-      ];
-    }
+    orderId,
+    orderIdWithStatus,
+    trackId,
+    orderType,
+    vendorName,
+    vendorReferenceId,
+    sourceBranch,
+    sourceBranchCode,
+    destinationBranch,
+    destinationBranchCode,
+    warehouseBranch,
+    receiverName,
+    receiverNumber,
+    altReceiverNumber,
+    receiverAddress,
+    weight,
+    codCharge,
+    deliveryCharge,
+    packageAccess,
+    pickupType,
+    paymentType,
+    lastDeliveryStatus,
+    orderDescription,
+    deliveryInstruction,
+    createdOn,
+    createdOnFormatted,
+    deliveredDate,
+    deliveredDateFormatted,
+    hold,
+    vendorReturn,
+    isExchangeOrder,
+    isRefundOrder,
+    isActive,
+    qrCode,
+    messages,
+    comments,
+  ];
+}

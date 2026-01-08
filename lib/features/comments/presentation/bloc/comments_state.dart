@@ -190,6 +190,37 @@ class CommentReplySuccess extends CommentsState {
   List<Object?> get props => [commentId];
 }
 
+class CreateCommentOrderdetailLoading extends CommentsState {
+  final String commentId;
+
+  const CreateCommentOrderdetailLoading({required this.commentId});
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
+class CreateCommentOrderdetailSuccess extends CommentsState {
+  final String commentId;
+
+  const CreateCommentOrderdetailSuccess({required this.commentId});
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
+class CreateCommentOrderdetailError extends CommentsState {
+  final String message;
+  final String commentId;
+
+  const CreateCommentOrderdetailError({
+    required this.message,
+    required this.commentId,
+  });
+
+  @override
+  List<Object?> get props => [message, commentId];
+}
+
 class CommentReplyError extends CommentsState {
   final String message;
   final String commentId;
@@ -210,5 +241,36 @@ class CommentReplyLoading extends CommentsState {
 
   @override
   List<Object?> get props => [commentId];
+}
+
+class ReplyCommentOrderDetailLoading extends CommentsState {
+  final String commentId;
+
+  const ReplyCommentOrderDetailLoading({required this.commentId});
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
+class ReplyCommentOrderDetailSuccess extends CommentsState {
+  final String commentId;
+
+  const ReplyCommentOrderDetailSuccess({required this.commentId});
+
+  @override
+  List<Object?> get props => [commentId];
+}
+
+class ReplyCommentOrderDetailError extends CommentsState {
+  final String message;
+  final String commentId;
+
+  const ReplyCommentOrderDetailError({
+    required this.message,
+    required this.commentId,
+  });
+
+  @override
+  List<Object?> get props => [message, commentId];
 }
 
