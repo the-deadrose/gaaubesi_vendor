@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gaaubesi_vendor/core/theme/text_styles.dart';
 import 'package:gaaubesi_vendor/core/widgets/custom_card.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 
 @RoutePage()
 class UtilitiesPage extends StatelessWidget {
@@ -24,6 +25,11 @@ class UtilitiesPage extends StatelessWidget {
         'color': Colors.red,
       },
       {'icon': Icons.help, 'label': 'Help Guide', 'color': Colors.teal},
+      {
+        'icon': Icons.support_agent,
+        'label': 'Tickets',
+        'color': Colors.indigo,
+      },
     ];
 
     return Scaffold(
@@ -40,7 +46,11 @@ class UtilitiesPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = utilities[index];
           return CustomCard(
-            onTap: () {},
+            onTap: () {
+              if (item['label'] == 'Tickets') {
+                context.router.push(TicketsRoute());
+              }
+            },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

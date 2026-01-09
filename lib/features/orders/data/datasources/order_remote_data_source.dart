@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
@@ -380,18 +381,18 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        print('Raw API response: $data');
+        debugPrint('Raw API response: $data');
         
         // Check if response has a nested 'data' field
         final jsonData = data is Map<String, dynamic>
             ? (data['data'] as Map<String, dynamic>? ?? data)
             : data as Map<String, dynamic>;
         
-        print('Processed JSON data: $jsonData');
-        print('Keys in JSON: ${jsonData.keys.toList()}');
+        debugPrint('Processed JSON data: $jsonData');
+        debugPrint('Keys in JSON: ${jsonData.keys.toList()}');
         
         final orderDetail = OrderDetailModel.fromJson(jsonData);
-        print('Messages in order detail: ${orderDetail.messages?.length ?? 0}');
+        debugPrint('Messages in order detail: ${orderDetail.messages?.length ?? 0}');
         
         return orderDetail;
       } else {

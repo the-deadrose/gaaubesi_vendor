@@ -76,22 +76,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<String> refreshAccessToken(String refreshToken) async {
     try {
+      debugPrint('🔄 [AuthRemoteDataSource] Refreshing access token...');
       final response = await _dioClient.post(
         ApiEndpoints.refreshToken,
-        data: {'refresh_token': refreshToken},
+        data: {
+          'refresh': refreshToken,  // Django JWT typically uses 'refresh' field
+        },
       );
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
-        return data['access_token'] ?? data['accessToken'] ?? '';
+        debugPrint('✅ [AuthRemoteDataSource] Token refresh successful');
+        
+        // Try multiple possible field names for the new access token
+        final newToken = data['access'] ?? 
+                        data['access_token'] ?? 
+                        data['accessToken'] ?? 
+                        '';
+        
+        if (newToken.isNotEmpty) {
+          debugPrint('✅ [AuthRemoteDataSource] New access token received');
+        }
+        
+        return newToken;
       } else {
+        debugPrint('❌ [AuthRemoteDataSource] Token refresh failed with status: ${response.statusCode}');
         throw ServerException('Token refresh failed');
       }
     } on DioException catch (e) {
+      debugPrint('❌ [AuthRemoteDataSource] DioException during token refresh');
+      debugPrint('   Status: ${e.response?.statusCode}');
+      debugPrint('   Message: ${e.message}');
       throw ServerException(
         e.message ?? 'Unknown error',
         statusCode: e.response?.statusCode,
       );
+    } catch (e) {
+      debugPrint('❌ [AuthRemoteDataSource] Unexpected error during token refresh: $e');
+      throw ServerException('Unexpected error: $e');
     }
   }
 }

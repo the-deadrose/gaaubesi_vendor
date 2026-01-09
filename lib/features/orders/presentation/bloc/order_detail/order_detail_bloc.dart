@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
@@ -46,14 +47,14 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
     OrderDetailCommentAdded event,
     Emitter<OrderDetailState> emit,
   ) {
-    print('[BLOC] OrderDetailCommentAdded event received');
-    print('[BLOC] Current state: ${state.runtimeType}');
+    debugPrint('[BLOC] OrderDetailCommentAdded event received');
+    debugPrint('[BLOC] Current state: ${state.runtimeType}');
     // Only add comment if we have a loaded state
     if (state is OrderDetailLoaded) {
       final currentState = state as OrderDetailLoaded;
       final currentOrder = currentState.order;
       
-      print('[BLOC] Current comments count: ${currentOrder.comments?.length ?? 0}');
+      debugPrint('[BLOC] Current comments count: ${currentOrder.comments?.length ?? 0}');
       
       // Create updated comments list with the new comment at the beginning
       final updatedComments = [
@@ -61,7 +62,7 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
         ...?currentOrder.comments,
       ];
       
-      print('[BLOC] Updated comments count: ${updatedComments.length}');
+      debugPrint('[BLOC] Updated comments count: ${updatedComments.length}');
       
       // Create new order entity with updated comments
       final updatedOrder = OrderDetailEntity(
@@ -103,7 +104,7 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
         comments: updatedComments,
       );
       
-      print('[BLOC] Emitting new OrderDetailLoaded state with ${updatedComments.length} comments');
+      debugPrint('[BLOC] Emitting new OrderDetailLoaded state with ${updatedComments.length} comments');
       emit(OrderDetailLoaded(order: updatedOrder));
     }
   }

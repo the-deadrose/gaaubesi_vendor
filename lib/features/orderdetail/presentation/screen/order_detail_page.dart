@@ -480,10 +480,10 @@ class _OrderDetailPageState extends State<OrderDetailPage>
     final messages = order.messages;
 
     // Debug print to check if messages are being received
-    print('Messages in order: ${messages?.length ?? 0}');
+    debugPrint('Messages in order: ${messages?.length ?? 0}');
     if (messages != null) {
       for (var message in messages) {
-        print('Message: ${message.messageText}, Type: ${message.messageType}');
+        debugPrint('Message: ${message.messageText}, Type: ${message.messageType}');
       }
     }
 
@@ -618,9 +618,9 @@ class _OrderDetailPageState extends State<OrderDetailPage>
     final comments = order.comments ?? [];
 
     // Debug print to check if comments are being received
-    print('Comments in order: ${comments.length}');
+    debugPrint('Comments in order: ${comments.length}');
     for (var comment in comments) {
-      print(
+      debugPrint(
         'Comment: ${comment.comments}, Type: ${comment.commentType}, Added by: ${comment.addedByName}',
       );
     }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
@@ -61,6 +62,12 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
     result.fold(
       (failure) {
+        
+        if (failure.message == 'Session expired') {
+          debugPrint('[CommentsBloc] Session expired, not emitting error state');
+          return;
+        }
+        
         if (event.isTodays) {
           emit(TodaysCommentsError(
             message: _mapFailureToMessage(failure),

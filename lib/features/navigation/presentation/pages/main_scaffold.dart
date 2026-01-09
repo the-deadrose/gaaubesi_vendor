@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
+import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/widgets/app_navigation_bar.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/widgets/app_drawer.dart';
 
@@ -10,27 +13,35 @@ class MainScaffoldPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AutoTabsRouter(
-      routes: const [
-        HomeRoute(),
-        OrdersRoute(),
-        PaymentsRoute(),
-        UtilitiesRoute(),
-      ],
-      builder: (context, child) {
-        final tabsRouter = AutoTabsRouter.of(context);
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
         
-        return Scaffold(
-          drawer: const AppDrawer(),
-          body: child,
-          bottomNavigationBar: AppNavigationBar(
-            currentIndex: tabsRouter.activeIndex,
-            onTap: (index) {
-              tabsRouter.setActiveIndex(index);
-            },
-          ),
-        );
+        if (state is AuthUnauthenticated) {
+          context.router.replaceAll([const LoginRoute()]);
+        }
       },
+      child: AutoTabsRouter(
+        routes: const [
+          HomeRoute(),
+          OrdersRoute(),
+          PaymentsRoute(),
+          UtilitiesRoute(),
+        ],
+        builder: (context, child) {
+          final tabsRouter = AutoTabsRouter.of(context);
+          
+          return Scaffold(
+            drawer: const AppDrawer(),
+            body: child,
+            bottomNavigationBar: AppNavigationBar(
+              currentIndex: tabsRouter.activeIndex,
+              onTap: (index) {
+                tabsRouter.setActiveIndex(index);
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }

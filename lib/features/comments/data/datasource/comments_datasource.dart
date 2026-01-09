@@ -55,6 +55,12 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         throw ServerException('Failed to fetch today\'s comments');
       }
     } on DioException catch (e) {
+      // If this is a session expiry cancellation, rethrow silently
+      // The auth listener will handle navigation to login
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
+        rethrow;
+      }
       debugPrint(
         '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
       );
@@ -83,6 +89,11 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         throw ServerException('Failed to fetch all comments');
       }
     } on DioException catch (e) {
+      // If this is a session expiry cancellation, rethrow silently
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
+        rethrow;
+      }
       debugPrint(
         '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
       );
@@ -132,6 +143,11 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         throw ServerException('Failed to fetch filtered comments');
       }
     } on DioException catch (e) {
+      // If this is a session expiry cancellation, rethrow silently
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
+        rethrow;
+      }
       debugPrint(
         '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
       );
@@ -179,6 +195,11 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         );
       }
     } on DioException catch (e) {
+      // If this is a session expiry cancellation, rethrow silently
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
+        rethrow;
+      }
       debugPrint(
         '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
       );
@@ -245,6 +266,11 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         );
       }
     } on DioException catch (e) {
+      // If this is a session expiry cancellation, rethrow silently
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
+        rethrow;
+      }
       debugPrint(
         '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
       );
@@ -300,6 +326,11 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         );
       }
     } on DioException catch (e) {
+      // If this is a session expiry cancellation, rethrow silently
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
+        rethrow;
+      }
       debugPrint(
         '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
       );

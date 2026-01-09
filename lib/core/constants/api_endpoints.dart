@@ -6,7 +6,7 @@ class ApiEndpoints {
   static const String login = '/token/';
 
 
-  static const String refreshToken = '/refresh-token/';
+  static const String refreshToken = '/token/refresh/';
 
 
   static const String logout = '/logout/';
@@ -39,6 +39,10 @@ class ApiEndpoints {
   static const String createCommentOrderDetail = '/comments/create/';
 
   static const String replyToCommentOrderDetail = '/comments/reply/';
+
+  static const String createTicket = '/add/ticket/';
+
+  static const String ticketList = '/tickets/';
 }
 class QueryParams {
   QueryParams._();

@@ -47,7 +47,7 @@ class DeliveredOrderListSliver extends StatelessWidget {
           lastDeliveryStatus: 'Delivered',
           source: '',
           destination: deliveredOrder.destination,
-          description: '',
+          desc: '',
         );
         return OrderCard(
           order: order,

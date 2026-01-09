@@ -187,12 +187,15 @@ class MainScaffoldRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [OrderDetailPage]
 class OrderDetailRoute extends PageRouteInfo<OrderDetailRouteArgs> {
-  OrderDetailRoute({required int orderId, List<PageRouteInfo>? children})
-    : super(
-        OrderDetailRoute.name,
-        args: OrderDetailRouteArgs(orderId: orderId),
-        initialChildren: children,
-      );
+  OrderDetailRoute({
+    Key? key,
+    required int orderId,
+    List<PageRouteInfo>? children,
+  }) : super(
+         OrderDetailRoute.name,
+         args: OrderDetailRouteArgs(key: key, orderId: orderId),
+         initialChildren: children,
+       );
 
   static const String name = 'OrderDetailRoute';
 
@@ -200,30 +203,32 @@ class OrderDetailRoute extends PageRouteInfo<OrderDetailRouteArgs> {
     name,
     builder: (data) {
       final args = data.argsAs<OrderDetailRouteArgs>();
-      return OrderDetailPage(orderId: args.orderId);
+      return OrderDetailPage(key: args.key, orderId: args.orderId);
     },
   );
 }
 
 class OrderDetailRouteArgs {
-  const OrderDetailRouteArgs({required this.orderId});
+  const OrderDetailRouteArgs({this.key, required this.orderId});
+
+  final Key? key;
 
   final int orderId;
 
   @override
   String toString() {
-    return 'OrderDetailRouteArgs{orderId: $orderId}';
+    return 'OrderDetailRouteArgs{key: $key, orderId: $orderId}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! OrderDetailRouteArgs) return false;
-    return orderId == other.orderId;
+    return key == other.key && orderId == other.orderId;
   }
 
   @override
-  int get hashCode => orderId.hashCode;
+  int get hashCode => key.hashCode ^ orderId.hashCode;
 }
 
 /// generated route for
@@ -304,6 +309,52 @@ class StaleOrdersRoute extends PageRouteInfo<void> {
       return const StaleOrdersPage();
     },
   );
+}
+
+/// generated route for
+/// [TicketsPage]
+class TicketsRoute extends PageRouteInfo<TicketsRouteArgs> {
+  TicketsRoute({Key? key, int initialTab = 0, List<PageRouteInfo>? children})
+    : super(
+        TicketsRoute.name,
+        args: TicketsRouteArgs(key: key, initialTab: initialTab),
+        initialChildren: children,
+      );
+
+  static const String name = 'TicketsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<TicketsRouteArgs>(
+        orElse: () => const TicketsRouteArgs(),
+      );
+      return TicketsPage(key: args.key, initialTab: args.initialTab);
+    },
+  );
+}
+
+class TicketsRouteArgs {
+  const TicketsRouteArgs({this.key, this.initialTab = 0});
+
+  final Key? key;
+
+  final int initialTab;
+
+  @override
+  String toString() {
+    return 'TicketsRouteArgs{key: $key, initialTab: $initialTab}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TicketsRouteArgs) return false;
+    return key == other.key && initialTab == other.initialTab;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ initialTab.hashCode;
 }
 
 /// generated route for

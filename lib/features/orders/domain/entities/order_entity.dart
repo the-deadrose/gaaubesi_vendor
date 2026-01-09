@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class OrderEntity extends Equatable {
   final int orderId;
   final String orderIdWithStatus;
-  final String? deliveredDate;
+  final String deliveredDate;
   final String receiverName;
   final String receiverNumber;
   final String? altReceiverNumber;
@@ -13,12 +13,12 @@ class OrderEntity extends Equatable {
   final String lastDeliveryStatus;
   final String source;
   final String destination;
-  final String description;
+  final String desc;
 
   const OrderEntity({
     required this.orderId,
     required this.orderIdWithStatus,
-    this.deliveredDate,
+    required this.deliveredDate,
     required this.receiverName,
     required this.receiverNumber,
     this.altReceiverNumber,
@@ -28,23 +28,23 @@ class OrderEntity extends Equatable {
     required this.lastDeliveryStatus,
     required this.source,
     required this.destination,
-    required this.description,
+    required this.desc,
   });
 
   @override
   List<Object?> get props => [
-    orderId,
-    orderIdWithStatus,
-    deliveredDate,
-    receiverName,
-    receiverNumber,
-    altReceiverNumber,
-    receiverAddress,
-    deliveryCharge,
-    codCharge,
-    lastDeliveryStatus,
-    source,
-    destination,
-    description,
-  ];
+        orderId,
+        orderIdWithStatus,
+        deliveredDate,
+        receiverName,
+        receiverNumber,
+        altReceiverNumber,
+        receiverAddress,
+        deliveryCharge,
+        codCharge,
+        lastDeliveryStatus,
+        source,
+        destination,
+        desc,
+      ];
 }

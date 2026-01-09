@@ -9,6 +9,7 @@ import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_blo
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
+import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => getIt<CommentsBloc>()),
         BlocProvider(create: (context) => getIt<OrderDetailBloc>()),
         BlocProvider(create: (context) => getIt<CommentsBloc>()),
+        BlocProvider(create: (context) => getIt<TicketBloc>()),
         
       ],
       child: MaterialApp.router(

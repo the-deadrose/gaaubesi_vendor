@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 
 /// Mixin providing common actions for order cards.
 /// Includes phone calling, map opening, and sharing functionality.
@@ -44,18 +45,18 @@ class OrderStatusColors {
   static Color getAccentColor(String status) {
     final lowerStatus = status.toLowerCase();
     if (lowerStatus.contains('delivered') || lowerStatus.contains('success')) {
-      return Colors.green;
+      return AppTheme.successGreen;
     } else if (lowerStatus.contains('cancel') ||
         lowerStatus.contains('return')) {
-      return Colors.red;
+      return AppTheme.rojo;
     } else if (lowerStatus.contains('pending') ||
         lowerStatus.contains('hold')) {
-      return Colors.orange;
+      return AppTheme.warningYellow;
     } else if (lowerStatus.contains('process') ||
         lowerStatus.contains('transit')) {
-      return Colors.blue;
+      return AppTheme.infoBlue;
     }
-    return Colors.grey;
+    return AppTheme.powerBlue;
   }
 
   static bool isInTransit(String status) {

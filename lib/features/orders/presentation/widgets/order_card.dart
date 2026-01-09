@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_card_actions.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/card_action_button.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/info_item.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/route_indicator.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/status_badge.dart';
 
 class OrderCard extends StatefulWidget {
@@ -54,7 +52,6 @@ class _OrderCardState extends State<OrderCard>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Hero(
       tag: 'all_order_${widget.order.orderId}_${widget.order.hashCode}',
@@ -72,33 +69,10 @@ class _OrderCardState extends State<OrderCard>
           onTapCancel: () => setState(() => _isPressed = false),
           child: AnimatedScale(
             scale: _isPressed ? 0.98 : 1.0,
-            duration: const Duration(milliseconds: 100),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-                border: Border.all(
-                  color: theme.dividerColor.withValues(alpha: 0.1),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Column(
-                  children: [
-                    _buildHeader(theme),
-                    _buildBody(theme),
-                    _buildActions(theme),
-                  ],
-                ),
-              ),
+            duration: const Duration(milliseconds: 150),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: _buildSimpleList(theme),
             ),
           ),
         ),
@@ -106,206 +80,80 @@ class _OrderCardState extends State<OrderCard>
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _accentColor.withValues(alpha: 0.05),
-        border: Border(
-          bottom: BorderSide(color: _accentColor.withValues(alpha: 0.1)),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: _accentColor.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.inventory_2_rounded,
-                  size: 16,
-                  color: _accentColor,
-                ),
+  Widget _buildSimpleList(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Order ID
+        Row(
+          children: [
+            Text(
+              widget.order.orderIdWithStatus,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: AppTheme.marianBlue,
+                letterSpacing: 0.2,
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.order.orderIdWithStatus,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    widget.order.deliveredDate?.isNotEmpty == true
-                        ? 'Delivered: ${widget.order.deliveredDate}'
-                        : 'In Progress',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatusBadge(
-            status: widget.order.lastDeliveryStatus,
-            color: _accentColor,
-            pulseAnimation: _isInTransit ? _pulseAnimation : null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBody(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          RouteIndicator(
-            source: widget.order.source,
-            destination: widget.order.destination,
-          ),
-          const SizedBox(height: 12),
-          _buildReceiverDetails(theme),
-          const SizedBox(height: 8),
-          _buildChargesInfo(theme),
-          const SizedBox(height: 8),
-          _buildPackageInfo(theme),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReceiverDetails(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: InfoItem(
-                  label: 'Receiver',
-                  value: widget.order.receiverName,
-                  icon: Icons.person_rounded,
-                ),
-              ),
-              Container(width: 1, height: 30, color: theme.dividerColor),
-              Expanded(
-                child: InfoItem(
-                  label: 'Phone',
-                  value: widget.order.receiverNumber,
-                  icon: Icons.phone_rounded,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          InfoItem(
-            label: 'Address',
-            value: widget.order.receiverAddress,
-            icon: Icons.location_on_rounded,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChargesInfo(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: InfoItem(
-              label: 'COD Amount',
-              value: 'Rs. ${widget.order.codCharge}',
-              icon: Icons.payments_rounded,
-              isPrice: true,
             ),
-          ),
-          Container(width: 1, height: 30, color: theme.dividerColor),
-          Expanded(
-            child: InfoItem(
-              label: 'Delivery Charge',
-              value: 'Rs. ${widget.order.deliveryCharge}',
-              icon: Icons.local_shipping_rounded,
+            const Spacer(),
+            StatusBadge(
+              status: widget.order.lastDeliveryStatus,
+              color: _accentColor,
+              pulseAnimation: _isInTransit ? _pulseAnimation : null,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPackageInfo(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InfoItem(
-        label: 'Package',
-        value: widget.order.description,
-        icon: Icons.inventory_2_outlined,
-      ),
-    );
-  }
-
-  Widget _buildActions(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.1)),
+          ],
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          CardActionButton(
-            icon: Icons.call_rounded,
-            label: 'Call',
-            onTap: () => makePhoneCall(widget.order.receiverNumber),
+        const SizedBox(height: 4),
+        
+        // Source and Destination in one line
+        Row(
+          children: [
+            Text(
+              '${widget.order.source} → ${widget.order.destination}',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.textTheme.bodyMedium?.color,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        
+        // Receiver Name and Phone in one line
+        Row(
+          children: [
+            Text(
+              '${widget.order.receiverName} • ${widget.order.receiverNumber}',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: theme.textTheme.bodyMedium?.color,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        
+        // Address
+        Text(
+          widget.order.receiverAddress,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
           ),
-          CardActionButton(
-            icon: Icons.map_rounded,
-            label: 'Track',
-            onTap: () => openMaps(widget.order.receiverAddress),
-          ),
-          CardActionButton(
-            icon: Icons.share_rounded,
-            label: 'Share',
-            onTap: () => shareOrder(widget.order.orderIdWithStatus),
-          ),
-        ],
-      ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
+
+
 }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
@@ -17,28 +18,45 @@ class CommentsRepoImp implements CommentsRepository {
   Future<Either<ServerFailure, CommentsResponseEntity>> todaysComments(
     String page,
   ) async {
-    // try {
-    final todaysComments = await remoteDatasource.fetchTodaysComments(page);
-    return Right(todaysComments);
-    // } on ServerException catch (e) {
-    //   return Left(ServerFailure(e.message));
-    // } catch (e) {
-    //   return Left(ServerFailure('An unexpected error occurred'));
-    // }
+    try {
+      final todaysComments = await remoteDatasource.fetchTodaysComments(page);
+      return Right(todaysComments);
+    } on DioException catch (e) {
+      // If this is a session expiry cancellation, return a silent failure
+      // The user is being redirected to login, no need to show error
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[CommentsRepo] Session expired, returning silent failure');
+        return Left(ServerFailure('Session expired'));
+      }
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      debugPrint('[CommentsRepo] Unexpected error: $e');
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
   }
 
   @override
   Future<Either<ServerFailure, CommentsResponseEntity>> allComments(
     String page,
   ) async {
-    // try {
-    final allComments = await remoteDatasource.fetchAllComments(page);
-    return Right(allComments);
-    // } on ServerException catch (e) {
-    //   return Left(ServerFailure(e.message));
-    // } catch (e) {
-    //   return Left(ServerFailure('An unexpected error occurred'));
-    // }
+    try {
+      final allComments = await remoteDatasource.fetchAllComments(page);
+      return Right(allComments);
+    } on DioException catch (e) {
+      // If this is a session expiry cancellation, return a silent failure
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint('[CommentsRepo] Session expired, returning silent failure');
+        return Left(ServerFailure('Session expired'));
+      }
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      debugPrint('[CommentsRepo] Unexpected error: $e');
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
   }
 
   @override

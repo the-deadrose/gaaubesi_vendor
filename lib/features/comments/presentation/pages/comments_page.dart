@@ -73,9 +73,8 @@ class _CommentsPageState extends State<CommentsPage>
 
   @override
   void didPopNext() {
-    // Called when a route has been popped off, and the current route shows up.
-    // This is when we navigate BACK to this page
-    print('[CommentsPage] didPopNext - User navigated back to this page');
+ 
+    debugPrint('[CommentsPage] didPopNext - User navigated back to this page');
     if (_hasLoadedOnce) {
       _refreshCurrentTab();
     }
@@ -83,26 +82,22 @@ class _CommentsPageState extends State<CommentsPage>
 
   @override
   void didPush() {
-    // Called when the current route has been pushed.
-    print('[CommentsPage] didPush - Route pushed');
+    debugPrint('[CommentsPage] didPush - Route pushed');
   }
 
   @override
   void didPop() {
-    // Called when the current route has been popped off.
-    print('[CommentsPage] didPop - Route popped');
+    debugPrint('[CommentsPage] didPop - Route popped');
   }
 
   @override
   void didPushNext() {
-    // Called when a new route has been pushed, and the current route is no longer visible.
-    print('[CommentsPage] didPushNext - User navigated away from this page');
+    debugPrint('[CommentsPage] didPushNext - User navigated away from this page');
   }
 
   @override
   void didUpdateWidget(CommentsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the page is re-rendered with new parameters, refresh data
     if (_hasLoadedOnce && widget.initialTab != oldWidget.initialTab) {
       _currentTabIndex = widget.initialTab;
       _tabController.animateTo(widget.initialTab);
@@ -124,7 +119,7 @@ class _CommentsPageState extends State<CommentsPage>
   }
 
   void _refreshCurrentTab() {
-    print('[CommentsPage] Refreshing current tab: $_currentTabIndex');
+    debugPrint('[CommentsPage] Refreshing current tab: $_currentTabIndex');
     // Refresh the current tab's data
     if (_currentTabIndex == 0) {
       context.read<CommentsBloc>().add(

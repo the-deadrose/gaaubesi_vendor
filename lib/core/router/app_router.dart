@@ -18,6 +18,7 @@ import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page
 import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/pages/main_scaffold.dart';
 import 'package:gaaubesi_vendor/core/router/auth_guard.dart';
+import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -81,6 +82,11 @@ class AppRouter extends RootStackRouter {
       path: '/return-orders',
       guards: [AuthGuard()],
     ),
+    AutoRoute(
+      page: TicketsRoute.page,
+      path: '/tickets',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -96,4 +102,5 @@ extension AppRoutesExtension on AppRouter {
   static const String contact = '/contact';
   static const String comment = '/comment';
   static const String comments = '/comments';
+  static const String tickets = '/tickets';
 }

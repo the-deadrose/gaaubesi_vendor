@@ -53,16 +53,25 @@ class HomePage extends StatelessWidget {
                   context.router.replace(const LoginRoute());
                 }
               },
-              child: Builder(
-                builder: (context) {
-                  if (state is HomeLoading) {
+              child: BlocBuilder<AuthBloc, AuthState>(
+                builder: (authContext, authState) {
+                  // If user is being logged out, show loading instead of error
+                  if (authState is AuthUnauthenticated || authState is AuthLoading) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (state is HomeError) {
-                    return _ErrorView(message: state.message);
-                  } else if (state is HomeLoaded) {
-                    return _HomeContent(stats: state.stats);
                   }
-                  return const SizedBox.shrink();
+                  
+                  return Builder(
+                    builder: (context) {
+                      if (state is HomeLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is HomeError) {
+                        return _ErrorView(message: state.message);
+                      } else if (state is HomeLoaded) {
+                        return _HomeContent(stats: state.stats);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  );
                 },
               ),
             ),

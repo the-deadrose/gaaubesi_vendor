@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
 
@@ -9,15 +10,12 @@ part 'order_detail_model.g.dart';
 )
 class MessageModel extends MessageEntity {
   @JsonKey(defaultValue: 0)
-  @override
   final int id;
 
   @JsonKey(defaultValue: '', name: 'message_type')
-  @override
   final String messageType;
 
   @JsonKey(defaultValue: '', name: 'message_text')
-  @override
   final String messageText;
 
   @JsonKey(
@@ -25,15 +23,12 @@ class MessageModel extends MessageEntity {
     toJson: _dateTimeToJson,
     name: 'sent_on',
   )
-  @override
   final DateTime sentOn;
 
   @JsonKey(defaultValue: '', name: 'sent_on_formatted')
-  @override
   final String sentOnFormatted;
 
   @JsonKey(defaultValue: '', name: 'sent_by_name')
-  @override
   final String sentByName;
 
   const MessageModel({
@@ -75,47 +70,36 @@ class MessageModel extends MessageEntity {
 )
 class CommentsModel extends CommentsEntity {
   @JsonKey(defaultValue: 0)
-  @override
   final int id;
 
   @JsonKey(defaultValue: '')
-  @override
   final String comments;
 
   @JsonKey(defaultValue: '')
-  @override
   final String commentType;
 
   @JsonKey(defaultValue: '')
-  @override
   final String commentTypeDisplay;
 
   @JsonKey(name: 'status')
-  @override
   final String? status;
 
   @JsonKey(name: 'status_display')
-  @override
   final String? statusDisplay;
 
   @JsonKey(defaultValue: '', name: 'added_by_name')
-  @override
   final String addedByName;
 
   @JsonKey(defaultValue: '', name: 'created_on')
-  @override
   final String createdOn;
 
   @JsonKey(defaultValue: '', name: 'created_on_formatted')
-  @override
   final String createdOnFormatted;
 
   @JsonKey(defaultValue: false)
-  @override
   final bool isImportant;
 
   @JsonKey(defaultValue: false, name: 'can_reply')
-  @override
   final bool canReply;
 
   const CommentsModel({
@@ -156,153 +140,117 @@ class CommentsModel extends CommentsEntity {
 )
 class OrderDetailModel extends OrderDetailEntity {
   @JsonKey(defaultValue: 0)
-  @override
   final int orderId;
 
   @JsonKey(defaultValue: '')
-  @override
   final String orderIdWithStatus;
 
   @JsonKey(defaultValue: '')
-  @override
   final String trackId;
 
   @JsonKey(defaultValue: '')
-  @override
   final String orderType;
 
   @JsonKey(defaultValue: '')
-  @override
   final String vendorName;
 
   @JsonKey(defaultValue: '')
-  @override
   final String vendorReferenceId;
 
   @JsonKey(defaultValue: '')
-  @override
   final String sourceBranch;
 
   @JsonKey(defaultValue: '')
-  @override
   final String sourceBranchCode;
 
   @JsonKey(defaultValue: '')
-  @override
   final String destinationBranch;
 
   @JsonKey(defaultValue: '')
-  @override
   final String destinationBranchCode;
 
   @JsonKey(defaultValue: '')
-  @override
   final String warehouseBranch;
 
   @JsonKey(defaultValue: '')
-  @override
   final String receiverName;
 
   @JsonKey(defaultValue: '')
-  @override
   final String receiverNumber;
 
   @JsonKey(defaultValue: '')
-  @override
   final String altReceiverNumber;
 
   @JsonKey(defaultValue: '')
-  @override
   final String receiverAddress;
 
   @JsonKey(defaultValue: '0.00')
-  @override
   final String weight;
 
   @JsonKey(defaultValue: '0.00')
-  @override
   final String codCharge;
 
   @JsonKey(defaultValue: '0.00')
-  @override
   final String deliveryCharge;
 
   @JsonKey(defaultValue: '')
-  @override
   final String packageAccess;
 
   @JsonKey(defaultValue: '')
-  @override
   final String pickupType;
 
   @JsonKey(defaultValue: '')
-  @override
   final String paymentType;
 
   @JsonKey(defaultValue: '')
-  @override
   final String lastDeliveryStatus;
 
   @JsonKey(defaultValue: '')
-  @override
   final String orderDescription;
 
   @JsonKey(defaultValue: '')
-  @override
   final String deliveryInstruction;
 
   @JsonKey(
     fromJson: _dateTimeFromJson,
     toJson: _dateTimeToJson,
   )
-  @override
   final DateTime createdOn;
 
   @JsonKey(defaultValue: '')
-  @override
   final String createdOnFormatted;
 
   @JsonKey(
     fromJson: _nullableDateTimeFromJson,
     toJson: _nullableDateTimeToJson,
   )
-  @override
   final DateTime? deliveredDate;
 
   @JsonKey(defaultValue: '')
-  @override
   final String deliveredDateFormatted;
 
   @JsonKey(defaultValue: false)
-  @override
   final bool hold;
 
   @JsonKey(defaultValue: false)
-  @override
   final bool vendorReturn;
 
   @JsonKey(defaultValue: false)
-  @override
   final bool isExchangeOrder;
 
   @JsonKey(defaultValue: false)
-  @override
   final bool isRefundOrder;
 
   @JsonKey(defaultValue: false)
-  @override
   final bool isActive;
 
   @JsonKey(defaultValue: '')
-  @override
   final String qrCode;
 
   @JsonKey(defaultValue: [], name: 'message')
-  @override
   final List<MessageModel>? messages;
 
   @JsonKey(defaultValue: [], name: 'comment')
-  @override
   final List<CommentsModel>? comments;
 
   const OrderDetailModel({
@@ -382,12 +330,12 @@ class OrderDetailModel extends OrderDetailEntity {
         );
 
   factory OrderDetailModel.fromJson(Map<String, dynamic> json) {
-    print('JSON keys in order detail: ${json.keys.toList()}');
+    debugPrint('JSON keys in order detail: ${json.keys.toList()}');
     if (json.containsKey('messages')) {
-      print('Messages in JSON: ${json['messages']}');
+      debugPrint('Messages in JSON: ${json['messages']}');
     }
     if (json.containsKey('comments')) {
-      print('Comments in JSON: ${json['comments']}');
+      debugPrint('Comments in JSON: ${json['comments']}');
     }
     return _$OrderDetailModelFromJson(json);
   }

@@ -94,6 +94,16 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order
     as _i337;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart'
     as _i691;
+import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart'
+    as _i576;
+import 'package:gaaubesi_vendor/features/ticket/data/repository/ticket_imp_repository.dart'
+    as _i716;
+import 'package:gaaubesi_vendor/features/ticket/domain/repository/ticket_repository.dart'
+    as _i567;
+import 'package:gaaubesi_vendor/features/ticket/domain/usecase/create_ticket_usecase.dart'
+    as _i1050;
+import 'package:gaaubesi_vendor/features/ticket/domain/usecase/tickets_list_usecase.dart'
+    as _i457;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -116,8 +126,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i619.DioClient>(
       () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
     );
+    gh.lazySingleton<_i1050.CreateTicketParams>(
+      () => _i1050.CreateTicketParams(
+        subject: gh<String>(),
+        description: gh<String>(),
+      ),
+    );
+    gh.lazySingleton<_i457.TicketsListParams>(
+      () => _i457.TicketsListParams(
+        subject: gh<String>(),
+        description: gh<String>(),
+      ),
+    );
     gh.lazySingleton<_i18.AuthLocalDataSource>(
       () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i576.RemoteTicketDataSource>(
+      () => _i576.TickectDatasorceImp(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i700.OrderRemoteDataSource>(
       () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
@@ -174,6 +199,17 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i84.GetVendorStatsUseCase>(
       () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
+    );
+    gh.lazySingleton<_i567.TicketRepository>(
+      () => _i716.TicketImpRepository(
+        remoteTicketDataSource: gh<_i576.RemoteTicketDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i1050.CreateTicketUseCase>(
+      () => _i1050.CreateTicketUseCase(repository: gh<_i567.TicketRepository>()),
+    );
+    gh.lazySingleton<_i457.TicketsListUseCase>(
+      () => _i457.TicketsListUseCase(repository: gh<_i567.TicketRepository>()),
     );
     gh.lazySingleton<_i277.GetCurrentUserUseCase>(
       () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
