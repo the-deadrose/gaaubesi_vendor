@@ -104,6 +104,8 @@ import 'package:gaaubesi_vendor/features/ticket/domain/usecase/create_ticket_use
     as _i1050;
 import 'package:gaaubesi_vendor/features/ticket/domain/usecase/tickets_list_usecase.dart'
     as _i457;
+import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart'
+    as _i488;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -122,6 +124,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i14.SecureStorageService>(
       () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.factory<_i488.TicketBloc>(
+      () => _i488.TicketBloc(
+        createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
+        ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
+      ),
     );
     gh.lazySingleton<_i619.DioClient>(
       () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
@@ -204,12 +212,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i716.TicketImpRepository(
         remoteTicketDataSource: gh<_i576.RemoteTicketDataSource>(),
       ),
-    );
-    gh.lazySingleton<_i1050.CreateTicketUseCase>(
-      () => _i1050.CreateTicketUseCase(repository: gh<_i567.TicketRepository>()),
-    );
-    gh.lazySingleton<_i457.TicketsListUseCase>(
-      () => _i457.TicketsListUseCase(repository: gh<_i567.TicketRepository>()),
     );
     gh.lazySingleton<_i277.GetCurrentUserUseCase>(
       () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),

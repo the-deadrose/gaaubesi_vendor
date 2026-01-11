@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/entity/ticket_entity.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/usecase/create_ticket_usecase.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/usecase/tickets_list_usecase.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_events.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/tickets_state.dart';
 
+@injectable
 class TicketBloc extends Bloc<TicketEvents, TicketsState> {
   final CreateTicketUseCase createTicketUseCase;
   final TicketsListUseCase ticketsListUseCase;

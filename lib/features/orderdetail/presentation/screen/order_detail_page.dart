@@ -163,10 +163,25 @@ class _OrderDetailPageState extends State<OrderDetailPage>
               ),
             ),
           ),
-          Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: theme.colorScheme.onPrimary,
-            size: 32,
+          IconButton(
+            onPressed: () {
+              _EditAdditionalInfoDialog.show(
+                context,
+                initialDescription: order.orderDescription,
+                initialVendorReferenceId: order.vendorReferenceId,
+                initialDeliveryInstruction: order.deliveryInstruction,
+                onUpdate: (data) {
+                  debugPrint('Updated data: $data');
+                },
+              );
+            },
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: theme.colorScheme.onPrimary,
+              size: 32,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ],
       ),
@@ -259,77 +274,55 @@ class _OrderDetailPageState extends State<OrderDetailPage>
             children: [
               Expanded(
                 flex: 3,
-                child: GestureDetector(
-                  onTap: () => _EditAdditionalInfoDialog.show(
-                    context,
-                    initialPriority: 'Normal',
-                    initialDescription: order.orderDescription,
-                    initialVendorReferenceId: order.vendorReferenceId.isEmpty
-                        ? null
-                        : order.vendorReferenceId,
-                    initialDeliveryInstruction:
-                        order.deliveryInstruction.isEmpty
-                        ? null
-                        : order.deliveryInstruction,
-                    onUpdate: (data) {
-                      
-                    },
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Additional Info',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Additional Info',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildCompactInfoRow(
-                        'Tracking Code:',
-                        order.orderId.toString(),
-                        theme,
-                      ),
-                      const SizedBox(height: 6),
-                      _buildCompactInfoRow(
-                        'Package Access:',
-                        'Can\'t Open',
-                        theme,
-                      ),
-                      const SizedBox(height: 6),
-                      _buildCompactInfoRow(
-                        'Delivery Instruction:',
-                        order.deliveryInstruction.isEmpty
-                            ? '-'
-                            : order.deliveryInstruction,
-                        theme,
-                      ),
-                      const SizedBox(height: 6),
-                      _buildCompactInfoRow(
-                        'Vendor Reference ID:',
-                        order.vendorReferenceId.isEmpty
-                            ? 'None'
-                            : order.vendorReferenceId,
-                        theme,
-                      ),
-                      const SizedBox(height: 6),
-                      _buildCompactInfoRow(
-                        'Description:',
-                        order.orderDescription,
-                        theme,
-                      ),
-                    ],
-                  ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildCompactInfoRow(
+                      'Tracking Code:',
+                      order.orderId.toString(),
+                      theme,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildCompactInfoRow(
+                      'Package Access:',
+                      'Can\'t Open',
+                      theme,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildCompactInfoRow(
+                      'Delivery Instruction:',
+                      order.deliveryInstruction.isEmpty
+                          ? '-'
+                          : order.deliveryInstruction,
+                      theme,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildCompactInfoRow(
+                      'Vendor Reference ID:',
+                      order.vendorReferenceId.isEmpty
+                          ? 'None'
+                          : order.vendorReferenceId,
+                      theme,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildCompactInfoRow(
+                      'Description:',
+                      order.orderDescription,
+                      theme,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 16),
@@ -483,7 +476,9 @@ class _OrderDetailPageState extends State<OrderDetailPage>
     debugPrint('Messages in order: ${messages?.length ?? 0}');
     if (messages != null) {
       for (var message in messages) {
-        debugPrint('Message: ${message.messageText}, Type: ${message.messageType}');
+        debugPrint(
+          'Message: ${message.messageText}, Type: ${message.messageType}',
+        );
       }
     }
 

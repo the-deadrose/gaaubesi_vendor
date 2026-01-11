@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/entity/ticket_entity.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
@@ -28,7 +27,6 @@ class _TicketsPageState extends State<TicketsPage>
   int _currentTabIndex = 0;
   bool _isPendingAtBottom = false;
   bool _isClosedAtBottom = false;
-  bool _hasLoadedOnce = false;
 
   @override
   void initState() {
@@ -48,7 +46,6 @@ class _TicketsPageState extends State<TicketsPage>
   }
 
   void _loadInitialData() {
-    _hasLoadedOnce = true;
     if (widget.initialTab == 0) {
       context.read<TicketBloc>().add(
         const FetchPendingTicketsEvent(page: '1'),
@@ -60,18 +57,6 @@ class _TicketsPageState extends State<TicketsPage>
     }
   }
 
-  void _refreshCurrentTab() {
-    debugPrint('[TicketsPage] Refreshing current tab: $_currentTabIndex');
-    if (_currentTabIndex == 0) {
-      context.read<TicketBloc>().add(
-        const RefreshTicketsEvent(isPending: true),
-      );
-    } else {
-      context.read<TicketBloc>().add(
-        const RefreshTicketsEvent(isPending: false),
-      );
-    }
-  }
 
   void _setupScrollListeners() {
     _pendingScrollController.addListener(() {

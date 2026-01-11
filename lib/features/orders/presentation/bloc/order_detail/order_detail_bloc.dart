@@ -69,6 +69,7 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
         orderId: currentOrder.orderId,
         orderIdWithStatus: currentOrder.orderIdWithStatus,
         trackId: currentOrder.trackId,
+        getIsEditable: currentOrder.getIsEditable,
         orderType: currentOrder.orderType,
         vendorName: currentOrder.vendorName,
         vendorReferenceId: currentOrder.vendorReferenceId,

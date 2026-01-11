@@ -212,6 +212,11 @@ class OrderDetailModel extends OrderDetailEntity {
   final String deliveryInstruction;
 
   @JsonKey(
+   defaultValue: false,
+  )
+  final bool getIsEditable;
+
+  @JsonKey(
     fromJson: _dateTimeFromJson,
     toJson: _dateTimeToJson,
   )
@@ -257,6 +262,7 @@ class OrderDetailModel extends OrderDetailEntity {
     required this.orderId,
     required this.orderIdWithStatus,
     required this.trackId,
+    required this.getIsEditable,
     required this.orderType,
     required this.vendorName,
     required this.vendorReferenceId,
@@ -295,6 +301,7 @@ class OrderDetailModel extends OrderDetailEntity {
           orderIdWithStatus: orderIdWithStatus,
           trackId: trackId,
           orderType: orderType,
+          getIsEditable: getIsEditable,
           vendorName: vendorName,
           vendorReferenceId: vendorReferenceId,
           sourceBranch: sourceBranch,

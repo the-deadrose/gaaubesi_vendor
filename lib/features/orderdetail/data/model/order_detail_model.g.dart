@@ -60,6 +60,7 @@ OrderDetailModel _$OrderDetailModelFromJson(Map<String, dynamic> json) =>
       orderId: (json['order_id'] as num?)?.toInt() ?? 0,
       orderIdWithStatus: json['order_id_with_status'] as String? ?? '',
       trackId: json['track_id'] as String? ?? '',
+      getIsEditable: json['get_is_editable'] as bool? ?? false,
       orderType: json['order_type'] as String? ?? '',
       vendorName: json['vendor_name'] as String? ?? '',
       vendorReferenceId: json['vendor_reference_id'] as String? ?? '',
@@ -133,6 +134,7 @@ Map<String, dynamic> _$OrderDetailModelToJson(OrderDetailModel instance) =>
       'last_delivery_status': instance.lastDeliveryStatus,
       'order_description': instance.orderDescription,
       'delivery_instruction': instance.deliveryInstruction,
+      'get_is_editable': instance.getIsEditable,
       'created_on': OrderDetailModel._dateTimeToJson(instance.createdOn),
       'created_on_formatted': instance.createdOnFormatted,
       'delivered_date': OrderDetailModel._nullableDateTimeToJson(

@@ -73,6 +73,7 @@ class CommentsEntity extends Equatable {
 class OrderDetailEntity extends Equatable {
   final int orderId;
   final String orderIdWithStatus;
+  final bool getIsEditable;
   final String trackId;
   final String orderType;
   final String vendorName;
@@ -125,6 +126,7 @@ class OrderDetailEntity extends Equatable {
     required this.altReceiverNumber,
     required this.receiverAddress,
     required this.weight,
+    required this.getIsEditable,
     required this.codCharge,
     required this.deliveryCharge,
     required this.packageAccess,
@@ -185,5 +187,6 @@ class OrderDetailEntity extends Equatable {
     qrCode,
     messages,
     comments,
+    getIsEditable
   ];
 }
