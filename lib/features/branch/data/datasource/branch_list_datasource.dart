@@ -24,7 +24,22 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data as List<dynamic>;
+        // Handle both wrapped and direct list responses
+        final dynamic responseData = response.data;
+        final List<dynamic> data;
+        
+        if (responseData is Map<String, dynamic>) {
+          // If response is wrapped in an object, try common keys
+          data = (responseData['data'] ?? 
+                  responseData['results'] ?? 
+                  responseData['branches'] ?? 
+                  []) as List<dynamic>;
+        } else if (responseData is List) {
+          data = responseData;
+        } else {
+          throw ServerException('Unexpected response format');
+        }
+        
         final branchList = data
             .map((json) => OrderStatusModel.fromJson(json as Map<String, dynamic>))
             .map((model) => model.toEntity())

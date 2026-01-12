@@ -5,6 +5,7 @@ import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<OrderDetailBloc>()),
         BlocProvider(create: (context) => getIt<CommentsBloc>()),
         BlocProvider(create: (context) => getIt<TicketBloc>()),
+        BlocProvider(create: (context) => getIt<BranchListBloc>()),
         
       ],
       child: MaterialApp.router(

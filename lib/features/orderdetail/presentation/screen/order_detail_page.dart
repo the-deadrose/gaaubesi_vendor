@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/edit_order_request_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_state.dart';
@@ -178,7 +179,26 @@ class _OrderDetailPageState extends State<OrderDetailPage>
                   order: order,
                   onUpdate: (data) {
                     debugPrint('Updated data: $data');
-                    // TODO: Call the edit order API here
+                    // Call the edit order API
+                    context.read<OrderDetailBloc>().add(
+                      OrderEditRequested(
+                        orderId: order.orderId,
+                        request: OrderEditEntity(
+                          branch: data['branch'] as int,
+                          destinationBranch: data['destinationBranch'] as int,
+                          weight: data['weight'] as double,
+                          codCharge: data['codCharge'] as int,
+                          packageAccess: data['packageAccess'] as String,
+                          packageType: data['packageType'] as String,
+                          remarks: data['remarks'] as String,
+                          receiverName: data['receiverName'] as String,
+                          receiverPhoneNumber: data['receiverPhoneNumber'] as String,
+                          pickupType: data['pickupType'] as String,
+                          altReceiverPhoneNumber: data['altReceiverPhoneNumber'] as String,
+                          receiverFullAddress: data['receiverFullAddress'] as String,
+                        ),
+                      ),
+                    );
                   },
                 );
               },
@@ -1379,8 +1399,9 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
       text: widget.order.orderDescription,
     );
 
-    _selectedBranch = widget.order.sourceBranchCode;
-    _selectedDestinationBranch = widget.order.destinationBranchCode;
+    // Don't set branch values until we validate they exist in the list
+    _selectedBranch = null;
+    _selectedDestinationBranch = null;
     _selectedPackageAccess = widget.order.packageAccess;
     _selectedPackageType = 'Document'; // Default, adjust based on order data
     _selectedPickupType = widget.order.pickupType;
@@ -1398,6 +1419,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
       if (currentState is BranchListLoaded) {
         setState(() {
           _branchList = currentState.branchList;
+          _validateAndSetBranches();
           _isLoadingBranches = false;
         });
         return;
@@ -1412,6 +1434,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           if (mounted) {
             setState(() {
               _branchList = state.branchList;
+              _validateAndSetBranches();
               _isLoadingBranches = false;
             });
           }
@@ -1433,6 +1456,41 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         });
       }
     }
+  }
+
+  void _validateAndSetBranches() {
+    // Filter out branches with empty values
+    _branchList = _branchList.where((b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty).toList();
+    
+    debugPrint('Branch list loaded: ${_branchList.length} branches');
+    
+    // Only set branch values if they exist in the loaded branch list
+    final sourceBranchCode = widget.order.sourceBranchCode;
+    final destBranchCode = widget.order.destinationBranchCode;
+    
+    // Treat empty strings as null
+    final validSourceCode = sourceBranchCode.isEmpty ? null : sourceBranchCode;
+    final validDestCode = destBranchCode.isEmpty ? null : destBranchCode;
+    
+    // Match by branch code, then get the ID (value)
+    final sourceBranch = validSourceCode != null 
+        ? _branchList.firstWhere(
+            (b) => b.code == validSourceCode,
+            orElse: () => _branchList.first,
+          )
+        : null;
+    final destBranch = validDestCode != null
+        ? _branchList.firstWhere(
+            (b) => b.code == validDestCode,
+            orElse: () => _branchList.first,
+          )
+        : null;
+    
+    _selectedBranch = sourceBranch?.value;
+    _selectedDestinationBranch = destBranch?.value;
+    
+    debugPrint('Source branch code: $sourceBranchCode -> ID: ${_selectedBranch}');
+    debugPrint('Dest branch code: $destBranchCode -> ID: ${_selectedDestinationBranch}');
   }
 
   @override

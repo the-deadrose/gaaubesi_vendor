@@ -270,15 +270,16 @@ extension GetItInjectableX on _i174.GetIt {
         fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
       ),
     );
+    gh.factory<_i124.OrderDetailBloc>(
+      () => _i124.OrderDetailBloc(
+        fetchOrderDetailUseCase: gh<_i170.FetchOrderDetailUseCase>(),
+        editOrderUseCase: gh<_i1054.EditOrderUseCase>(),
+      ),
+    );
     gh.factory<_i894.PossibleRedirectOrderBloc>(
       () => _i894.PossibleRedirectOrderBloc(
         fetchPossibleRedirectOrdersUseCase:
             gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
-      ),
-    );
-    gh.factory<_i124.OrderDetailBloc>(
-      () => _i124.OrderDetailBloc(
-        fetchOrderDetailUseCase: gh<_i170.FetchOrderDetailUseCase>(),
       ),
     );
     gh.factory<_i915.HomeBloc>(

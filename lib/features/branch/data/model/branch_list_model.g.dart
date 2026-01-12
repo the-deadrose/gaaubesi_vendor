@@ -8,9 +8,14 @@ part of 'branch_list_model.dart';
 
 OrderStatusModel _$OrderStatusModelFromJson(Map<String, dynamic> json) =>
     OrderStatusModel(
-      value: json['value'] as String,
-      label: json['label'] as String,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      code: json['code'] as String? ?? '',
+      name: json['name'] as String? ?? '',
     );
 
 Map<String, dynamic> _$OrderStatusModelToJson(OrderStatusModel instance) =>
-    <String, dynamic>{'value': instance.value, 'label': instance.label};
+    <String, dynamic>{
+      'id': instance.id,
+      'code': instance.code,
+      'name': instance.name,
+    };

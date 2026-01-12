@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/edit_order_request_entity.dart';
 
 abstract class OrderDetailEvent extends Equatable {
   const OrderDetailEvent();
@@ -33,4 +34,17 @@ class OrderDetailCommentAdded extends OrderDetailEvent {
 
   @override
   List<Object?> get props => [comment];
+}
+
+class OrderEditRequested extends OrderDetailEvent {
+  final int orderId;
+  final OrderEditEntity request;
+
+  const OrderEditRequested({
+    required this.orderId,
+    required this.request,
+  });
+
+  @override
+  List<Object?> get props => [orderId, request];
 }

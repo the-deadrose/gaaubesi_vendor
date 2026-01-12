@@ -44,7 +44,7 @@ class ApiEndpoints {
 
   static const String ticketList = '/tickets/';
 
-  static const String branchList = '/branches/';
+  static const String branchList = '/branch/list/';
 
   static const String editOrder = '/order/update/';
 }

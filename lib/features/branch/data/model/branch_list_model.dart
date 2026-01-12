@@ -5,12 +5,19 @@ part 'branch_list_model.g.dart';
 
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
 class OrderStatusModel {
-  final String value;
-  final String label;
+  @JsonKey(name: 'id', defaultValue: 0)
+  final int id;
+  
+  @JsonKey(name: 'code', defaultValue: '')
+  final String code;
+  
+  @JsonKey(name: 'name', defaultValue: '')
+  final String name;
 
   const OrderStatusModel({
-    required this.value,
-    required this.label,
+    required this.id,
+    required this.code,
+    required this.name,
   });
 
   factory OrderStatusModel.fromJson(Map<String, dynamic> json) =>
@@ -19,13 +26,15 @@ class OrderStatusModel {
   Map<String, dynamic> toJson() => _$OrderStatusModelToJson(this);
 
   OrderStatusEntity toEntity() => OrderStatusEntity(
-        value: value,
-        label: label,
+        value: id.toString(), // Use ID as value for backend
+        label: '$code - $name', // Show code and name in dropdown
+        code: code, // Branch code for matching
       );
 
   factory OrderStatusModel.fromEntity(OrderStatusEntity entity) =>
       OrderStatusModel(
-        value: entity.value,
-        label: entity.label,
+        id: int.tryParse(entity.value) ?? 0,
+        code: entity.code,
+        name: entity.label,
       );
 }

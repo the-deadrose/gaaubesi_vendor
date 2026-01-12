@@ -3,18 +3,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/usecase/fetch_order_detail_usecase.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/edit_order_usecase.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_state.dart';
 
 @injectable
 class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
   final FetchOrderDetailUseCase fetchOrderDetailUseCase;
+  final EditOrderUseCase editOrderUseCase;
 
-  OrderDetailBloc({required this.fetchOrderDetailUseCase})
-      : super(const OrderDetailInitial()) {
+  OrderDetailBloc({
+    required this.fetchOrderDetailUseCase,
+    required this.editOrderUseCase,
+  }) : super(const OrderDetailInitial()) {
     on<OrderDetailRequested>(_onOrderDetailRequested);
     on<OrderDetailRefreshRequested>(_onOrderDetailRefreshRequested);
     on<OrderDetailCommentAdded>(_onOrderDetailCommentAdded);
+    on<OrderEditRequested>(_onOrderEditRequested);
   }
 
   Future<void> _onOrderDetailRequested(
@@ -108,5 +113,38 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
       debugPrint('[BLOC] Emitting new OrderDetailLoaded state with ${updatedComments.length} comments');
       emit(OrderDetailLoaded(order: updatedOrder));
     }
+  }
+
+  Future<void> _onOrderEditRequested(
+    OrderEditRequested event,
+    Emitter<OrderDetailState> emit,
+  ) async {
+    debugPrint('[BLOC] OrderEditRequested event received for order ${event.orderId}');
+    
+    // Show loading if needed
+    final currentState = state;
+    
+    final result = await editOrderUseCase(
+      EditOrderParams(
+        orderId: event.orderId,
+        request: event.request,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        debugPrint('[BLOC] Edit order failed: ${failure.message}');
+        emit(OrderDetailError(message: failure.message));
+        // Restore previous state after showing error
+        if (currentState is OrderDetailLoaded) {
+          emit(currentState);
+        }
+      },
+      (_) {
+        debugPrint('[BLOC] Edit order successful, refreshing order details');
+        // Refresh order details to show updated data
+        add(OrderDetailRefreshRequested(orderId: event.orderId));
+      },
+    );
   }
 }
