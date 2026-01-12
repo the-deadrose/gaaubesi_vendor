@@ -43,6 +43,10 @@ class ApiEndpoints {
   static const String createTicket = '/add/ticket/';
 
   static const String ticketList = '/tickets/';
+
+  static const String branchList = '/branches/';
+
+  static const String editOrder = '/order/update/';
 }
 class QueryParams {
   QueryParams._();

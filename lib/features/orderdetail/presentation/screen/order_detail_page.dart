@@ -11,6 +11,10 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
 
 @RoutePage()
 class OrderDetailPage extends StatefulWidget {
@@ -106,6 +110,9 @@ class _OrderDetailPageState extends State<OrderDetailPage>
           }
 
           if (state is OrderDetailLoaded) {
+            debugPrint(
+              'Order Detail Loaded - is_editable: ${state.order.getIsEditable}',
+            );
             return _buildContent(context, state.order);
           }
 
@@ -163,26 +170,26 @@ class _OrderDetailPageState extends State<OrderDetailPage>
               ),
             ),
           ),
-          IconButton(
-            onPressed: () {
-              _EditAdditionalInfoDialog.show(
-                context,
-                initialDescription: order.orderDescription,
-                initialVendorReferenceId: order.vendorReferenceId,
-                initialDeliveryInstruction: order.deliveryInstruction,
-                onUpdate: (data) {
-                  debugPrint('Updated data: $data');
-                },
-              );
-            },
-            icon: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: theme.colorScheme.onPrimary,
-              size: 32,
+          if (order.getIsEditable)
+            IconButton(
+              onPressed: () {
+                _EditAdditionalInfoDialog.show(
+                  context,
+                  order: order,
+                  onUpdate: (data) {
+                    debugPrint('Updated data: $data');
+                    // TODO: Call the edit order API here
+                  },
+                );
+              },
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: theme.colorScheme.onPrimary,
+                size: 32,
+              ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
             ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
         ],
       ),
     );
@@ -1298,17 +1305,11 @@ class _OrderDetailPageState extends State<OrderDetailPage>
 }
 
 class _EditAdditionalInfoDialog extends StatefulWidget {
-  final String? initialPriority;
-  final String? initialDescription;
-  final String? initialVendorReferenceId;
-  final String? initialDeliveryInstruction;
-  final Function(Map<String, String>) onUpdate;
+  final OrderDetailEntity order;
+  final Function(Map<String, dynamic>) onUpdate;
 
   const _EditAdditionalInfoDialog({
-    this.initialPriority,
-    this.initialDescription,
-    this.initialVendorReferenceId,
-    this.initialDeliveryInstruction,
+    required this.order,
     required this.onUpdate,
   });
 
@@ -1318,63 +1319,156 @@ class _EditAdditionalInfoDialog extends StatefulWidget {
 
   static Future<void> show(
     BuildContext context, {
-    String? initialPriority,
-    String? initialDescription,
-    String? initialVendorReferenceId,
-    String? initialDeliveryInstruction,
-    required Function(Map<String, String>) onUpdate,
+    required OrderDetailEntity order,
+    required Function(Map<String, dynamic>) onUpdate,
   }) {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => _EditAdditionalInfoDialog(
-        initialPriority: initialPriority,
-        initialDescription: initialDescription,
-        initialVendorReferenceId: initialVendorReferenceId,
-        initialDeliveryInstruction: initialDeliveryInstruction,
-        onUpdate: onUpdate,
-      ),
+      builder: (context) =>
+          _EditAdditionalInfoDialog(order: order, onUpdate: onUpdate),
     );
   }
 }
 
 class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
-  late TextEditingController _descriptionController;
-  late TextEditingController _vendorRefController;
-  late TextEditingController _deliveryInstructionController;
-  late String _selectedPriority;
+  late TextEditingController _receiverNameController;
+  late TextEditingController _receiverPhoneController;
+  late TextEditingController _altReceiverPhoneController;
+  late TextEditingController _receiverAddressController;
+  late TextEditingController _weightController;
+  late TextEditingController _codChargeController;
+  late TextEditingController _remarksController;
 
-  final List<String> _priorities = ['Normal', 'High', 'Urgent', 'Low'];
+  String? _selectedBranch;
+  String? _selectedDestinationBranch;
+  String? _selectedPackageAccess;
+  String? _selectedPackageType;
+  String? _selectedPickupType;
+
+  final List<String> _packageAccessOptions = ['Can Open', 'Can\'t Open'];
+  final List<String> _packageTypeOptions = [
+    'Document',
+    'Parcel',
+    'Liquid',
+    'Fragile',
+  ];
+  final List<String> _pickupTypeOptions = ['Pickup', 'Drop Off'];
+
+  List<OrderStatusEntity> _branchList = [];
+  bool _isLoadingBranches = true;
 
   @override
   void initState() {
     super.initState();
-    _selectedPriority = widget.initialPriority ?? 'Normal';
-    _descriptionController = TextEditingController(
-      text: widget.initialDescription ?? '',
+    _receiverNameController = TextEditingController(
+      text: widget.order.receiverName,
     );
-    _vendorRefController = TextEditingController(
-      text: widget.initialVendorReferenceId ?? '',
+    _receiverPhoneController = TextEditingController(
+      text: widget.order.receiverNumber,
     );
-    _deliveryInstructionController = TextEditingController(
-      text: widget.initialDeliveryInstruction ?? '',
+    _altReceiverPhoneController = TextEditingController(
+      text: widget.order.altReceiverNumber,
     );
+    _receiverAddressController = TextEditingController(
+      text: widget.order.receiverAddress,
+    );
+    _weightController = TextEditingController(text: widget.order.weight);
+    _codChargeController = TextEditingController(text: widget.order.codCharge);
+    _remarksController = TextEditingController(
+      text: widget.order.orderDescription,
+    );
+
+    _selectedBranch = widget.order.sourceBranchCode;
+    _selectedDestinationBranch = widget.order.destinationBranchCode;
+    _selectedPackageAccess = widget.order.packageAccess;
+    _selectedPackageType = 'Document'; // Default, adjust based on order data
+    _selectedPickupType = widget.order.pickupType;
+
+    _loadBranches();
+  }
+
+  Future<void> _loadBranches() async {
+    try {
+      // Fetch branches from BranchListBloc
+      final branchBloc = context.read<BranchListBloc>();
+      
+      // Check current state first
+      final currentState = branchBloc.state;
+      if (currentState is BranchListLoaded) {
+        setState(() {
+          _branchList = currentState.branchList;
+          _isLoadingBranches = false;
+        });
+        return;
+      }
+      
+      // If not loaded, fetch branches
+      branchBloc.add(FetchBranchListEvent());
+
+      // Listen to branch list state
+      await for (final state in branchBloc.stream) {
+        if (state is BranchListLoaded) {
+          if (mounted) {
+            setState(() {
+              _branchList = state.branchList;
+              _isLoadingBranches = false;
+            });
+          }
+          break;
+        } else if (state is BranchListError) {
+          if (mounted) {
+            setState(() {
+              _isLoadingBranches = false;
+            });
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading branches: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingBranches = false;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
-    _descriptionController.dispose();
-    _vendorRefController.dispose();
-    _deliveryInstructionController.dispose();
+    _receiverNameController.dispose();
+    _receiverPhoneController.dispose();
+    _altReceiverPhoneController.dispose();
+    _receiverAddressController.dispose();
+    _weightController.dispose();
+    _codChargeController.dispose();
+    _remarksController.dispose();
     super.dispose();
   }
 
   void _handleUpdate() {
+    // Validate required fields
+    if (_selectedBranch == null || _selectedDestinationBranch == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select both branches')),
+      );
+      return;
+    }
+
     final data = {
-      'priority': _selectedPriority,
-      'description': _descriptionController.text,
-      'vendorReferenceId': _vendorRefController.text,
-      'deliveryInstruction': _deliveryInstructionController.text,
+      'branch': int.parse(_selectedBranch!),
+      'destinationBranch': int.parse(_selectedDestinationBranch!),
+      'weight': double.tryParse(_weightController.text) ?? 0.0,
+      'codCharge': int.tryParse(_codChargeController.text) ?? 0,
+      'packageAccess': _selectedPackageAccess ?? '',
+      'packageType': _selectedPackageType ?? '',
+      'remarks': _remarksController.text,
+      'receiverName': _receiverNameController.text,
+      'receiverPhoneNumber': _receiverPhoneController.text,
+      'pickupType': _selectedPickupType ?? '',
+      'altReceiverPhoneNumber': _altReceiverPhoneController.text,
+      'receiverFullAddress': _receiverAddressController.text,
     };
     widget.onUpdate(data);
     Navigator.of(context).pop();
@@ -1398,23 +1492,45 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildHeader(theme),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildPriorityField(theme),
-                    const SizedBox(height: 20),
-                    _buildDescriptionField(theme),
-                    const SizedBox(height: 20),
-                    _buildVendorRefField(theme),
-                    const SizedBox(height: 20),
-                    _buildDeliveryInstructionField(theme),
-                  ],
+            if (_isLoadingBranches)
+              const Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator(),
+              )
+            else
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildBranchDropdown(theme),
+                      const SizedBox(height: 20),
+                      _buildDestinationBranchDropdown(theme),
+                      const SizedBox(height: 20),
+                      _buildReceiverNameField(theme),
+                      const SizedBox(height: 20),
+                      _buildReceiverPhoneField(theme),
+                      const SizedBox(height: 20),
+                      _buildAltReceiverPhoneField(theme),
+                      const SizedBox(height: 20),
+                      _buildReceiverAddressField(theme),
+                      const SizedBox(height: 20),
+                      _buildWeightField(theme),
+                      const SizedBox(height: 20),
+                      _buildCodChargeField(theme),
+                      const SizedBox(height: 20),
+                      _buildPackageAccessDropdown(theme),
+                      const SizedBox(height: 20),
+                      _buildPackageTypeDropdown(theme),
+                      const SizedBox(height: 20),
+                      _buildPickupTypeDropdown(theme),
+                      const SizedBox(height: 20),
+                      _buildRemarksField(theme),
+                    ],
+                  ),
                 ),
               ),
-            ),
             _buildActionButtons(theme),
           ],
         ),
@@ -1436,7 +1552,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         children: [
           Expanded(
             child: Text(
-              'Update Description',
+              'Edit Order',
               style: theme.textTheme.titleLarge?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w500,
@@ -1457,13 +1573,13 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
     );
   }
 
-  Widget _buildPriorityField(ThemeData theme) {
+  Widget _buildBranchDropdown(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         RichText(
           text: TextSpan(
-            text: 'Priority',
+            text: 'Source Branch',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               fontWeight: FontWeight.w500,
@@ -1487,24 +1603,25 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: _selectedPriority,
+              value: _selectedBranch,
               isExpanded: true,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               icon: Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
+              hint: const Text('Select source branch'),
               style: theme.textTheme.bodyLarge,
-              items: _priorities.map((priority) {
+              items: _branchList.map((branch) {
                 return DropdownMenuItem<String>(
-                  value: priority,
-                  child: Text(priority),
+                  value: branch.value,
+                  child: Text(branch.label),
                 );
               }).toList(),
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
-                    _selectedPriority = value;
+                    _selectedBranch = value;
                   });
                 }
               },
@@ -1515,23 +1632,89 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
     );
   }
 
-  Widget _buildDescriptionField(ThemeData theme) {
+  Widget _buildDestinationBranchDropdown(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Description',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            fontWeight: FontWeight.w500,
+        RichText(
+          text: TextSpan(
+            text: 'Destination Branch',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedDestinationBranch,
+              isExpanded: true,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              hint: const Text('Select destination branch'),
+              style: theme.textTheme.bodyLarge,
+              items: _branchList.map((branch) {
+                return DropdownMenuItem<String>(
+                  value: branch.value,
+                  child: Text(branch.label),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedDestinationBranch = value;
+                  });
+                }
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReceiverNameField(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'Receiver Name',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: _descriptionController,
-          maxLines: 5,
+          controller: _receiverNameController,
           decoration: InputDecoration(
-            hintText: 'Enter description',
+            hintText: 'Enter receiver name',
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
@@ -1563,22 +1746,31 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
     );
   }
 
-  Widget _buildVendorRefField(ThemeData theme) {
+  Widget _buildReceiverPhoneField(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Vendor reference id',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            fontWeight: FontWeight.w500,
+        RichText(
+          text: TextSpan(
+            text: 'Receiver Phone',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: _vendorRefController,
+          controller: _receiverPhoneController,
+          keyboardType: TextInputType.phone,
           decoration: InputDecoration(
-            hintText: 'Enter vendor reference id',
+            hintText: 'Enter receiver phone',
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
@@ -1610,12 +1802,12 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
     );
   }
 
-  Widget _buildDeliveryInstructionField(ThemeData theme) {
+  Widget _buildAltReceiverPhoneField(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Delivery instruction',
+          'Alt. Receiver Phone',
           style: theme.textTheme.bodyLarge?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
@@ -1623,10 +1815,397 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: _deliveryInstructionController,
-          maxLines: 5,
+          controller: _altReceiverPhoneController,
+          keyboardType: TextInputType.phone,
           decoration: InputDecoration(
-            hintText: 'Enter delivery instruction',
+            hintText: 'Enter alternate phone',
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            filled: true,
+            fillColor: theme.scaffoldBackgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.all(16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReceiverAddressField(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'Receiver Address',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _receiverAddressController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Enter receiver address',
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            filled: true,
+            fillColor: theme.scaffoldBackgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.all(16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeightField(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'Weight (kg)',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _weightController,
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            hintText: 'Enter weight',
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            filled: true,
+            fillColor: theme.scaffoldBackgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.all(16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCodChargeField(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'COD Charge',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _codChargeController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: 'Enter COD charge',
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+            filled: true,
+            fillColor: theme.scaffoldBackgroundColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: theme.colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.all(16),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPackageAccessDropdown(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'Package Access',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedPackageAccess,
+              isExpanded: true,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              hint: const Text('Select package access'),
+              style: theme.textTheme.bodyLarge,
+              items: _packageAccessOptions.map((access) {
+                return DropdownMenuItem<String>(
+                  value: access,
+                  child: Text(access),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedPackageAccess = value;
+                  });
+                }
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPackageTypeDropdown(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'Package Type',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedPackageType,
+              isExpanded: true,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              hint: const Text('Select package type'),
+              style: theme.textTheme.bodyLarge,
+              items: _packageTypeOptions.map((type) {
+                return DropdownMenuItem<String>(value: type, child: Text(type));
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedPackageType = value;
+                  });
+                }
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPickupTypeDropdown(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'Pickup Type',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            children: [
+              TextSpan(
+                text: '*',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _selectedPickupType,
+              isExpanded: true,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              hint: const Text('Select pickup type'),
+              style: theme.textTheme.bodyLarge,
+              items: _pickupTypeOptions.map((type) {
+                return DropdownMenuItem<String>(value: type, child: Text(type));
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedPickupType = value;
+                  });
+                }
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRemarksField(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Remarks',
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _remarksController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Enter remarks',
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),

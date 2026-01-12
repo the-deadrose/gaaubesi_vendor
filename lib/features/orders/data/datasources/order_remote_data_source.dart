@@ -10,6 +10,7 @@ import 'package:gaaubesi_vendor/features/orders/data/models/paginated_possible_r
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_returned_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_rtv_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/edit_order_request_model.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/data/model/order_detail_model.dart';
 
 abstract class OrderRemoteDataSource {
@@ -66,6 +67,11 @@ abstract class OrderRemoteDataSource {
   Future<void> createOrder({required CreateOrderRequestModel request});
 
   Future<OrderDetailModel> fetchOrderDetail({required int orderId});
+
+  Future<void> editOrder({
+    required int orderId,
+    required EditOrderRequestModel request,
+  });
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -397,6 +403,38 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         return orderDetail;
       } else {
         throw ServerException('Failed to fetch order details');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<void> editOrder({
+    required int orderId,
+    required EditOrderRequestModel request,
+  }) async {
+    try {
+      final response = await _dioClient.put(
+        '${ApiEndpoints.editOrder}$orderId/',
+        data: request.toJson(),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ServerException('Failed to edit order');
       }
     } on DioException catch (e) {
       String errorMessage = e.message ?? 'Unknown error';

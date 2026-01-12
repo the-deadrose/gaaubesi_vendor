@@ -4,12 +4,14 @@ import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/orders/data/datasources/order_remote_data_source.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/edit_order_request_model.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_delivered_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_possible_redirect_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_returned_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_rtv_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/edit_order_request_entity.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/repositories/order_repository.dart';
 
@@ -217,5 +219,36 @@ class OrderRepositoryImpl implements OrderRepository {
     // } catch (e) {
     //   return Left(ServerFailure(e.toString()));
     // }
+  }
+
+  @override
+  Future<Either<Failure, void>> editOrder({
+    required int orderId,
+    required OrderEditEntity request,
+  }) async {
+    try {
+      final model = EditOrderRequestModel(
+        branch: request.branch,
+        destinationBranch: request.destinationBranch,
+        weight: request.weight,
+        codCharge: request.codCharge,
+        packageAccess: request.packageAccess,
+        packageType: request.packageType,
+        remarks: request.remarks,
+        receiverName: request.receiverName,
+        receiverPhoneNumber: request.receiverPhoneNumber,
+        pickupType: request.pickupType,
+        altReceiverPhoneNumber: request.altReceiverPhoneNumber,
+        receiverFullAddress: request.receiverFullAddress,
+      );
+      await remoteDataSource.editOrder(orderId: orderId, request: model);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }

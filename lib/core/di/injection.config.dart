@@ -32,6 +32,16 @@ import 'package:gaaubesi_vendor/features/auth/domain/usecases/logout_usecase.dar
     as _i357;
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart'
     as _i365;
+import 'package:gaaubesi_vendor/features/branch/data/datasource/branch_list_datasource.dart'
+    as _i433;
+import 'package:gaaubesi_vendor/features/branch/data/repository/branch_list_repo_imp.dart'
+    as _i218;
+import 'package:gaaubesi_vendor/features/branch/domain/repository/branch_list_repository.dart'
+    as _i684;
+import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_branch_list_usecase.dart'
+    as _i681;
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart'
+    as _i764;
 import 'package:gaaubesi_vendor/features/comments/data/datasource/comments_datasource.dart'
     as _i170;
 import 'package:gaaubesi_vendor/features/comments/data/repository/comments_repo_imp.dart'
@@ -72,6 +82,8 @@ import 'package:gaaubesi_vendor/features/orders/domain/repositories/order_reposi
     as _i532;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/create_order_usecase.dart'
     as _i353;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/edit_order_usecase.dart'
+    as _i1054;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_delivered_orders_usecase.dart'
     as _i451;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_usecase.dart'
@@ -146,6 +158,9 @@ extension GetItInjectableX on _i174.GetIt {
         description: gh<String>(),
       ),
     );
+    gh.lazySingleton<_i433.BranchListRemoteDatasource>(
+      () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i18.AuthLocalDataSource>(
       () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
     );
@@ -169,11 +184,22 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
       ),
     );
+    gh.lazySingleton<_i684.BranchListRepository>(
+      () => _i218.BranchListRepoImp(
+        remoteDatasource: gh<_i433.BranchListRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i681.GetBranchListUsecase>(
+      () => _i681.GetBranchListUsecase(gh<_i684.BranchListRepository>()),
+    );
     gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
       () => _i170.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i353.CreateOrderUseCase>(
       () => _i353.CreateOrderUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i1054.EditOrderUseCase>(
+      () => _i1054.EditOrderUseCase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
       () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
@@ -190,6 +216,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
       () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.factory<_i764.BranchListBloc>(
+      () => _i764.BranchListBloc(
+        getBranchListUsecase: gh<_i681.GetBranchListUsecase>(),
+      ),
     );
     gh.lazySingleton<_i92.CommentsRepository>(
       () => _i944.CommentsRepoImp(

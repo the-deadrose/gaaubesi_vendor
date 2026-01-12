@@ -213,6 +213,7 @@ class OrderDetailModel extends OrderDetailEntity {
 
   @JsonKey(
    defaultValue: false,
+   name: 'is_editable',
   )
   final bool getIsEditable;
 
