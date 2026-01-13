@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_delivered_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_possible_redirect_order_response_entity.dart';
@@ -73,5 +74,10 @@ abstract class OrderRepository {
   Future<Either<Failure, void>> editOrder({
     required int orderId,
     required OrderEditEntity request,
+  });
+
+  Future<Either<Failure, List<OrderEntity>>> searchOrders({
+    required String query,
+    int? limit,
   });
 }

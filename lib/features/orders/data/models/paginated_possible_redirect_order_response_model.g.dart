@@ -10,7 +10,7 @@ PaginatedPossibleRedirectOrderResponseModel
 _$PaginatedPossibleRedirectOrderResponseModelFromJson(
   Map<String, dynamic> json,
 ) => PaginatedPossibleRedirectOrderResponseModel(
-  totalPages: (json['total_pages'] as num).toInt(),
+  totalPages: (json['total_pages'] as num?)?.toInt() ?? 0,
   next: json['next'] as String?,
   previous: json['previous'] as String?,
   results: (json['results'] as List<dynamic>)

@@ -40,6 +40,8 @@ import 'package:gaaubesi_vendor/features/branch/domain/repository/branch_list_re
     as _i684;
 import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_branch_list_usecase.dart'
     as _i681;
+import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_pickup_point_usecase.dart'
+    as _i598;
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart'
     as _i764;
 import 'package:gaaubesi_vendor/features/comments/data/datasource/comments_datasource.dart'
@@ -94,6 +96,8 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_returned_o
     as _i466;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_rtv_orders_usecase.dart'
     as _i287;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/search_orders_usecase.dart'
+    as _i1053;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart'
     as _i37;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_bloc.dart'
@@ -192,6 +196,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i681.GetBranchListUsecase>(
       () => _i681.GetBranchListUsecase(gh<_i684.BranchListRepository>()),
     );
+    gh.lazySingleton<_i598.GetPickupPointUsecase>(
+      () => _i598.GetPickupPointUsecase(gh<_i684.BranchListRepository>()),
+    );
     gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
       () => _i170.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
     );
@@ -217,10 +224,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
       () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
     );
-    gh.factory<_i764.BranchListBloc>(
-      () => _i764.BranchListBloc(
-        getBranchListUsecase: gh<_i681.GetBranchListUsecase>(),
-      ),
+    gh.lazySingleton<_i1053.SearchOrdersUseCase>(
+      () => _i1053.SearchOrdersUseCase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i92.CommentsRepository>(
       () => _i944.CommentsRepoImp(
@@ -280,6 +285,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i894.PossibleRedirectOrderBloc(
         fetchPossibleRedirectOrdersUseCase:
             gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
+      ),
+    );
+    gh.factory<_i764.BranchListBloc>(
+      () => _i764.BranchListBloc(
+        getBranchListUsecase: gh<_i681.GetBranchListUsecase>(),
+        getPickupPointUsecase: gh<_i598.GetPickupPointUsecase>(),
       ),
     );
     gh.factory<_i915.HomeBloc>(

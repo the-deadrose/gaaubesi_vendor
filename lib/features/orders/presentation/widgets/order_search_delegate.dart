@@ -1,24 +1,26 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/search_orders_usecase.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/search/search_empty_state.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/search/search_highlight_text.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/search/search_result_item.dart';
 
-/// Search delegate for orders with custom UI and search history.
 class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
-  final List<OrderEntity> allOrders;
+  final SearchOrdersUseCase searchOrdersUseCase;
   final List<String> recentSearches;
   final Function(String) onSearchQueryChanged;
   final VoidCallback? onClearRecentSearches;
 
   OrderSearchDelegate({
-    required this.allOrders,
+    required this.searchOrdersUseCase,
     this.recentSearches = const [],
     required this.onSearchQueryChanged,
     this.onClearRecentSearches,
   }) : super(
          searchFieldLabel: 'Search orders...',
-         searchFieldStyle: const TextStyle(fontSize: 16),
+         searchFieldStyle: const TextStyle(fontSize: 16, color: Colors.white),
+         keyboardType: TextInputType.number,
        );
 
   @override
@@ -33,6 +35,12 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
       inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+      ),
+      textTheme: theme.textTheme.copyWith(
+        titleLarge: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+        ),
       ),
     );
   }
@@ -63,23 +71,7 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final results = _searchOrders(query);
-
-    if (results.isEmpty) {
-      return const SearchEmptyState(message: 'No orders found');
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final order = results[index];
-        return SearchResultItem(
-          order: order,
-          onTap: () => close(context, order),
-        );
-      },
-    );
+    return buildSuggestions(context);
   }
 
   @override
@@ -88,42 +80,72 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
       return _buildRecentSearches(context);
     }
 
-    final suggestions = _searchOrders(query).take(5).toList();
-
-    if (suggestions.isEmpty) {
-      return const SearchEmptyState(message: 'No suggestions');
+    if (query.trim().length < 2) {
+      return const SearchEmptyState(
+        message: 'Enter at least 2 characters',
+        icon: Icons.keyboard_rounded,
+      );
     }
 
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final order = suggestions[index];
-        return ListTile(
-          leading: const Icon(Icons.search_rounded),
-          title: HighlightedText(text: '${order.orderId}', query: query),
-          subtitle: Text(
-            order.receiverName,
-            style: const TextStyle(fontSize: 12),
-          ),
-          onTap: () {
-            query = order.orderId.toString();
-            showResults(context);
+    return FutureBuilder<List<OrderEntity>>(
+      future: _performSearch(query),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return SearchEmptyState(
+            message: 'Search failed',
+            icon: Icons.error_outline,
+          );
+        }
+
+        final suggestions = snapshot.data ?? [];
+
+        if (suggestions.isEmpty) {
+          return const SearchEmptyState(
+            message: 'No orders found',
+            icon: Icons.search_off_rounded,
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          itemCount: suggestions.length,
+          itemBuilder: (context, index) {
+            final order = suggestions[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: OrderCard(
+                order: order,
+                onTap: () {
+                  context.router.push(OrderDetailRoute(orderId: order.orderId));
+                },
+              ),
+            );
           },
         );
       },
     );
   }
 
-  List<OrderEntity> _searchOrders(String searchQuery) {
-    if (searchQuery.isEmpty) return [];
+  Future<List<OrderEntity>> _performSearch(
+    String searchQuery, {
+    int? limit,
+  }) async {
+    if (searchQuery.trim().isEmpty) return [];
 
-    final lowerQuery = searchQuery.toLowerCase();
-    return allOrders.where((order) {
-      return order.orderId.toString().contains(lowerQuery) ||
-          order.receiverName.toLowerCase().contains(lowerQuery) ||
-          order.receiverAddress.toLowerCase().contains(lowerQuery) ||
-          order.receiverNumber.toLowerCase().contains(lowerQuery);
-    }).toList();
+    final result = await searchOrdersUseCase(
+      SearchOrdersParams(query: searchQuery.trim(), limit: limit),
+    );
+
+    return result.fold((_) => [], (orders) => orders);
   }
 
   Widget _buildRecentSearches(BuildContext context) {
@@ -157,14 +179,17 @@ class OrderSearchDelegate extends SearchDelegate<OrderEntity?> {
           ),
         ),
         ...recentSearches.map(
-          (search) => ListTile(
-            leading: const Icon(Icons.history_rounded),
-            title: Text(search),
-            trailing: const Icon(Icons.north_west_rounded, size: 16),
-            onTap: () {
-              query = search;
-              showResults(context);
-            },
+          (search) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.history_rounded),
+              title: Text(search),
+              trailing: const Icon(Icons.north_west_rounded, size: 16),
+              onTap: () {
+                query = search;
+                showResults(context);
+              },
+            ),
           ),
         ),
       ],

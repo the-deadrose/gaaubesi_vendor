@@ -14,7 +14,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_event.dart';
-import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/search_orders_usecase.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/all_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/delivered_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/possible_redirect_orders_tab.dart';
@@ -105,7 +105,7 @@ class _OrdersViewState extends State<_OrdersView>
                 getIt<RtvOrderBloc>()..add(const RtvOrderLoadRequested()),
             child: const RtvOrdersTab(),
           ),
-          
+
           const PlaceholderTabView(
             message:
                 'Warehouse Orders\n\nCreate WarehouseOrderBloc to fetch data',
@@ -141,7 +141,10 @@ class _OrdersViewState extends State<_OrdersView>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [theme.primaryColor, theme.primaryColor.withValues(alpha:  0.8)],
+            colors: [
+              theme.primaryColor,
+              theme.primaryColor.withValues(alpha: 0.8),
+            ],
           ),
         ),
       ),
@@ -153,28 +156,17 @@ class _OrdersViewState extends State<_OrdersView>
             context.router.push(const CreateOrderRoute());
           },
         ),
-        IconButton(
-          icon: const Icon(Icons.file_upload_outlined, color: Colors.white),
-          tooltip: 'Bulk Upload Orders',
-          onPressed: () {
-            context.router.push(const BulkUploadOrdersRoute());
-          },
-        ),
+
         BlocBuilder<OrderBloc, OrderState>(
           builder: (context, state) {
             return IconButton(
               icon: const Icon(Icons.search, color: Colors.white),
               tooltip: 'Search Orders',
               onPressed: () {
-                final orders = state is OrderLoaded
-                    ? state.orders
-                    : (state is OrderLoadingMore
-                          ? state.orders
-                          : <OrderEntity>[]);
                 showSearch(
                   context: context,
                   delegate: OrderSearchDelegate(
-                    allOrders: orders,
+                    searchOrdersUseCase: getIt<SearchOrdersUseCase>(),
                     onSearchQueryChanged: (query) {},
                     onClearRecentSearches: () {},
                   ),

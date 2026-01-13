@@ -7,17 +7,21 @@ part 'paginated_returned_order_response_model.g.dart';
 @JsonSerializable()
 class PaginatedReturnedOrderResponseModel
     extends PaginatedReturnedOrderResponseEntity {
+  @override
+  @JsonKey(defaultValue: 0)
+  final int count;
+
+  @override
+  @JsonKey(name: 'total_pages', defaultValue: 0)
+  final int totalPages;
+
   const PaginatedReturnedOrderResponseModel({
-    required super.count,
-    required super.totalPages,
+    required this.count,
+    required this.totalPages,
     super.next,
     super.previous,
     required List<ReturnedOrderModel> super.results,
-  });
-
-  @override
-  @JsonKey(name: 'total_pages')
-  int get totalPages => super.totalPages;
+  }) : super(count: count, totalPages: totalPages);
 
   @override
   List<ReturnedOrderModel> get results =>

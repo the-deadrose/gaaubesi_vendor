@@ -9,8 +9,8 @@ part of 'paginated_rtv_order_response_model.dart';
 PaginatedRtvOrderResponseModel _$PaginatedRtvOrderResponseModelFromJson(
   Map<String, dynamic> json,
 ) => PaginatedRtvOrderResponseModel(
-  count: (json['count'] as num).toInt(),
-  totalPages: (json['total_pages'] as num).toInt(),
+  count: (json['count'] as num?)?.toInt() ?? 0,
+  totalPages: (json['total_pages'] as num?)?.toInt() ?? 0,
   next: json['next'] as String?,
   previous: json['previous'] as String?,
   results: (json['results'] as List<dynamic>)
@@ -21,9 +21,9 @@ PaginatedRtvOrderResponseModel _$PaginatedRtvOrderResponseModelFromJson(
 Map<String, dynamic> _$PaginatedRtvOrderResponseModelToJson(
   PaginatedRtvOrderResponseModel instance,
 ) => <String, dynamic>{
-  'count': instance.count,
   'next': instance.next,
   'previous': instance.previous,
+  'count': instance.count,
   'total_pages': instance.totalPages,
   'results': instance.results,
 };

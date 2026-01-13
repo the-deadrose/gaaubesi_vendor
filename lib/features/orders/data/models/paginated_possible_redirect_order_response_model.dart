@@ -7,16 +7,16 @@ part 'paginated_possible_redirect_order_response_model.g.dart';
 @JsonSerializable()
 class PaginatedPossibleRedirectOrderResponseModel
     extends PaginatedPossibleRedirectOrderResponseEntity {
+  @override
+  @JsonKey(name: 'total_pages', defaultValue: 0)
+  final int totalPages;
+
   const PaginatedPossibleRedirectOrderResponseModel({
-    required super.totalPages,
+    required this.totalPages,
     super.next,
     super.previous,
     required List<PossibleRedirectOrderModel> super.results,
-  });
-
-  @override
-  @JsonKey(name: 'total_pages')
-  int get totalPages => super.totalPages;
+  }) : super(totalPages: totalPages);
 
   @override
   List<PossibleRedirectOrderModel> get results =>

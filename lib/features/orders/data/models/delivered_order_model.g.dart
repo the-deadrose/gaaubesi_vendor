@@ -8,25 +8,31 @@ part of 'delivered_order_model.dart';
 
 DeliveredOrderModel _$DeliveredOrderModelFromJson(Map<String, dynamic> json) =>
     DeliveredOrderModel(
-      orderId: json['order_id'] as String,
-      codCharge: json['cod_charge'] as String,
-      destination: json['destination'] as String,
-      receiverNumber: json['receiver_number'] as String,
-      receiverName: json['receiver_name'] as String,
-      deliveryCharge: json['delivery_charge'] as String,
-      deliveredDate: json['delivered_date'] as String,
-      createdOn: json['created_on'] as String,
+      orderId: (json['order_id'] as num?)?.toInt() ?? 0,
+      referenceId: json['reference_id'] as String? ?? '',
+      destination: json['destination'] as String? ?? '',
+      receiverName: json['receiver_name'] as String? ?? '',
+      receiverNumber: json['receiver_number'] as String? ?? '',
+      altReceiverNumber: json['alt_receiver_number'] as String? ?? '',
+      codCharge: json['cod_charge'] as String? ?? '0.00',
+      deliveryCharge: json['delivery_charge'] as String? ?? '0.00',
+      deliveredDate: json['delivered_date'] == null
+          ? null
+          : DateTime.parse(json['delivered_date'] as String),
+      deliveredDateFormatted: json['delivered_date_formatted'] as String? ?? '',
     );
 
 Map<String, dynamic> _$DeliveredOrderModelToJson(
   DeliveredOrderModel instance,
 ) => <String, dynamic>{
-  'destination': instance.destination,
   'order_id': instance.orderId,
-  'cod_charge': instance.codCharge,
-  'receiver_number': instance.receiverNumber,
+  'reference_id': instance.referenceId,
+  'destination': instance.destination,
   'receiver_name': instance.receiverName,
+  'receiver_number': instance.receiverNumber,
+  'alt_receiver_number': instance.altReceiverNumber,
+  'cod_charge': instance.codCharge,
   'delivery_charge': instance.deliveryCharge,
-  'delivered_date': instance.deliveredDate,
-  'created_on': instance.createdOn,
+  'delivered_date': ?instance.deliveredDate?.toIso8601String(),
+  'delivered_date_formatted': instance.deliveredDateFormatted,
 };

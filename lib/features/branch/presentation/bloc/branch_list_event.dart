@@ -8,14 +8,33 @@ abstract class BranchListEvent extends Equatable {
 }
 
 class FetchBranchListEvent extends BranchListEvent {
-  const FetchBranchListEvent();
+  final String branch;
+
+  const FetchBranchListEvent(this.branch);
+
+  @override
+  List<Object?> get props => [branch];
+}
+
+class RefreshBranchListEvent extends BranchListEvent {
+  final String branch;
+
+  const RefreshBranchListEvent(this.branch);
+
+  @override
+  List<Object?> get props => [branch];
+}
+
+
+class FetchPickupPointsEvent extends BranchListEvent {
+  const FetchPickupPointsEvent();
 
   @override
   List<Object?> get props => [];
 }
 
-class RefreshBranchListEvent extends BranchListEvent {
-  const RefreshBranchListEvent();
+class RefreshPickupPointsEvent extends BranchListEvent {
+  const RefreshPickupPointsEvent();
 
   @override
   List<Object?> get props => [];

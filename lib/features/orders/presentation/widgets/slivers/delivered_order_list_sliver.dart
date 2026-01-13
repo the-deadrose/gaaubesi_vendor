@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/delivered_order_entity.dart';
-import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_state.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/base_order_list_sliver.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/delivered_order_card.dart';
 
 class DeliveredOrderListSliver extends StatelessWidget {
   const DeliveredOrderListSliver({super.key});
@@ -33,29 +32,10 @@ class DeliveredOrderListSliver extends StatelessWidget {
         return [];
       },
       buildCard: (deliveredOrder) {
-        // Convert DeliveredOrderEntity to OrderEntity for unified card display
-        final order = OrderEntity(
-          orderId: int.tryParse(deliveredOrder.orderId) ?? 0,
-          orderIdWithStatus: deliveredOrder.orderId,
-          deliveredDate: deliveredOrder.deliveredDate,
-          receiverName: deliveredOrder.receiverName,
-          receiverNumber: deliveredOrder.receiverNumber,
-          altReceiverNumber: null,
-          receiverAddress: deliveredOrder.destination,
-          deliveryCharge: deliveredOrder.deliveryCharge,
-          codCharge: deliveredOrder.codCharge,
-          lastDeliveryStatus: 'Delivered',
-          source: '',
-          destination: deliveredOrder.destination,
-          desc: '',
-        );
-        return OrderCard(
-          order: order,
+        return DeliveredOrderCard(
+          order: deliveredOrder,
           onTap: () {
-            final orderIdInt = int.tryParse(deliveredOrder.orderId);
-            if (orderIdInt != null) {
-              context.router.push(OrderDetailRoute(orderId: orderIdInt));
-            }
+            context.router.push(OrderDetailRoute(orderId: deliveredOrder.orderId));
           },
         );
       },

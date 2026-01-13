@@ -15,13 +15,13 @@ class ApiEndpoints {
 
   static const String vendorDeliveredList = '/delivered_list/';
 
-  static const String vendorPossibleRedirect = '/possible_redirect/';
+  static const String vendorPossibleRedirect = '/possible-redirect/';
 
   static const String vendorReturnedOrders = '/returned_orders/';
 
   static const String vendorRtvList = '/rtv_list/';
 
-  static const String vendorCreateOrder = '/create_order/';
+  static const String vendorCreateOrder = '/order/create/';
 
   static const String orderList = '/order/list/';
 
@@ -47,6 +47,8 @@ class ApiEndpoints {
   static const String branchList = '/branch/list/';
 
   static const String editOrder = '/order/update/';
+
+  static const String pickupPoints = '/pickup_points/';
 }
 class QueryParams {
   QueryParams._();

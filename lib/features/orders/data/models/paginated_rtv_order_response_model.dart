@@ -6,17 +6,21 @@ part 'paginated_rtv_order_response_model.g.dart';
 
 @JsonSerializable()
 class PaginatedRtvOrderResponseModel extends PaginatedRtvOrderResponseEntity {
+  @override
+  @JsonKey(defaultValue: 0)
+  final int count;
+
+  @override
+  @JsonKey(name: 'total_pages', defaultValue: 0)
+  final int totalPages;
+
   const PaginatedRtvOrderResponseModel({
-    required super.count,
-    required super.totalPages,
+    required this.count,
+    required this.totalPages,
     super.next,
     super.previous,
     required List<RtvOrderModel> super.results,
-  });
-
-  @override
-  @JsonKey(name: 'total_pages')
-  int get totalPages => super.totalPages;
+  }) : super(count: count, totalPages: totalPages);
 
   @override
   List<RtvOrderModel> get results => super.results as List<RtvOrderModel>;

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/orders/data/datasources/order_remote_data_source.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/edit_order_request_model.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_order_response_entity.dart';
@@ -185,7 +186,6 @@ class OrderRepositoryImpl implements OrderRepository {
         altReceiverPhoneNumber: request.altReceiverPhoneNumber,
         receiverFullAddress: request.receiverFullAddress,
         weight: request.weight,
-        deliveryCharge: request.deliveryCharge,
         codCharge: request.codCharge,
         packageAccess: request.packageAccess,
         referenceId: request.referenceId,
@@ -210,8 +210,8 @@ class OrderRepositoryImpl implements OrderRepository {
     required int orderId,
   }) async {
     // try {
-      final result = await remoteDataSource.fetchOrderDetail(orderId: orderId);
-      return Right(result);
+    final result = await remoteDataSource.fetchOrderDetail(orderId: orderId);
+    return Right(result);
     // } on ServerException catch (e) {
     //   return Left(ServerFailure(e.message, statusCode: e.statusCode));
     // } on NetworkException catch (e) {
@@ -243,6 +243,28 @@ class OrderRepositoryImpl implements OrderRepository {
       );
       await remoteDataSource.editOrder(orderId: orderId, request: model);
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<OrderEntity>>> searchOrders({
+    required String query,
+    int? limit,
+  }) async {
+    try {
+      final result = await remoteDataSource.searchOrderId(orderId: query);
+      final orders = result.results;
+      return Right(
+        limit != null && orders.length > limit
+            ? orders.sublist(0, limit)
+            : orders,
+      );
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

@@ -179,7 +179,6 @@ class _OrderDetailPageState extends State<OrderDetailPage>
                   order: order,
                   onUpdate: (data) {
                     debugPrint('Updated data: $data');
-                    // Call the edit order API
                     context.read<OrderDetailBloc>().add(
                       OrderEditRequested(
                         orderId: order.orderId,
@@ -192,10 +191,13 @@ class _OrderDetailPageState extends State<OrderDetailPage>
                           packageType: data['packageType'] as String,
                           remarks: data['remarks'] as String,
                           receiverName: data['receiverName'] as String,
-                          receiverPhoneNumber: data['receiverPhoneNumber'] as String,
+                          receiverPhoneNumber:
+                              data['receiverPhoneNumber'] as String,
                           pickupType: data['pickupType'] as String,
-                          altReceiverPhoneNumber: data['altReceiverPhoneNumber'] as String,
-                          receiverFullAddress: data['receiverFullAddress'] as String,
+                          altReceiverPhoneNumber:
+                              data['altReceiverPhoneNumber'] as String,
+                          receiverFullAddress:
+                              data['receiverFullAddress'] as String,
                         ),
                       ),
                     );
@@ -234,7 +236,6 @@ class _OrderDetailPageState extends State<OrderDetailPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Basic Info Section
           Text(
             'Order Information',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -1399,11 +1400,10 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
       text: widget.order.orderDescription,
     );
 
-    // Don't set branch values until we validate they exist in the list
     _selectedBranch = null;
     _selectedDestinationBranch = null;
     _selectedPackageAccess = widget.order.packageAccess;
-    _selectedPackageType = 'Document'; // Default, adjust based on order data
+    _selectedPackageType = 'Document';
     _selectedPickupType = widget.order.pickupType;
 
     _loadBranches();
@@ -1413,7 +1413,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
     try {
       // Fetch branches from BranchListBloc
       final branchBloc = context.read<BranchListBloc>();
-      
+
       // Check current state first
       final currentState = branchBloc.state;
       if (currentState is BranchListLoaded) {
@@ -1424,9 +1424,9 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
         });
         return;
       }
-      
+
       // If not loaded, fetch branches
-      branchBloc.add(FetchBranchListEvent());
+      branchBloc.add(FetchBranchListEvent(''));
 
       // Listen to branch list state
       await for (final state in branchBloc.stream) {
@@ -1459,38 +1459,48 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
   }
 
   void _validateAndSetBranches() {
-    // Filter out branches with empty values
-    _branchList = _branchList.where((b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty).toList();
-    
+    // Filter out branches with empty values and remove duplicates
+    final seen = <String>{};
+    _branchList = _branchList
+        .where(
+          (b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty,
+        )
+        .where((b) => seen.add(b.value))
+        .toList();
+
     debugPrint('Branch list loaded: ${_branchList.length} branches');
-    
-    // Only set branch values if they exist in the loaded branch list
+
+    // Set initial branch values
     final sourceBranchCode = widget.order.sourceBranchCode;
     final destBranchCode = widget.order.destinationBranchCode;
-    
-    // Treat empty strings as null
+
     final validSourceCode = sourceBranchCode.isEmpty ? null : sourceBranchCode;
     final validDestCode = destBranchCode.isEmpty ? null : destBranchCode;
-    
-    // Match by branch code, then get the ID (value)
-    final sourceBranch = validSourceCode != null 
+
+    final sourceBranch = validSourceCode != null
         ? _branchList.firstWhere(
             (b) => b.code == validSourceCode,
-            orElse: () => _branchList.first,
+            orElse: () => _branchList.isNotEmpty
+                ? _branchList.first
+                : OrderStatusEntity(value: '', label: '', code: ''),
           )
         : null;
     final destBranch = validDestCode != null
         ? _branchList.firstWhere(
             (b) => b.code == validDestCode,
-            orElse: () => _branchList.first,
+            orElse: () => _branchList.isNotEmpty
+                ? _branchList.first
+                : OrderStatusEntity(value: '', label: '', code: ''),
           )
         : null;
-    
+
     _selectedBranch = sourceBranch?.value;
     _selectedDestinationBranch = destBranch?.value;
-    
-    debugPrint('Source branch code: $sourceBranchCode -> ID: ${_selectedBranch}');
-    debugPrint('Dest branch code: $destBranchCode -> ID: ${_selectedDestinationBranch}');
+
+    debugPrint('Source branch code: $sourceBranchCode -> ID: $_selectedBranch');
+    debugPrint(
+      'Dest branch code: $destBranchCode -> ID: $_selectedDestinationBranch',
+    );
   }
 
   @override
@@ -1651,38 +1661,61 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedBranch,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        GestureDetector(
+          onTap: () async {
+            final result = await showDialog<String>(
+              context: context,
+              builder: (BuildContext dialogContext) => _BranchSearchDialog(
+                title: 'Source Branch',
+                branches: _branchList,
+                selectedValue: _selectedBranch,
               ),
-              hint: const Text('Select source branch'),
-              style: theme.textTheme.bodyLarge,
-              items: _branchList.map((branch) {
-                return DropdownMenuItem<String>(
-                  value: branch.value,
-                  child: Text(branch.label),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedBranch = value;
-                  });
-                }
-              },
+            );
+
+            if (result != null) {
+              setState(() {
+                _selectedBranch = result;
+              });
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: theme.scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _selectedBranch != null
+                        ? _branchList
+                              .firstWhere(
+                                (b) => b.value == _selectedBranch,
+                                orElse: () => OrderStatusEntity(
+                                  value: _selectedBranch!,
+                                  label: _selectedBranch!,
+                                  code: '',
+                                ),
+                              )
+                              .label
+                        : 'Select source branch',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: _selectedBranch != null
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ],
             ),
           ),
         ),
@@ -1710,38 +1743,61 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedDestinationBranch,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        GestureDetector(
+          onTap: () async {
+            final result = await showDialog<String>(
+              context: context,
+              builder: (BuildContext dialogContext) => _BranchSearchDialog(
+                title: 'Destination Branch',
+                branches: _branchList,
+                selectedValue: _selectedDestinationBranch,
               ),
-              hint: const Text('Select destination branch'),
-              style: theme.textTheme.bodyLarge,
-              items: _branchList.map((branch) {
-                return DropdownMenuItem<String>(
-                  value: branch.value,
-                  child: Text(branch.label),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedDestinationBranch = value;
-                  });
-                }
-              },
+            );
+
+            if (result != null) {
+              setState(() {
+                _selectedDestinationBranch = result;
+              });
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: theme.scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _selectedDestinationBranch != null
+                        ? _branchList
+                              .firstWhere(
+                                (b) => b.value == _selectedDestinationBranch,
+                                orElse: () => OrderStatusEntity(
+                                  value: _selectedDestinationBranch!,
+                                  label: _selectedDestinationBranch!,
+                                  code: '',
+                                ),
+                              )
+                              .label
+                        : 'Select destination branch',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: _selectedDestinationBranch != null
+                          ? theme.colorScheme.onSurface
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ],
             ),
           ),
         ),
@@ -2353,6 +2409,200 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Search Dialog Widget for Order Detail Page
+class _BranchSearchDialog extends StatefulWidget {
+  final String title;
+  final List<OrderStatusEntity> branches;
+  final String? selectedValue;
+
+  const _BranchSearchDialog({
+    required this.title,
+    required this.branches,
+    this.selectedValue,
+  });
+
+  @override
+  State<_BranchSearchDialog> createState() => _BranchSearchDialogState();
+}
+
+class _BranchSearchDialogState extends State<_BranchSearchDialog> {
+  final TextEditingController _searchController = TextEditingController();
+  List<OrderStatusEntity> _filteredBranches = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredBranches = widget.branches;
+  }
+
+  void _filterBranches(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredBranches = widget.branches;
+      } else {
+        _filteredBranches = widget.branches
+            .where(
+              (branch) =>
+                  branch.label.toLowerCase().contains(query.toLowerCase()) ||
+                  branch.code.toLowerCase().contains(query.toLowerCase()),
+            )
+            .toList();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 600, maxWidth: 500),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+            // Search Field
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Search branch...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filterBranches('');
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: theme.scaffoldBackgroundColor,
+                ),
+                onChanged: _filterBranches,
+              ),
+            ),
+            const Divider(height: 1),
+            // Branch List
+            Expanded(
+              child: _filteredBranches.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 64,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.4,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No branches found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _filteredBranches.length,
+                      itemBuilder: (context, index) {
+                        final branch = _filteredBranches[index];
+                        final isSelected = branch.value == widget.selectedValue;
+
+                        return ListTile(
+                          title: Text(
+                            branch.label,
+                            style: TextStyle(
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          subtitle: Text(
+                            branch.code,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                          trailing: isSelected
+                              ? Icon(
+                                  Icons.check_circle,
+                                  color: theme.colorScheme.primary,
+                                )
+                              : null,
+                          selected: isSelected,
+                          selectedTileColor: theme.colorScheme.primary
+                              .withValues(alpha: 0.1),
+                          onTap: () => Navigator.pop(context, branch.value),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
