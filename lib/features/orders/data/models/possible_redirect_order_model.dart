@@ -15,22 +15,34 @@ class PossibleRedirectOrderModel extends PossibleRedirectOrderEntity {
   });
 
   @override
-  @JsonKey(name: 'order_id')
+  @JsonKey(name: 'order_id', fromJson: _stringFromJson, defaultValue: '')
   String get orderId => super.orderId;
 
   @override
-  @JsonKey(name: 'cod_charge')
+  @JsonKey(name: 'cod_charge', fromJson: _stringFromJson, defaultValue: '')
   String get codCharge => super.codCharge;
 
+  @override
+  @JsonKey(name: 'destination', fromJson: _stringFromJson, defaultValue: '')
+  String get destination => super.destination;
 
   @override
-  @JsonKey(name: 'created_on')
+  @JsonKey(name: 'create_date_formatted', fromJson: _stringFromJson, defaultValue: '')
   String get createdOn => super.createdOn;
 
+  @override
+  @JsonKey(name: 'receiver_name', fromJson: _stringFromJson, defaultValue: '')
+  String get receiver => super.receiver;
 
   @override
-  @JsonKey(name: 'delivery_charge')
+  @JsonKey(name: 'delivery_charge', fromJson: _stringFromJson, defaultValue: '')
   String get deliveryCharge => super.deliveryCharge;
+
+  // Helper function to handle null values
+  static String _stringFromJson(dynamic jsonValue) {
+    if (jsonValue == null) return '';
+    return jsonValue.toString();
+  }
 
   factory PossibleRedirectOrderModel.fromJson(Map<String, dynamic> json) =>
       _$PossibleRedirectOrderModelFromJson(json);

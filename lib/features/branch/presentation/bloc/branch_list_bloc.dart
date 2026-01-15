@@ -43,6 +43,10 @@ class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {
         ));
       },
       (branchList) {
+        debugPrint('[BranchListBloc] Emitting BranchListLoaded with ${branchList.length} branches');
+        for (var i = 0; i < branchList.length && i < 3; i++) {
+          debugPrint('[BranchListBloc] Branch $i: value=${branchList[i].value}, label=${branchList[i].label}, code=${branchList[i].code}');
+        }
         emit(BranchListLoaded(
           branchList: branchList,
         ));

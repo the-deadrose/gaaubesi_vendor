@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class RtvOrderEntity extends Equatable {
   final String orderId;
+  final int id;
   final String destinationBranch;
   final String receiver;
   final String receiverNumber;
@@ -9,6 +10,7 @@ class RtvOrderEntity extends Equatable {
 
   const RtvOrderEntity({
     required this.orderId,
+    required this.id,
     required this.destinationBranch,
     required this.receiver,
     required this.receiverNumber,
@@ -18,6 +20,7 @@ class RtvOrderEntity extends Equatable {
   @override
   List<Object?> get props => [
     orderId,
+    id,
     destinationBranch,
     receiver,
     receiverNumber,

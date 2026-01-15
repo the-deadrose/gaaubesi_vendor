@@ -129,6 +129,11 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
   }
 
   void _updateBranches(List<OrderStatusEntity> branches) {
+    debugPrint('[CreateOrderPage] _updateBranches called with ${branches.length} branches');
+    for (var i = 0; i < branches.length && i < 3; i++) {
+      debugPrint('[CreateOrderPage] Branch $i BEFORE filter: value="${branches[i].value}", label="${branches[i].label}", code="${branches[i].code}"');
+      debugPrint('[CreateOrderPage] Branch $i isEmpty checks: value=${branches[i].value.isEmpty}, label=${branches[i].label.isEmpty}, code=${branches[i].code.isEmpty}');
+    }
     setState(() {
       // Filter out branches with empty values and remove duplicates
       final seen = <String>{};
@@ -136,6 +141,10 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
           .where((b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty)
           .where((b) => seen.add(b.value))
           .toList();
+      debugPrint('[CreateOrderPage] AFTER filter: ${_allBranches.length} branches remain');
+      for (var i = 0; i < _allBranches.length && i < 3; i++) {
+        debugPrint('[CreateOrderPage] Filtered Branch $i: value="${_allBranches[i].value}", label="${_allBranches[i].label}", code="${_allBranches[i].code}"');
+      }
       _filteredBranches = List.from(_allBranches);
       _allDestBranches = List.from(_allBranches);
       _filteredDestBranches = List.from(_allDestBranches);

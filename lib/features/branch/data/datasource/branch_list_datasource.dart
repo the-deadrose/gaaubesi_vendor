@@ -21,6 +21,9 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
 
   @override
   Future<List<OrderStatusEntity>> fetchBranchList(String branch) async {
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('[BRANCH_LIST_DATASOURCE] 🚀 FETCHING BRANCH LIST');
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
     try {
       final response = await _dioClient.get(
@@ -28,25 +31,57 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         queryParameters: {'search': branch},
       );
 
+      debugPrint('[BRANCH_LIST_DATASOURCE] ✅ Response received, status: ${response.statusCode}');
+      
       if (response.statusCode == 200) {
         final dynamic responseData = response.data;
+        debugPrint('[BRANCH_LIST_DATASOURCE] 📦 Response data type: ${responseData.runtimeType}');
+        debugPrint('[BRANCH_LIST_DATASOURCE] 📦 Response data: $responseData');
+        
         final List<dynamic> data;
         
         if (responseData is Map<String, dynamic>) {
-          data = (responseData['data'] ?? 
+          debugPrint('[BRANCH_LIST_DATASOURCE] 🗺️  Extracting from Map');
+          debugPrint('[BRANCH_LIST_DATASOURCE] 🔑 Keys available: ${responseData.keys.toList()}');
+          
+          final rawData = responseData['data'] ?? 
                   responseData['results'] ?? 
-                  responseData['branches'] ?? 
-                  []) as List<dynamic>;
+                  responseData['branches'];
+          
+          debugPrint('[BRANCH_LIST_DATASOURCE] 📋 Raw data found: ${rawData != null}');
+          debugPrint('[BRANCH_LIST_DATASOURCE] 📋 Raw data type: ${rawData?.runtimeType}');
+          
+          data = (rawData ?? []) as List<dynamic>;
+          debugPrint('[BRANCH_LIST_DATASOURCE] ✅ Extracted list length: ${data.length}');
+          
+          if (data.isNotEmpty) {
+            debugPrint('[BRANCH_LIST_DATASOURCE] 📄 First item: ${data.first}');
+          }
         } else if (responseData is List) {
+          debugPrint('[BRANCH_LIST_DATASOURCE] 📋 Response is already a List');
           data = responseData;
         } else {
           throw ServerException('Unexpected response format');
         }
         
-        final branchList = data
-            .map((json) => OrderStatusModel.fromJson(json as Map<String, dynamic>))
-            .map((model) => model.toEntity())
-            .toList();
+        debugPrint('[BRANCH_LIST_DATASOURCE] 🔄 Processing ${data.length} items');
+        final branchList = <OrderStatusEntity>[];
+        
+        for (var i = 0; i < data.length; i++) {
+          try {
+            debugPrint('[BRANCH_LIST_DATASOURCE] 🏗️  Item $i: ${data[i]}');
+            final model = OrderStatusModel.fromJson(data[i] as Map<String, dynamic>);
+            debugPrint('[BRANCH_LIST_DATASOURCE] ✅ Model $i: id=${model.id}, code="${model.code}", name="${model.name}"');
+            final entity = model.toEntity();
+            debugPrint('[BRANCH_LIST_DATASOURCE] ✅ Entity $i: value="${entity.value}", label="${entity.label}", code="${entity.code}"');
+            branchList.add(entity);
+          } catch (e) {
+            debugPrint('[BRANCH_LIST_DATASOURCE] ❌ Error processing item $i: $e');
+          }
+        }
+        
+        debugPrint('[BRANCH_LIST_DATASOURCE] 🎉 Successfully converted ${branchList.length} entities');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return branchList;
       } else {
         throw ServerException('Failed to fetch branch list');

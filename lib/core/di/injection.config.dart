@@ -98,6 +98,8 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_rtv_orders
     as _i287;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/search_orders_usecase.dart'
     as _i1053;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/warehouse_order_list_usecase.dart'
+    as _i459;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart'
     as _i37;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_bloc.dart'
@@ -110,6 +112,8 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order
     as _i337;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart'
     as _i691;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart'
+    as _i682;
 import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart'
     as _i576;
 import 'package:gaaubesi_vendor/features/ticket/data/repository/ticket_imp_repository.dart'
@@ -227,6 +231,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1053.SearchOrdersUseCase>(
       () => _i1053.SearchOrdersUseCase(gh<_i532.OrderRepository>()),
     );
+    gh.lazySingleton<_i459.WarehouseOrderListUsecase>(
+      () => _i459.WarehouseOrderListUsecase(gh<_i532.OrderRepository>()),
+    );
     gh.lazySingleton<_i92.CommentsRepository>(
       () => _i944.CommentsRepoImp(
         remoteDatasource: gh<_i170.CommentsRemoteDatasource>(),
@@ -243,6 +250,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i84.GetVendorStatsUseCase>(
       () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
+    );
+    gh.factory<_i682.WarehouseOrderBloc>(
+      () => _i682.WarehouseOrderBloc(
+        warehouseOrderListUsecase: gh<_i459.WarehouseOrderListUsecase>(),
+      ),
     );
     gh.lazySingleton<_i567.TicketRepository>(
       () => _i716.TicketImpRepository(

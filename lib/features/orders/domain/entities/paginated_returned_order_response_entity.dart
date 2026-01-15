@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_order_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_delivery_entity.dart';
 
 class PaginatedReturnedOrderResponseEntity extends Equatable {
   final int count;
   final int totalPages;
   final String? next;
   final String? previous;
-  final List<ReturnedOrderEntity> results;
+  final List<ReturnedDeliveryEntity> results;
 
   const PaginatedReturnedOrderResponseEntity({
     required this.count,

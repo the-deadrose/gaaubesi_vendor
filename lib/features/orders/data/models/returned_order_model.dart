@@ -1,41 +1,53 @@
-import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_order_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_order_entity.dart';
 
 part 'returned_order_model.g.dart';
 
 @JsonSerializable()
 class ReturnedOrderModel extends ReturnedOrderEntity {
+  @JsonKey(name: 'order_id', defaultValue: '')
+  final String orderId;
+  
+  @JsonKey(name: 'detail_url', defaultValue: '')
+  final String detailUrl;
+  
+  @JsonKey(name: 'source', defaultValue: '')
+  final String source;
+  
+  @JsonKey(name: 'destination', defaultValue: '')
+  final String destination;
+  
+  @JsonKey(name: 'receiver_address', defaultValue: '')
+  final String receiverAddress;
+  
+  @JsonKey(name: 'cod_charge', defaultValue: '')
+  final String codCharge;
+  
+  @JsonKey(name: 'customer_name', defaultValue: '')
+  final String customerName;
+  
+  @JsonKey(name: 'customer_number', defaultValue: '')
+  final String customerNumber;
+
   const ReturnedOrderModel({
-    required super.orderId,
-    required super.codCharge,
-    required super.destination,
-    required super.receiver,
-    required super.deliveryCharge,
-    required super.deliveredDate,
-    required super.receiverNumber,
-  });
-
-  @override
-  @JsonKey(name: 'order_id')
-  int get orderId => super.orderId;
-
-  @override
-  @JsonKey(name: 'cod_charge')
-  String get codCharge => super.codCharge;
-
-
-
-  @override
-  @JsonKey(name: 'delivery_charge')
-  String get deliveryCharge => super.deliveryCharge;
-
-  @override
-  @JsonKey(name: 'delivered_date')
-  String get deliveredDate => super.deliveredDate;
-
-  @override
-  @JsonKey(name: 'receiver_number')
-  String get receiverNumber => super.receiverNumber;
+    required this.orderId,
+    required this.detailUrl,
+    required this.source,
+    required this.destination,
+    required this.receiverAddress,
+    required this.codCharge,
+    required this.customerName,
+    required this.customerNumber,
+  }) : super(
+          orderId: orderId,
+          detailUrl: detailUrl,
+          source: source,
+          destination: destination,
+          receiverAddress: receiverAddress,
+          codCharge: codCharge,
+          customerName: customerName,
+          customerNumber: customerNumber,
+        );
 
   factory ReturnedOrderModel.fromJson(Map<String, dynamic> json) =>
       _$ReturnedOrderModelFromJson(json);

@@ -18,7 +18,12 @@ class BranchListRepoImp implements BranchListRepository {
   @override
   Future<Either<ServerFailure, List<OrderStatusEntity>>> getBranchList(String branch) async {
     try {
+      debugPrint('[BranchListRepo] Fetching branch list for: $branch');
       final branchList = await remoteDatasource.fetchBranchList(branch);
+      debugPrint('[BranchListRepo] Got ${branchList.length} branches from datasource');
+      for (var i = 0; i < branchList.length && i < 3; i++) {
+        debugPrint('[BranchListRepo] Branch $i: value=${branchList[i].value}, label=${branchList[i].label}, code=${branchList[i].code}');
+      }
       return Right(branchList);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {

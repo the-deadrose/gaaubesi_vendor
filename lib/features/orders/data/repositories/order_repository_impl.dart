@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
@@ -123,24 +124,24 @@ class OrderRepositoryImpl implements OrderRepository {
     double? minCharge,
     double? maxCharge,
   }) async {
-    try {
-      final result = await remoteDataSource.fetchReturnedOrders(
-        page: page,
-        destination: destination,
-        startDate: startDate,
-        endDate: endDate,
-        receiverSearch: receiverSearch,
-        minCharge: minCharge,
-        maxCharge: maxCharge,
-      );
-      return Right(result);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    // try {
+    final result = await remoteDataSource.fetchReturnedOrders(
+      page: page,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      receiverSearch: receiverSearch,
+      minCharge: minCharge,
+      maxCharge: maxCharge,
+    );
+    return Right(result);
+    // } on ServerException catch (e) {
+    //   return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    // } on NetworkException catch (e) {
+    //   return Left(NetworkFailure(e.message));
+    // } catch (e) {
+    //   return Left(ServerFailure(e.toString()));
+    // }
   }
 
   @override
@@ -153,24 +154,24 @@ class OrderRepositoryImpl implements OrderRepository {
     double? minCharge,
     double? maxCharge,
   }) async {
-    try {
-      final result = await remoteDataSource.fetchRtvOrders(
-        page: page,
-        destination: destination,
-        startDate: startDate,
-        endDate: endDate,
-        receiverSearch: receiverSearch,
-        minCharge: minCharge,
-        maxCharge: maxCharge,
-      );
-      return Right(result);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message, statusCode: e.statusCode));
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    // try {
+    final result = await remoteDataSource.fetchRtvOrders(
+      page: page,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      receiverSearch: receiverSearch,
+      minCharge: minCharge,
+      maxCharge: maxCharge,
+    );
+    return Right(result);
+    // } on ServerException catch (e) {
+    //   return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    // } on NetworkException catch (e) {
+    //   return Left(NetworkFailure(e.message));
+    // } catch (e) {
+    //   return Left(ServerFailure(e.toString()));
+    // }
   }
 
   @override
@@ -265,6 +266,20 @@ class OrderRepositoryImpl implements OrderRepository {
             ? orders.sublist(0, limit)
             : orders,
       );
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, WareHouseOrdersEntity>> wareHouseList({required String page}) async {
+    try {
+      final result = await remoteDataSource.fetchWareHouseList(page);
+      return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

@@ -9,6 +9,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_rtv_or
 import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/edit_order_request_entity.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 
 abstract class OrderRepository {
   Future<Either<Failure, PaginatedOrderResponseEntity>> fetchOrders({
@@ -79,5 +80,9 @@ abstract class OrderRepository {
   Future<Either<Failure, List<OrderEntity>>> searchOrders({
     required String query,
     int? limit,
+  });
+
+  Future<Either<Failure, WareHouseOrdersEntity>> wareHouseList({
+    required String page,
   });
 }

@@ -9,21 +9,35 @@ part of 'possible_redirect_order_model.dart';
 PossibleRedirectOrderModel _$PossibleRedirectOrderModelFromJson(
   Map<String, dynamic> json,
 ) => PossibleRedirectOrderModel(
-  orderId: json['order_id'] as String,
-  codCharge: json['cod_charge'] as String,
-  destination: json['destination'] as String,
-  createdOn: json['created_on'] as String,
-  receiver: json['receiver'] as String,
-  deliveryCharge: json['delivery_charge'] as String,
+  orderId: json['order_id'] == null
+      ? ''
+      : PossibleRedirectOrderModel._stringFromJson(json['order_id']),
+  codCharge: json['cod_charge'] == null
+      ? ''
+      : PossibleRedirectOrderModel._stringFromJson(json['cod_charge']),
+  destination: json['destination'] == null
+      ? ''
+      : PossibleRedirectOrderModel._stringFromJson(json['destination']),
+  createdOn: json['create_date_formatted'] == null
+      ? ''
+      : PossibleRedirectOrderModel._stringFromJson(
+          json['create_date_formatted'],
+        ),
+  receiver: json['receiver_name'] == null
+      ? ''
+      : PossibleRedirectOrderModel._stringFromJson(json['receiver_name']),
+  deliveryCharge: json['delivery_charge'] == null
+      ? ''
+      : PossibleRedirectOrderModel._stringFromJson(json['delivery_charge']),
 );
 
 Map<String, dynamic> _$PossibleRedirectOrderModelToJson(
   PossibleRedirectOrderModel instance,
 ) => <String, dynamic>{
-  'destination': instance.destination,
-  'receiver': instance.receiver,
   'order_id': instance.orderId,
   'cod_charge': instance.codCharge,
-  'created_on': instance.createdOn,
+  'destination': instance.destination,
+  'create_date_formatted': instance.createdOn,
+  'receiver_name': instance.receiver,
   'delivery_charge': instance.deliveryCharge,
 };

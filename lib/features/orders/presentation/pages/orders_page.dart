@@ -20,7 +20,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/delive
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/possible_redirect_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/returned_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/rtv_orders_tab.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/placeholder_tab_view.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/warehouse_order_screen.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_search_delegate.dart';
 
 @RoutePage()
@@ -106,9 +108,12 @@ class _OrdersViewState extends State<_OrdersView>
             child: const RtvOrdersTab(),
           ),
 
-          const PlaceholderTabView(
-            message:
-                'Warehouse Orders\n\nCreate WarehouseOrderBloc to fetch data',
+          // Warehouse Orders
+          BlocProvider(
+            create: (context) =>
+                getIt<WarehouseOrderBloc>()
+                  ..add(const FetchWarehouseOrderEvent(page: "1")),
+            child: const WarehouseOrderScreen(),
           ),
         ],
       ),

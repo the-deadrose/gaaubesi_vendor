@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_order_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_delivery_entity.dart';
 
 abstract class ReturnedOrderState extends Equatable {
   const ReturnedOrderState();
@@ -17,7 +17,7 @@ class ReturnedOrderLoading extends ReturnedOrderState {
 }
 
 class ReturnedOrderLoaded extends ReturnedOrderState {
-  final List<ReturnedOrderEntity> orders;
+  final List<ReturnedDeliveryEntity> orders;
   final int currentPage;
   final bool hasMore;
   final int totalCount;
@@ -44,7 +44,7 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
   });
 
   ReturnedOrderLoaded copyWith({
-    List<ReturnedOrderEntity>? orders,
+    List<ReturnedDeliveryEntity>? orders,
     int? currentPage,
     bool? hasMore,
     int? totalCount,
@@ -88,7 +88,7 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
 }
 
 class ReturnedOrderLoadingMore extends ReturnedOrderState {
-  final List<ReturnedOrderEntity> orders;
+  final List<ReturnedDeliveryEntity> orders;
   final int currentPage;
   final bool hasMore;
   final int totalCount;

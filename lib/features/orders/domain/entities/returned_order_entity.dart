@@ -1,32 +1,35 @@
 import 'package:equatable/equatable.dart';
 
 class ReturnedOrderEntity extends Equatable {
-  final int orderId;
-  final String codCharge;
+  final String orderId;
+  final String detailUrl;
+  final String source;
   final String destination;
-  final String receiver;
-  final String deliveryCharge;
-  final String deliveredDate;
-  final String receiverNumber;
+  final String receiverAddress;
+  final String codCharge;
+  final String customerName;
+  final String customerNumber;
 
   const ReturnedOrderEntity({
     required this.orderId,
-    required this.codCharge,
+    required this.detailUrl,
+    required this.source,
     required this.destination,
-    required this.receiver,
-    required this.deliveryCharge,
-    required this.deliveredDate,
-    required this.receiverNumber,
+    required this.receiverAddress,
+    required this.codCharge,
+    required this.customerName,
+    required this.customerNumber,
   });
 
   @override
   List<Object?> get props => [
-    orderId,
-    codCharge,
-    destination,
-    receiver,
-    deliveryCharge,
-    deliveredDate,
-    receiverNumber,
-  ];
+        orderId,
+        detailUrl,
+        source,
+        destination,
+        receiverAddress,
+        codCharge,
+        customerName,
+        customerNumber,
+      ];
 }

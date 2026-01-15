@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/ware_house_orders_model.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
@@ -74,6 +76,7 @@ abstract class OrderRemoteDataSource {
   });
 
   Future<PaginatedOrderResponseModel> searchOrderId({String? orderId});
+  Future<WareHouseOrdersEntity> fetchWareHouseList(String page);
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -258,45 +261,45 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     double? minCharge,
     double? maxCharge,
   }) async {
-    try {
-      final queryParameters = <String, dynamic>{'page': page};
-      if (destination != null) queryParameters['destination'] = destination;
-      if (startDate != null) queryParameters['start_date'] = startDate;
-      if (endDate != null) queryParameters['end_date'] = endDate;
-      if (receiverSearch != null) {
-        queryParameters['receiver_search'] = receiverSearch;
-      }
-      if (minCharge != null) queryParameters['min_charge'] = minCharge;
-      if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
-
-      final response = await _dioClient.get(
-        ApiEndpoints.vendorReturnedOrders,
-        queryParameters: queryParameters,
-      );
-
-      if (response.statusCode == 200) {
-        return PaginatedReturnedOrderResponseModel.fromJson(
-          response.data as Map<String, dynamic>,
-        );
-      } else {
-        throw ServerException('Failed to fetch returned orders');
-      }
-    } on DioException catch (e) {
-      String errorMessage = e.message ?? 'Unknown error';
-      if (e.response?.data != null && e.response?.data is Map) {
-        final data = e.response?.data as Map;
-        if (data.isNotEmpty) {
-          final firstValue = data.values.first;
-          if (firstValue is List && firstValue.isNotEmpty) {
-            errorMessage = firstValue.first.toString();
-          } else if (firstValue is String) {
-            errorMessage = firstValue;
-          }
-        }
-      }
-
-      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    // try {
+    final queryParameters = <String, dynamic>{'page': page};
+    if (destination != null) queryParameters['destination'] = destination;
+    if (startDate != null) queryParameters['start_date'] = startDate;
+    if (endDate != null) queryParameters['end_date'] = endDate;
+    if (receiverSearch != null) {
+      queryParameters['receiver_search'] = receiverSearch;
     }
+    if (minCharge != null) queryParameters['min_charge'] = minCharge;
+    if (maxCharge != null) queryParameters['max_charge'] = maxCharge;
+
+    final response = await _dioClient.get(
+      ApiEndpoints.vendorReturnedOrders,
+      queryParameters: queryParameters,
+    );
+
+    if (response.statusCode == 200) {
+      return PaginatedReturnedOrderResponseModel.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } else {
+      throw ServerException('Failed to fetch returned orders');
+    }
+    // } on DioException catch (e) {
+    //   String errorMessage = e.message ?? 'Unknown error';
+    //   if (e.response?.data != null && e.response?.data is Map) {
+    //     final data = e.response?.data as Map;
+    //     if (data.isNotEmpty) {
+    //       final firstValue = data.values.first;
+    //       if (firstValue is List && firstValue.isNotEmpty) {
+    //         errorMessage = firstValue.first.toString();
+    //       } else if (firstValue is String) {
+    //         errorMessage = firstValue;
+    //       }
+    //     }
+    //   }
+
+    //   throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    // }
   }
 
   @override
@@ -478,6 +481,39 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         );
       } else {
         throw ServerException('Failed to search orders by ID');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<WareHouseOrdersEntity> fetchWareHouseList(String page) async {
+    try {
+      final queryParameters = <String, dynamic>{'page': page};
+      final response = await _dioClient.get(
+        ApiEndpoints.warehouseOrderList,
+        queryParameters: queryParameters,
+      );
+      if (response.statusCode == 200) {
+        return WareHouseOrdersModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw ServerException('Failed to fetch warehouse orders');
       }
     } on DioException catch (e) {
       String errorMessage = e.message ?? 'Unknown error';

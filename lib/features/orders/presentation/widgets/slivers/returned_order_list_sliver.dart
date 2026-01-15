@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_order_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/returned_delivery_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_state.dart';
@@ -11,6 +12,10 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/returned_or
 
 class ReturnedOrderListSliver extends StatelessWidget {
   const ReturnedOrderListSliver({super.key});
+
+  List<ReturnedOrderEntity> _flattenOrders(List<ReturnedDeliveryEntity> deliveries) {
+    return deliveries.expand((delivery) => delivery.ordersList).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +32,14 @@ class ReturnedOrderListSliver extends StatelessWidget {
       getErrorMessage: (state) =>
           state is ReturnedOrderError ? state.message : 'Unknown error',
       getOrders: (state) {
-        if (state is ReturnedOrderLoaded) return state.orders;
-        if (state is ReturnedOrderLoadingMore) return state.orders;
+        if (state is ReturnedOrderLoaded) return _flattenOrders(state.orders);
+        if (state is ReturnedOrderLoadingMore) return _flattenOrders(state.orders);
         return [];
       },
       buildCard: (order) => ReturnedOrderCard(
         order: order,
         onTap: () {
-          context.router.push(OrderDetailRoute(orderId: order.orderId));
+          context.router.push(OrderDetailRoute(orderId: int.parse(order.orderId)));
         },
       ),
       onRetry: () {
