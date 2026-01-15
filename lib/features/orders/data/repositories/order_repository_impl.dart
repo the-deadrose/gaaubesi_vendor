@@ -276,7 +276,7 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<Failure, WareHouseOrdersEntity>> wareHouseList({required String page}) async {
+  Future<Either<Failure, WarehouseOrdersListEntity>> wareHouseList({required String page}) async {
     try {
       final result = await remoteDataSource.fetchWareHouseList(page);
       return Right(result);

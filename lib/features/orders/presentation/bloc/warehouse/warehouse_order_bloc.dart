@@ -17,9 +17,9 @@ class WarehouseOrderBloc
       );
       result.fold(
         (failure) => emit(WarehouseOrderErrorState(message: failure.message)),
-        (wareHouseOrdersEntity) => emit(
+        (warehouseOrdersListEntity) => emit(
           WarehouseOrderLoadedState(
-            wareHouseOrdersEntity: wareHouseOrdersEntity,
+            warehouseOrdersListEntity: warehouseOrdersListEntity,
           ),
         ),
       );

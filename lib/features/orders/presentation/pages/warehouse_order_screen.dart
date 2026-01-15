@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_state.dart';
@@ -12,17 +13,20 @@ class WarehouseOrderScreen extends StatefulWidget {
 }
 
 class _WarehouseOrderScreenState extends State<WarehouseOrderScreen> {
+  int? _expandedWarehouseId;
+
   @override
   void initState() {
     super.initState();
     context.read<WarehouseOrderBloc>().add(
-          const FetchWarehouseOrderEvent(page: "1"),
-        );
+      const FetchWarehouseOrderEvent(page: "1"),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Warehouse Orders')),
       body: BlocBuilder<WarehouseOrderBloc, WarehouseOrderState>(
         builder: (context, state) {
           if (state is WarehouseOrderLoadingState) {
@@ -34,15 +38,74 @@ class _WarehouseOrderScreenState extends State<WarehouseOrderScreen> {
           }
 
           if (state is WarehouseOrderLoadedState) {
-            final warehouse = state.wareHouseOrdersEntity;
+            final warehouses = state.warehouseOrdersListEntity.warehouses;
 
-            return ListView(
-              padding: const EdgeInsets.all(12),
+            return Column(
               children: [
-                _WarehouseExpansionTile(
-                  warehouseName: warehouse.name,
-                  warehouseCode: warehouse.code,
-                  ordersCount: warehouse.ordersCount,
+                // Warehouse Chips Section
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: warehouses.map((warehouse) {
+                      return ChoiceChip(
+                        label: Text(
+                          warehouse.name,
+                          style: TextStyle(
+                            color: _expandedWarehouseId == warehouse.id
+                                ? Colors.white
+                                : null,
+                          ),
+                        ),
+                        selected: _expandedWarehouseId == warehouse.id,
+                        selectedColor: Theme.of(context).primaryColor,
+                        backgroundColor: Colors.grey[200],
+                        onSelected: (selected) {
+                          setState(() {
+                            _expandedWarehouseId = selected
+                                ? warehouse.id
+                                : null;
+                          });
+                        },
+                        avatar: CircleAvatar(
+                          backgroundColor: _expandedWarehouseId == warehouse.id
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                          radius: 12,
+                          child: Text(
+                            warehouse.ordersCount.toString(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: _expandedWarehouseId == warehouse.id
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                // Divider
+                const Divider(thickness: 1),
+
+                // Expanded Warehouse Details
+                Expanded(
+                  child: _expandedWarehouseId != null
+                      ? _buildWarehouseDetails(
+                          warehouses.firstWhere(
+                            (w) => w.id == _expandedWarehouseId,
+                          ),
+                        )
+                      : const Center(
+                          child: Text(
+                            'Select a warehouse to view orders',
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        ),
                 ),
               ],
             );
@@ -53,64 +116,103 @@ class _WarehouseOrderScreenState extends State<WarehouseOrderScreen> {
       ),
     );
   }
-}
-class _WarehouseExpansionTile extends StatelessWidget {
-  final String warehouseName;
-  final String warehouseCode;
-  final int ordersCount;
 
-  const _WarehouseExpansionTile({
-    required this.warehouseName,
-    required this.warehouseCode,
-    required this.ordersCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-        title: Text(
-          warehouseName,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          "Code: $warehouseCode • Orders: $ordersCount",
-          style: const TextStyle(fontSize: 13),
-        ),
-        children: List.generate(
-          ordersCount,
-          (index) => _OrderItem(
-            orderId: "ORD-${index + 1}",
-          ),
-        ),
-      ),
-    );
-  }
-}
-class _OrderItem extends StatelessWidget {
-  final String orderId;
-
-  const _OrderItem({required this.orderId});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildWarehouseDetails(WareHouseOrdersEntity warehouse) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.receipt_long, size: 18),
-          const SizedBox(width: 8),
-          Text(
-            orderId,
-            style: const TextStyle(fontSize: 14),
+          // Warehouse Header
+          Card(
+            elevation: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        warehouse.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Chip(
+                        label: Text(
+                          '${warehouse.ordersCount} Orders',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Code: ${warehouse.code}',
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Orders List
+          Expanded(
+            child: Card(
+              elevation: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Orders',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: warehouse.ordersCount,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        // Generate order IDs based on warehouse code and index
+                        final orderId = '${warehouse.code}-${index + 1}';
+
+                        return ListTile(
+                          leading: const Icon(Icons.receipt_long),
+                          title: Text(
+                            'Order #$orderId',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          subtitle: Text(
+                            'Status: Processing',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            // Navigate to order details
+                            print('Tapped on order $orderId');
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

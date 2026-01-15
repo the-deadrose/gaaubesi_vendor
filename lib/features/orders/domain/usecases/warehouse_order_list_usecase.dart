@@ -7,32 +7,25 @@ import 'package:gaaubesi_vendor/features/orders/domain/repositories/order_reposi
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
-
-
-class  WarehouseOrderListUsecase extends UseCase <WareHouseOrdersEntity , WarehouseParams>{
+class WarehouseOrderListUsecase
+    extends UseCase<WarehouseOrdersListEntity, WarehouseParams> {
   final OrderRepository repository;
 
-  WarehouseOrderListUsecase (this.repository);
+  WarehouseOrderListUsecase(this.repository);
 
-@override
-Future<Either<Failure, WareHouseOrdersEntity>> call(WarehouseParams params) async {
-  return await repository.wareHouseList(
-    page: params.page,
-  );
-}
-  
+  @override
+  Future<Either<Failure, WarehouseOrdersListEntity>> call(
+    WarehouseParams params,
+  ) async {
+    return await repository.wareHouseList(page: params.page);
+  }
 }
 
 class WarehouseParams extends Equatable {
   final String page;
 
-  const WarehouseParams({
-    required this.page,
-  });
+  const WarehouseParams({required this.page});
 
   @override
-  List<Object?> get props => [
-    page,
-  ];
+  List<Object?> get props => [page];
 }
-

@@ -6,6 +6,26 @@ part of 'ware_house_orders_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+WarehouseOrdersListModel _$WarehouseOrdersListModelFromJson(
+  Map<String, dynamic> json,
+) => WarehouseOrdersListModel(
+  count: (json['count'] as num).toInt(),
+  next: json['next'] as String?,
+  previous: json['previous'] as String?,
+  warehouses: (json['results'] as List<dynamic>)
+      .map((e) => WareHouseOrdersModel.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$WarehouseOrdersListModelToJson(
+  WarehouseOrdersListModel instance,
+) => <String, dynamic>{
+  'count': instance.count,
+  'next': instance.next,
+  'previous': instance.previous,
+  'results': instance.warehouses,
+};
+
 WareHouseOrdersModel _$WareHouseOrdersModelFromJson(
   Map<String, dynamic> json,
 ) => WareHouseOrdersModel(

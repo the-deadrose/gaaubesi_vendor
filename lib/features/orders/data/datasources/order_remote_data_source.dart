@@ -76,7 +76,7 @@ abstract class OrderRemoteDataSource {
   });
 
   Future<PaginatedOrderResponseModel> searchOrderId({String? orderId});
-  Future<WareHouseOrdersEntity> fetchWareHouseList(String page);
+  Future<WarehouseOrdersListEntity> fetchWareHouseList(String page);
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -501,7 +501,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   }
 
   @override
-  Future<WareHouseOrdersEntity> fetchWareHouseList(String page) async {
+  Future<WarehouseOrdersListEntity> fetchWareHouseList(String page) async {
     try {
       final queryParameters = <String, dynamic>{'page': page};
       final response = await _dioClient.get(
@@ -509,7 +509,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         queryParameters: queryParameters,
       );
       if (response.statusCode == 200) {
-        return WareHouseOrdersModel.fromJson(
+        return WarehouseOrdersListModel.fromJson(
           response.data as Map<String, dynamic>,
         );
       } else {

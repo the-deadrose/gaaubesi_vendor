@@ -1,3 +1,4 @@
+// warehouse_order_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 
@@ -11,12 +12,12 @@ class WarehouseOrderInitialState extends WarehouseOrderState {}
 class WarehouseOrderLoadingState extends WarehouseOrderState {}
 
 class WarehouseOrderLoadedState extends WarehouseOrderState {
-  final WareHouseOrdersEntity wareHouseOrdersEntity;
+  final WarehouseOrdersListEntity warehouseOrdersListEntity;
 
-  WarehouseOrderLoadedState({required this.wareHouseOrdersEntity});
+  WarehouseOrderLoadedState({required this.warehouseOrdersListEntity});
 
   @override
-  List<Object?> get props => [wareHouseOrdersEntity];
+  List<Object?> get props => [warehouseOrdersListEntity];
 }
 
 class WarehouseOrderErrorState extends WarehouseOrderState {
@@ -40,10 +41,10 @@ class WareHousePaginatingErrorState extends WarehouseOrderState {
 }
 
 class WareHousePaginated extends WarehouseOrderState {
-  final WareHouseOrdersEntity wareHouseOrdersEntity;
+  final WarehouseOrdersListEntity warehouseOrdersListEntity;
 
-  WareHousePaginated({required this.wareHouseOrdersEntity});
+  WareHousePaginated({required this.warehouseOrdersListEntity});
 
   @override
-  List<Object?> get props => [wareHouseOrdersEntity];
+  List<Object?> get props => [warehouseOrdersListEntity];
 }

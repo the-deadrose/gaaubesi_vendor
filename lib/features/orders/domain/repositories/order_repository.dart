@@ -82,7 +82,7 @@ abstract class OrderRepository {
     int? limit,
   });
 
-  Future<Either<Failure, WareHouseOrdersEntity>> wareHouseList({
+  Future<Either<Failure, WarehouseOrdersListEntity>> wareHouseList({
     required String page,
   });
 }
