@@ -53,6 +53,10 @@ class ApiEndpoints {
   static const String warehouseOrderList = '/warehouse/';
   
   static const String paymentRequestList = '/payment/request/';
+
+  static const String customerList = '/customers/';
+
+  static const String noticeList = '/notices/';
 }
 class QueryParams {
   QueryParams._();

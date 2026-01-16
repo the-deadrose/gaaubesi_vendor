@@ -121,6 +121,22 @@ class CreateOrderRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CustomerListScreen]
+class CustomerListRoute extends PageRouteInfo<void> {
+  const CustomerListRoute({List<PageRouteInfo>? children})
+    : super(CustomerListRoute.name, initialChildren: children);
+
+  static const String name = 'CustomerListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const CustomerListScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [ExtraMileagePage]
 class ExtraMileageRoute extends PageRouteInfo<void> {
   const ExtraMileageRoute({List<PageRouteInfo>? children})

@@ -8,6 +8,7 @@ import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart'
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_bloc.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<BranchListBloc>()),
         BlocProvider(create: (context) => getIt<WarehouseOrderBloc>()),
         BlocProvider(create: (context) => getIt<PaymentRequestBloc>()),
+        BlocProvider(create: (context) => getIt<CustomerBloc>())
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

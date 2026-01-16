@@ -30,6 +30,11 @@ class UtilitiesPage extends StatelessWidget {
         'label': 'Tickets',
         'color': Colors.indigo,
       },
+          {
+        'icon': Icons.people,
+        'label': 'Customers',
+        'color': Colors.green,
+      },
     ];
 
     return Scaffold(
@@ -49,6 +54,8 @@ class UtilitiesPage extends StatelessWidget {
             onTap: () {
               if (item['label'] == 'Tickets') {
                 context.router.push(TicketsRoute());
+              }if (item['label'] == 'Customers') {
+                context.router.push(CustomerListRoute());
               }
             },
             child: Column(

@@ -64,6 +64,16 @@ import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments
     as _i427;
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart'
     as _i11;
+import 'package:gaaubesi_vendor/features/customer/data/datasource/customer_datasource.dart'
+    as _i88;
+import 'package:gaaubesi_vendor/features/customer/data/repo/customer_repo_imp.dart'
+    as _i362;
+import 'package:gaaubesi_vendor/features/customer/domain/repository/customer_repo.dart'
+    as _i894;
+import 'package:gaaubesi_vendor/features/customer/domain/usecase/customer_list_usecase.dart'
+    as _i25;
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_bloc.dart'
+    as _i512;
 import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart'
     as _i630;
 import 'package:gaaubesi_vendor/features/home/data/repositories/home_repository_impl.dart'
@@ -197,6 +207,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i630.HomeRemoteDataSource>(
       () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
+    gh.lazySingleton<_i88.CustomerRemoteDatasource>(
+      () => _i88.CustomerRemoteDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i170.CommentsRemoteDatasource>(
       () => _i170.CommentsDatasourceImpl(gh<_i619.DioClient>()),
     );
@@ -308,6 +321,11 @@ extension GetItInjectableX on _i174.GetIt {
         fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
       ),
     );
+    gh.lazySingleton<_i894.CustomerRepo>(
+      () => _i362.CustomerRepoImp(
+        remoteDataSource: gh<_i88.CustomerRemoteDatasource>(),
+      ),
+    );
     gh.factory<_i549.PaymentRequestBloc>(
       () => _i549.PaymentRequestBloc(gh<_i921.PayementRequestListUsecase>()),
     );
@@ -373,6 +391,12 @@ extension GetItInjectableX on _i174.GetIt {
         replyCommentOrderDetailUsecase:
             gh<_i942.ReplyCommentOrderDetailUsecase>(),
       ),
+    );
+    gh.lazySingleton<_i25.CustomerListUseCase>(
+      () => _i25.CustomerListUseCase(gh<_i894.CustomerRepo>()),
+    );
+    gh.factory<_i512.CustomerBloc>(
+      () => _i512.CustomerBloc(gh<_i25.CustomerListUseCase>()),
     );
     return this;
   }

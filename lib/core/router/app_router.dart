@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/screen/customer_list_screen.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
@@ -82,9 +83,11 @@ class AppRouter extends RootStackRouter {
       path: '/return-orders',
       guards: [AuthGuard()],
     ),
+    AutoRoute(page: TicketsRoute.page, path: '/tickets', guards: [AuthGuard()]),
+
     AutoRoute(
-      page: TicketsRoute.page,
-      path: '/tickets',
+      page: CustomerListRoute.page,
+      path: '/customer-list',
       guards: [AuthGuard()],
     ),
   ];
@@ -103,4 +106,5 @@ extension AppRoutesExtension on AppRouter {
   static const String comment = '/comment';
   static const String comments = '/comments';
   static const String tickets = '/tickets';
+  static const String customerList = '/customer-list';
 }
