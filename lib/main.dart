@@ -11,6 +11,7 @@ import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_pa
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
+import 'package:gaaubesi_vendor/features/payments/presentation/bloc/payment_request_bloc.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
 
 void main() async {
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<TicketBloc>()),
         BlocProvider(create: (context) => getIt<BranchListBloc>()),
         BlocProvider(create: (context) => getIt<WarehouseOrderBloc>()),
+        BlocProvider(create: (context) => getIt<PaymentRequestBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

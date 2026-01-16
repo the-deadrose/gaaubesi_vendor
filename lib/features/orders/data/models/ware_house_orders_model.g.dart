@@ -29,10 +29,13 @@ Map<String, dynamic> _$WarehouseOrdersListModelToJson(
 WareHouseOrdersModel _$WareHouseOrdersModelFromJson(
   Map<String, dynamic> json,
 ) => WareHouseOrdersModel(
-  id: (json['id'] as num?)?.toInt() ?? 0,
-  code: json['code'] as String? ?? '',
-  name: json['name'] as String? ?? '',
-  ordersCount: (json['orders_count'] as num?)?.toInt() ?? 0,
+  id: (json['id'] as num).toInt(),
+  code: json['code'] as String,
+  name: json['name'] as String,
+  ordersCount: (json['orders_count'] as num).toInt(),
+  orderIds: (json['order_ids'] as List<dynamic>)
+      .map((e) => (e as num).toInt())
+      .toList(),
 );
 
 Map<String, dynamic> _$WareHouseOrdersModelToJson(
@@ -42,4 +45,5 @@ Map<String, dynamic> _$WareHouseOrdersModelToJson(
   'code': instance.code,
   'name': instance.name,
   'orders_count': instance.ordersCount,
+  'order_ids': instance.orderIds,
 };

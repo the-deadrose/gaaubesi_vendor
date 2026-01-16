@@ -12,7 +12,7 @@ import 'package:gaaubesi_vendor/features/orderdetail/presentation/screen/order_d
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/stale_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/return_orders_page.dart';
-import 'package:gaaubesi_vendor/features/payments/presentation/pages/payments_page.dart';
+import 'package:gaaubesi_vendor/features/payments/presentation/screen/payments_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
 import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';

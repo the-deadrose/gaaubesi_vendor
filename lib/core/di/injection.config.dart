@@ -114,6 +114,16 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_
     as _i691;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart'
     as _i682;
+import 'package:gaaubesi_vendor/features/payments/data/datasource/payement_request_datasource.dart'
+    as _i581;
+import 'package:gaaubesi_vendor/features/payments/data/repo/payemnt_request_repo_imp.dart'
+    as _i939;
+import 'package:gaaubesi_vendor/features/payments/domain/repo/payment_request_repo.dart'
+    as _i250;
+import 'package:gaaubesi_vendor/features/payments/domain/usecase/payement_request_list_usecase.dart'
+    as _i921;
+import 'package:gaaubesi_vendor/features/payments/presentation/bloc/payment_request_bloc.dart'
+    as _i549;
 import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart'
     as _i576;
 import 'package:gaaubesi_vendor/features/ticket/data/repository/ticket_imp_repository.dart'
@@ -166,6 +176,9 @@ extension GetItInjectableX on _i174.GetIt {
         description: gh<String>(),
       ),
     );
+    gh.lazySingleton<_i581.PayementRequestRemoteDatasource>(
+      () => _i581.PayementRequestRemoteDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i433.BranchListRemoteDatasource>(
       () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),
     );
@@ -195,6 +208,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i684.BranchListRepository>(
       () => _i218.BranchListRepoImp(
         remoteDatasource: gh<_i433.BranchListRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i250.PaymentRequestRepo>(
+      () => _i939.PayemntRequestRepoImp(
+        remoteDataSource: gh<_i581.PayementRequestRemoteDatasource>(),
       ),
     );
     gh.lazySingleton<_i681.GetBranchListUsecase>(
@@ -233,6 +251,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i459.WarehouseOrderListUsecase>(
       () => _i459.WarehouseOrderListUsecase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i921.PayementRequestListUsecase>(
+      () => _i921.PayementRequestListUsecase(gh<_i250.PaymentRequestRepo>()),
     );
     gh.lazySingleton<_i92.CommentsRepository>(
       () => _i944.CommentsRepoImp(
@@ -286,6 +307,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i37.DeliveredOrderBloc(
         fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
       ),
+    );
+    gh.factory<_i549.PaymentRequestBloc>(
+      () => _i549.PaymentRequestBloc(gh<_i921.PayementRequestListUsecase>()),
     );
     gh.factory<_i124.OrderDetailBloc>(
       () => _i124.OrderDetailBloc(
