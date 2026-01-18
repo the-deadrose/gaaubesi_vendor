@@ -84,6 +84,16 @@ import 'package:gaaubesi_vendor/features/home/domain/usecases/get_vendor_stats_u
     as _i84;
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart'
     as _i915;
+import 'package:gaaubesi_vendor/features/notice/data/datasource/notice_datasource.dart'
+    as _i906;
+import 'package:gaaubesi_vendor/features/notice/data/repo/notice_list_repo_imp.dart'
+    as _i1054;
+import 'package:gaaubesi_vendor/features/notice/domain/repo/notice_repository.dart'
+    as _i795;
+import 'package:gaaubesi_vendor/features/notice/domain/usecase/notice_list_usecase.dart'
+    as _i83;
+import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.dart'
+    as _i587;
 import 'package:gaaubesi_vendor/features/orderdetail/domain/usecase/fetch_order_detail_usecase.dart'
     as _i170;
 import 'package:gaaubesi_vendor/features/orders/data/datasources/order_remote_data_source.dart'
@@ -165,26 +175,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i14.SecureStorageService>(
       () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
     );
-    gh.factory<_i488.TicketBloc>(
-      () => _i488.TicketBloc(
-        createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
-        ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
-      ),
-    );
     gh.lazySingleton<_i619.DioClient>(
       () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
-    );
-    gh.lazySingleton<_i1050.CreateTicketParams>(
-      () => _i1050.CreateTicketParams(
-        subject: gh<String>(),
-        description: gh<String>(),
-      ),
-    );
-    gh.lazySingleton<_i457.TicketsListParams>(
-      () => _i457.TicketsListParams(
-        subject: gh<String>(),
-        description: gh<String>(),
-      ),
     );
     gh.lazySingleton<_i581.PayementRequestRemoteDatasource>(
       () => _i581.PayementRequestRemoteDatasourceImpl(gh<_i619.DioClient>()),
@@ -200,6 +192,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i700.OrderRemoteDataSource>(
       () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i906.NoticeRemoteDatasource>(
+      () => _i906.NoticeRemoteDatasourceImpl(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i311.AuthRemoteDataSource>(
       () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
@@ -282,8 +277,16 @@ extension GetItInjectableX on _i174.GetIt {
         localDataSource: gh<_i18.AuthLocalDataSource>(),
       ),
     );
+    gh.lazySingleton<_i795.NoticeRepository>(
+      () => _i1054.NoticeListRepoImp(
+        remoteDatasource: gh<_i906.NoticeRemoteDatasource>(),
+      ),
+    );
     gh.lazySingleton<_i84.GetVendorStatsUseCase>(
       () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
+    );
+    gh.lazySingleton<_i83.NoticeListUsecase>(
+      () => _i83.NoticeListUsecase(gh<_i795.NoticeRepository>()),
     );
     gh.factory<_i682.WarehouseOrderBloc>(
       () => _i682.WarehouseOrderBloc(
@@ -303,6 +306,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i357.LogoutUseCase>(
       () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
+    );
+    gh.factory<_i587.NoticeBloc>(
+      () => _i587.NoticeBloc(gh<_i83.NoticeListUsecase>()),
     );
     gh.singleton<_i365.AuthBloc>(
       () => _i365.AuthBloc(
@@ -369,6 +375,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i427.TodaysCommentsUsecase>(
       () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
     );
+    gh.lazySingleton<_i1050.CreateTicketUseCase>(
+      () =>
+          _i1050.CreateTicketUseCase(repository: gh<_i567.TicketRepository>()),
+    );
+    gh.lazySingleton<_i457.TicketsListUseCase>(
+      () => _i457.TicketsListUseCase(repository: gh<_i567.TicketRepository>()),
+    );
     gh.factory<_i337.ReturnedOrderBloc>(
       () => _i337.ReturnedOrderBloc(
         fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
@@ -394,6 +407,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i25.CustomerListUseCase>(
       () => _i25.CustomerListUseCase(gh<_i894.CustomerRepo>()),
+    );
+    gh.factory<_i488.TicketBloc>(
+      () => _i488.TicketBloc(
+        ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
+        createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
+      ),
     );
     gh.factory<_i512.CustomerBloc>(
       () => _i512.CustomerBloc(gh<_i25.CustomerListUseCase>()),

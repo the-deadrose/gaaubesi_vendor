@@ -1,64 +1,50 @@
 import 'package:equatable/equatable.dart';
 
-abstract class TicketEvents extends Equatable {
-  const TicketEvents();
-  
+abstract class TicketEvent extends Equatable {
+  const TicketEvent();
+
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
-class CreateTicketEvent extends TicketEvents {
+class FetchTicketsEvent extends TicketEvent {
+  final String page;
   final String subject;
+  final String status;
+
+  const FetchTicketsEvent({this.page = '1', required this.subject , required this.status});
+
+  @override
+  List<Object> get props => [page, subject, status];
+}
+
+class LoadMoreTicketsEvent extends TicketEvent {
+  const LoadMoreTicketsEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class RefreshTicketsEvent extends TicketEvent {
+  final String subject;
+  final String status;
+
+  const RefreshTicketsEvent({required this.subject , required this.status});
+
+  @override
+  List<Object> get props => [subject, status];
+}
+
+class CreateTicketEvent extends TicketEvent {
   final String description;
+  final String subject;
 
   const CreateTicketEvent({required this.subject, required this.description});
 
   @override
-  List<Object?> get props => [subject, description];
+  List<Object> get props => [subject, description];
 }
 
-class FetchTicketsEvent extends TicketEvents {
-  final String status;
-  final String page;
-
-  const FetchTicketsEvent({required this.status, required this.page});
-
-  @override
-  List<Object?> get props => [status, page];
-}
-
-class FetchPendingTicketsEvent extends TicketEvents {
-  final String page;
-
-  const FetchPendingTicketsEvent({required this.page});
-
-  @override
-  List<Object?> get props => [page];
-}
-
-class FetchClosedTicketsEvent extends TicketEvents {
-  final String page;
-
-  const FetchClosedTicketsEvent({required this.page});
-
-  @override
-  List<Object?> get props => [page];
-}
-
-class RefreshTicketsEvent extends TicketEvents {
-  final bool isPending;
-
-  const RefreshTicketsEvent({required this.isPending});
-
-  @override
-  List<Object?> get props => [isPending];
-}
-
-class FetchMoreTicketsEvent extends TicketEvents {
-  final bool isPending;
-
-  const FetchMoreTicketsEvent({required this.isPending});
-
-  @override
-  List<Object?> get props => [isPending];
+class CreateTicketReset extends TicketEvent {
+  const CreateTicketReset();
 }

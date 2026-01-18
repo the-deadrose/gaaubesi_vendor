@@ -121,6 +121,22 @@ class CreateOrderRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CreateTicketScreen]
+class CreateTicketRoute extends PageRouteInfo<void> {
+  const CreateTicketRoute({List<PageRouteInfo>? children})
+    : super(CreateTicketRoute.name, initialChildren: children);
+
+  static const String name = 'CreateTicketRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const CreateTicketScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [CustomerListScreen]
 class CustomerListRoute extends PageRouteInfo<void> {
   const CustomerListRoute({List<PageRouteInfo>? children})
@@ -196,6 +212,69 @@ class MainScaffoldRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const MainScaffoldPage();
+    },
+  );
+}
+
+/// generated route for
+/// [NoticeDetailScreen]
+class NoticeDetailRoute extends PageRouteInfo<NoticeDetailRouteArgs> {
+  NoticeDetailRoute({
+    Key? key,
+    required Notice notice,
+    List<PageRouteInfo>? children,
+  }) : super(
+         NoticeDetailRoute.name,
+         args: NoticeDetailRouteArgs(key: key, notice: notice),
+         initialChildren: children,
+       );
+
+  static const String name = 'NoticeDetailRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<NoticeDetailRouteArgs>();
+      return NoticeDetailScreen(key: args.key, notice: args.notice);
+    },
+  );
+}
+
+class NoticeDetailRouteArgs {
+  const NoticeDetailRouteArgs({this.key, required this.notice});
+
+  final Key? key;
+
+  final Notice notice;
+
+  @override
+  String toString() {
+    return 'NoticeDetailRouteArgs{key: $key, notice: $notice}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! NoticeDetailRouteArgs) return false;
+    return key == other.key && notice == other.notice;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ notice.hashCode;
+}
+
+/// generated route for
+/// [NoticeListScreen]
+class NoticeListRoute extends PageRouteInfo<void> {
+  const NoticeListRoute({List<PageRouteInfo>? children})
+    : super(NoticeListRoute.name, initialChildren: children);
+
+  static const String name = 'NoticeListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const NoticeListScreen();
     },
   );
 }
@@ -328,49 +407,112 @@ class StaleOrdersRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [TicketsPage]
-class TicketsRoute extends PageRouteInfo<TicketsRouteArgs> {
-  TicketsRoute({Key? key, int initialTab = 0, List<PageRouteInfo>? children})
-    : super(
-        TicketsRoute.name,
-        args: TicketsRouteArgs(key: key, initialTab: initialTab),
-        initialChildren: children,
-      );
+/// [TicketDetailScreen]
+class TicketDetailRoute extends PageRouteInfo<TicketDetailRouteArgs> {
+  TicketDetailRoute({
+    Key? key,
+    required PendingTicketEntity ticket,
+    String? category,
+    List<PageRouteInfo>? children,
+  }) : super(
+         TicketDetailRoute.name,
+         args: TicketDetailRouteArgs(
+           key: key,
+           ticket: ticket,
+           category: category,
+         ),
+         initialChildren: children,
+       );
 
-  static const String name = 'TicketsRoute';
+  static const String name = 'TicketDetailRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<TicketsRouteArgs>(
-        orElse: () => const TicketsRouteArgs(),
+      final args = data.argsAs<TicketDetailRouteArgs>();
+      return TicketDetailScreen(
+        key: args.key,
+        ticket: args.ticket,
+        category: args.category,
       );
-      return TicketsPage(key: args.key, initialTab: args.initialTab);
     },
   );
 }
 
-class TicketsRouteArgs {
-  const TicketsRouteArgs({this.key, this.initialTab = 0});
+class TicketDetailRouteArgs {
+  const TicketDetailRouteArgs({this.key, required this.ticket, this.category});
 
   final Key? key;
 
-  final int initialTab;
+  final PendingTicketEntity ticket;
+
+  final String? category;
 
   @override
   String toString() {
-    return 'TicketsRouteArgs{key: $key, initialTab: $initialTab}';
+    return 'TicketDetailRouteArgs{key: $key, ticket: $ticket, category: $category}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    if (other is! TicketsRouteArgs) return false;
-    return key == other.key && initialTab == other.initialTab;
+    if (other is! TicketDetailRouteArgs) return false;
+    return key == other.key &&
+        ticket == other.ticket &&
+        category == other.category;
   }
 
   @override
-  int get hashCode => key.hashCode ^ initialTab.hashCode;
+  int get hashCode => key.hashCode ^ ticket.hashCode ^ category.hashCode;
+}
+
+/// generated route for
+/// [TicketScreen]
+class TicketRoute extends PageRouteInfo<TicketRouteArgs> {
+  TicketRoute({Key? key, String? subject, List<PageRouteInfo>? children})
+    : super(
+        TicketRoute.name,
+        args: TicketRouteArgs(key: key, subject: subject),
+        rawQueryParams: {'subject': subject},
+        initialChildren: children,
+      );
+
+  static const String name = 'TicketRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final queryParams = data.queryParams;
+      final args = data.argsAs<TicketRouteArgs>(
+        orElse: () =>
+            TicketRouteArgs(subject: queryParams.optString('subject')),
+      );
+      return TicketScreen(key: args.key, subject: args.subject);
+    },
+  );
+}
+
+class TicketRouteArgs {
+  const TicketRouteArgs({this.key, this.subject});
+
+  final Key? key;
+
+  final String? subject;
+
+  @override
+  String toString() {
+    return 'TicketRouteArgs{key: $key, subject: $subject}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TicketRouteArgs) return false;
+    return key == other.key && subject == other.subject;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ subject.hashCode;
 }
 
 /// generated route for

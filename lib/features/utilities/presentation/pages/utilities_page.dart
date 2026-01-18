@@ -11,30 +11,12 @@ class UtilitiesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> utilities = [
-      {
-        'icon': Icons.calculate,
-        'label': 'Rate Calculator',
-        'color': Colors.blue,
-      },
-      {'icon': Icons.map, 'label': 'Route Planner', 'color': Colors.green},
-      {'icon': Icons.history, 'label': 'History', 'color': Colors.orange},
-      {'icon': Icons.settings, 'label': 'Settings', 'color': Colors.purple},
-      {
-        'icon': Icons.notifications,
-        'label': 'Notifications',
-        'color': Colors.red,
-      },
-      {'icon': Icons.help, 'label': 'Help Guide', 'color': Colors.teal},
-      {
-        'icon': Icons.support_agent,
-        'label': 'Tickets',
-        'color': Colors.indigo,
-      },
-          {
-        'icon': Icons.people,
-        'label': 'Customers',
-        'color': Colors.green,
-      },
+
+  
+
+      {'icon': Icons.support_agent, 'label': 'Tickets', 'color': Colors.indigo},
+      {'icon': Icons.people, 'label': 'Customers', 'color': Colors.green},
+      {'icon': Icons.notifications_none, 'label': 'Notices', 'color': Colors.brown},
     ];
 
     return Scaffold(
@@ -53,10 +35,15 @@ class UtilitiesPage extends StatelessWidget {
           return CustomCard(
             onTap: () {
               if (item['label'] == 'Tickets') {
-                context.router.push(TicketsRoute());
-              }if (item['label'] == 'Customers') {
+                context.router.push(TicketRoute(subject: 'pending'));
+              }
+              if (item['label'] == 'Customers') {
                 context.router.push(CustomerListRoute());
               }
+              if (item['label'] == 'Notices') {
+                context.router.push(NoticeListRoute());
+              }
+              
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +51,7 @@ class UtilitiesPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: (item['color'] as Color).withValues(alpha:  0.1),
+                    color: (item['color'] as Color).withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

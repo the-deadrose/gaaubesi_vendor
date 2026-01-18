@@ -1,6 +1,23 @@
 import 'package:equatable/equatable.dart';
 
-class TicketEntity extends Equatable {
+class PendingTicketListEntity extends Equatable {
+  final int count;
+  final String? next;
+  final String? previous;
+  final List<PendingTicketEntity> results;
+
+  const PendingTicketListEntity({
+    required this.count,
+    this.next,
+    this.previous,
+    required this.results,
+  });
+
+  @override
+  List<Object?> get props => [count, next, previous, results];
+}
+
+class PendingTicketEntity extends Equatable {
   final int id;
   final String subject;
   final String description;
@@ -9,11 +26,11 @@ class TicketEntity extends Equatable {
   final String createdOn;
   final String createdOnFormatted;
   final String? closedOn;
-  final String? closedOnFormatted;
-  final String? closedByName;
+  final String closedOnFormatted;
+  final String closedByName;
   final String status;
 
-  const TicketEntity({
+  const PendingTicketEntity({
     required this.id,
     required this.subject,
     required this.description,
@@ -22,13 +39,10 @@ class TicketEntity extends Equatable {
     required this.createdOn,
     required this.createdOnFormatted,
     this.closedOn,
-    this.closedOnFormatted,
-    this.closedByName,
+    required this.closedOnFormatted,
+    required this.closedByName,
     required this.status,
   });
-
-  bool get isPending => status.toLowerCase() == 'pending';
-  bool get isClosed => status.toLowerCase() == 'closed';
 
   @override
   List<Object?> get props => [
@@ -44,21 +58,4 @@ class TicketEntity extends Equatable {
         closedByName,
         status,
       ];
-}
-
-class TicketResponseEntity extends Equatable {
-  final List<TicketEntity>? results;
-  final int count;
-  final String? next;
-  final String? previous;
-
-  const TicketResponseEntity({
-    this.results,
-    required this.count,
-    this.next,
-    this.previous,
-  });
-
-  @override
-  List<Object?> get props => [results, count, next, previous];
 }

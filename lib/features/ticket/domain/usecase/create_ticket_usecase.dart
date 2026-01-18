@@ -3,7 +3,6 @@ import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/repository/ticket_repository.dart';
 import 'package:injectable/injectable.dart';
 
-@lazySingleton
 class CreateTicketParams {
   final String subject;
   final String description;
@@ -11,6 +10,7 @@ class CreateTicketParams {
   CreateTicketParams({required this.subject, required this.description});
 }
 
+@lazySingleton
 class CreateTicketUseCase {
   final TicketRepository repository;
 

@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart';
-import 'package:gaaubesi_vendor/features/ticket/domain/entity/ticket_entity.dart';
+import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/repository/ticket_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -28,16 +28,18 @@ class TicketImpRepository implements TicketRepository {
   }
 
   @override
-  Future<Either<Failure, TicketResponseEntity>> fetchTickets({
-    required String status,
+  Future<Either<Failure, PendingTicketListEntity>> fetchTickets({
+    required String subject,
     required String page,
+    required String status,
   }) async {
     try {
       final response = await remoteTicketDataSource.fetchTickets(
-        status: status,
+        subject: subject,
         page: page,
+        status: status,
       );
-      return Right(response.toEntity());
+      return Right(response);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }

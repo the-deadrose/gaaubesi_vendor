@@ -2,6 +2,12 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/screen/customer_list_screen.dart';
+import 'package:gaaubesi_vendor/features/notice/domain/entity/notice_list_entity.dart';
+import 'package:gaaubesi_vendor/features/notice/presentation/screen/notice_detail_screen.dart';
+import 'package:gaaubesi_vendor/features/notice/presentation/screen/notice_screen.dart';
+import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';
+import 'package:gaaubesi_vendor/features/ticket/presentation/pages/create_ticket_page.dart';
+import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_detail_page.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
@@ -83,11 +89,37 @@ class AppRouter extends RootStackRouter {
       path: '/return-orders',
       guards: [AuthGuard()],
     ),
-    AutoRoute(page: TicketsRoute.page, path: '/tickets', guards: [AuthGuard()]),
+    AutoRoute(page: TicketRoute.page, 
+    path: '/tickets',
+     guards: [AuthGuard()]),
 
     AutoRoute(
       page: CustomerListRoute.page,
       path: '/customer-list',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: NoticeListRoute.page,
+      path: '/notice-list',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: NoticeDetailRoute.page,
+      path: '/notice-detail/:noticeId',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: TicketDetailRoute.page,
+      path: '/ticket-detail/:ticketId',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: CreateTicketRoute.page,
+      path: '/create-ticket',
       guards: [AuthGuard()],
     ),
   ];
@@ -107,4 +139,8 @@ extension AppRoutesExtension on AppRouter {
   static const String comments = '/comments';
   static const String tickets = '/tickets';
   static const String customerList = '/customer-list';
+  static const String noticeScreen = '/notice-list';
+  static const String noticeDetailScreen = '/notice-detail';
+  static const String ticketDetailScreen = '/ticket-detail';
+  static const String createTicket = '/create-ticket';
 }

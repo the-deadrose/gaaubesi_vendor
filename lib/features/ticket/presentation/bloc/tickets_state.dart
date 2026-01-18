@@ -1,89 +1,73 @@
+// features/ticket/presentation/bloc/ticket_state.dart
 import 'package:equatable/equatable.dart';
-import 'package:gaaubesi_vendor/features/ticket/domain/entity/ticket_entity.dart';
+import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';
 
-class TicketsState extends Equatable {
-  const TicketsState();
-  
+abstract class TicketState extends Equatable {
+  const TicketState();
+
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
-// Create Ticket States
-class CreateTicketInitialState extends TicketsState {}
+class TicketInitial extends TicketState {}
 
-class CreateTicketLoadingState extends TicketsState {}
+class TicketLoading extends TicketState {}
 
-class CreateTicketSuccessState extends TicketsState {}
-
-class CreateTicketFailureState extends TicketsState {
-  final String errorMessage;
-
-  const CreateTicketFailureState({required this.errorMessage});
-  
-  @override
-  List<Object?> get props => [errorMessage];
-}
-
-// Ticket List States
-class TicketsInitial extends TicketsState {}
-
-class TicketsLoading extends TicketsState {}
-
-class PendingTicketsLoaded extends TicketsState {
-  final TicketResponseEntity response;
-  final bool isLoadingMore;
+class TicketLoaded extends TicketState {
+  final PendingTicketListEntity tickets;
   final bool hasReachedMax;
-  final bool isRefreshing;
+  final bool isLoadingMore;
 
-  const PendingTicketsLoaded({
-    required this.response,
-    this.isLoadingMore = false,
+  const TicketLoaded({
+    required this.tickets,
     this.hasReachedMax = false,
-    this.isRefreshing = false,
+    this.isLoadingMore = false,
   });
 
-  @override
-  List<Object?> get props => [response, isLoadingMore, hasReachedMax, isRefreshing];
-}
-
-class ClosedTicketsLoaded extends TicketsState {
-  final TicketResponseEntity response;
-  final bool isLoadingMore;
-  final bool hasReachedMax;
-  final bool isRefreshing;
-
-  const ClosedTicketsLoaded({
-    required this.response,
-    this.isLoadingMore = false,
-    this.hasReachedMax = false,
-    this.isRefreshing = false,
-  });
+  TicketLoaded copyWith({
+    PendingTicketListEntity? tickets,
+    bool? hasReachedMax,
+    bool? isLoadingMore,
+  }) {
+    return TicketLoaded(
+      tickets: tickets ?? this.tickets,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    );
+  }
 
   @override
-  List<Object?> get props => [response, isLoadingMore, hasReachedMax, isRefreshing];
+  List<Object> get props => [tickets, hasReachedMax, isLoadingMore];
 }
 
-class TicketsError extends TicketsState {
+class TicketError extends TicketState {
   final String message;
-  final TicketResponseEntity? previousResponse;
 
-  const TicketsError({
-    required this.message,
-    this.previousResponse,
-  });
+  const TicketError({required this.message});
 
   @override
-  List<Object?> get props => [message, previousResponse];
+  List<Object> get props => [message];
 }
 
-// Legacy states for backward compatibility
-class FetchTicketsInitialState extends TicketsState {}
-class FetchTicketsLoadingState extends TicketsState {}
-class FetchTicketsSuccessState extends TicketsState {}
-class FetchTicketsFailureState extends TicketsState {
-  final String errorMessage;
+class TicketEmpty extends TicketState {}
 
-  const FetchTicketsFailureState({required this.errorMessage});
+// Extend CreateTicketState from TicketState instead of Equatable
+class CreateTicketLoading extends TicketState {}
+
+class CreateTicketSuccess extends TicketState {
+  final String message;
+
+  const CreateTicketSuccess({required this.message});
+
   @override
-  List<Object?> get props => [errorMessage];
+  List<Object> get props => [message];
+}
+
+class CreateTicketFailure extends TicketState {
+  final String error;
+
+  const CreateTicketFailure({required this.error});
+
+  @override
+  List<Object> get props => [error];
 }

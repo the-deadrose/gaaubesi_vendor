@@ -1,6 +1,7 @@
 import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
-import 'package:gaaubesi_vendor/features/ticket/data/model/ticket_model.dart';
+import 'package:gaaubesi_vendor/features/ticket/data/model/pending_ticket_list_model.dart';
+import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class RemoteTicketDataSource {
@@ -9,16 +10,27 @@ abstract class RemoteTicketDataSource {
     required String description,
   });
 
-  Future<TicketResponseModel> fetchTickets({
-    required String status,
+  Future<PendingTicketListEntity> fetchTickets({
+    required String subject,
     required String page,
+    required String status,
+  });
+
+  Future<PendingTicketListEntity> fetchTicketsByStatus({
+    required String page,
+    required String status,
+  });
+
+  Future<PendingTicketListEntity> fetchTicketsBySubject({
+    required String page,
+    required String subject,
   });
 }
 
 @LazySingleton(as: RemoteTicketDataSource)
 class TickectDatasorceImp implements RemoteTicketDataSource {
   final DioClient _dioClient;
-  
+
   TickectDatasorceImp(this._dioClient);
 
   @override
@@ -35,20 +47,60 @@ class TickectDatasorceImp implements RemoteTicketDataSource {
   }
 
   @override
-  Future<TicketResponseModel> fetchTickets({
-    required String status,
+  Future<PendingTicketListEntity> fetchTickets({
+    required String subject,
     required String page,
+    required String status,
+  }) async {
+    if (subject.isEmpty) {
+      return await fetchTicketsByStatus(page: page, status: status);
+    } else {
+      return await fetchTicketsBySubject(page: page, subject: subject);
+    }
+  }
+
+  @override
+  Future<PendingTicketListEntity> fetchTicketsByStatus({
+    required String page,
+    required String status,
   }) async {
     try {
-      final queryParameters = {'status': status, 'page': page};
+      String url = '${ApiEndpoints.ticketList}$status/';
+      final queryParameters = {'page': page};
+
       final response = await _dioClient.get(
-        ApiEndpoints.ticketList,
+        url,
         queryParameters: queryParameters,
       );
-      
-      return TicketResponseModel.fromJson(response.data as Map<String, dynamic>);
+
+      return PendingTicketListModel.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<PendingTicketListEntity> fetchTicketsBySubject({
+    required String page,
+    required String subject,
+  }) async {
+    try {
+      final url = ApiEndpoints.ticketList;
+      final queryParameters = {'page': page, 'subject': subject};
+
+      final response = await _dioClient.get(
+        url,
+        queryParameters: queryParameters,
+      );
+
+      return PendingTicketListModel.fromJson(
+        response.data as Map<String, dynamic>,
+      );
     } catch (e) {
       rethrow;
     }
   }
 }
+
