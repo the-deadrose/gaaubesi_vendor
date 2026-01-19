@@ -19,13 +19,14 @@ import 'package:gaaubesi_vendor/features/orderdetail/presentation/screen/order_d
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/stale_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/return_orders_page.dart';
-import 'package:gaaubesi_vendor/features/payments/presentation/screen/payments_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
 import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/pages/main_scaffold.dart';
 import 'package:gaaubesi_vendor/core/router/auth_guard.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_page.dart';
+import 'package:gaaubesi_vendor/features/cod_transfer/presentation/page/cod_transfer_list_page.dart';
+import 'package:gaaubesi_vendor/features/daily_transections/presentation/page/daily_transaction_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -43,7 +44,6 @@ class AppRouter extends RootStackRouter {
       children: [
         AutoRoute(page: HomeRoute.page, path: 'home', initial: true),
         AutoRoute(page: OrdersRoute.page, path: 'orders'),
-        AutoRoute(page: PaymentsRoute.page, path: 'payments'),
         AutoRoute(page: UtilitiesRoute.page, path: 'utilities'),
       ],
     ),
@@ -122,6 +122,17 @@ class AppRouter extends RootStackRouter {
       path: '/create-ticket',
       guards: [AuthGuard()],
     ),
+
+    AutoRoute(page: CodTransferListRoute.page,
+    path: '/cod-transfer-list',
+    guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: DailyTransactionRoute.page,
+      path: '/daily-transactions',
+      guards: [AuthGuard()],
+    )
   ];
 }
 
@@ -131,7 +142,6 @@ extension AppRoutesExtension on AppRouter {
   static const String home = '/home';
   static const String orders = '/orders';
   static const String deliveredOrders = '/delivered-orders';
-  static const String payments = '/payments';
   static const String utilities = '/utilities';
   static const String extraMileage = '/extra-mileage';
   static const String contact = '/contact';
@@ -143,4 +153,6 @@ extension AppRoutesExtension on AppRouter {
   static const String noticeDetailScreen = '/notice-detail';
   static const String ticketDetailScreen = '/ticket-detail';
   static const String createTicket = '/create-ticket';
+  static const String codTransferList = '/cod-transfer-list';
+  static const String dailyTransaction = '/daily-transaction';
 }

@@ -11,12 +11,23 @@ class UtilitiesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> utilities = [
-
-  
-
       {'icon': Icons.support_agent, 'label': 'Tickets', 'color': Colors.indigo},
       {'icon': Icons.people, 'label': 'Customers', 'color': Colors.green},
-      {'icon': Icons.notifications_none, 'label': 'Notices', 'color': Colors.brown},
+      {
+        'icon': Icons.notifications_none,
+        'label': 'Notices',
+        'color': Colors.brown,
+      },
+      {
+        'icon': Icons.description_outlined,
+        'label': 'COD Transfers',
+        'color': Colors.brown,
+      },
+      {
+        'icon': Icons.monetization_on,
+        'label': 'Daily Transactions',
+        'color': Colors.orange,
+      }
     ];
 
     return Scaffold(
@@ -43,7 +54,12 @@ class UtilitiesPage extends StatelessWidget {
               if (item['label'] == 'Notices') {
                 context.router.push(NoticeListRoute());
               }
-              
+              if (item['label'] == 'COD Transfers') {
+                context.router.push(CodTransferListRoute());
+              }
+              if (item['label'] == 'Daily Transactions') {
+                context.router.push(DailyTransactionRoute());
+              }
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

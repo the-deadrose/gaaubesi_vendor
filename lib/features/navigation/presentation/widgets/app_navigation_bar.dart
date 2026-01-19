@@ -48,20 +48,13 @@ class AppNavigationBar extends StatelessWidget {
                 onTap: () => onTap(1),
                 color: theme.primaryColor,
               ),
-              _NavBarItem(
-                icon: Icons.payment_outlined,
-                activeIcon: Icons.payment,
-                label: 'Payments',
-                isActive: currentIndex == 2,
-                onTap: () => onTap(2),
-                color: theme.primaryColor,
-              ),
+          
               _NavBarItem(
                 icon: Icons.apps_outlined,
                 activeIcon: Icons.apps,
                 label: 'Utilities',
-                isActive: currentIndex == 3,
-                onTap: () => onTap(3),
+                isActive: currentIndex == 2,
+                onTap: () => onTap(2),
                 color: theme.primaryColor,
               ),
             ],

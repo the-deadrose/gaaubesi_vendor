@@ -206,7 +206,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
     try {
       // Format: "2026-01-18 16:25"
       final parts = formattedDateTime.split(' ');
-      if (parts.length >= 1) {
+      if (parts.isNotEmpty) {
         final datePart = parts[0];
         final date = DateTime.parse(datePart);
         // Using basic formatting without importing intl

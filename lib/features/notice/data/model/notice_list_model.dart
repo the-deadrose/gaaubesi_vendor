@@ -118,14 +118,14 @@ class NoticeModel extends Notice {
     bool? isPopup,
   }) {
     return NoticeModel(
-      noticeId: id ?? this.noticeId,
-      noticeTitle: title ?? this.noticeTitle,
-      noticeContent: content ?? this.noticeContent,
-      noticeCreatedOn: createdOn ?? this.noticeCreatedOn,
-      formattedCreatedOn: createdOnFormatted ?? this.formattedCreatedOn,
-      createdBy: createdByName ?? this.createdBy,
-      readStatus: isRead ?? this.readStatus,
-      popupStatus: isPopup ?? this.popupStatus,
+      noticeId: id ?? noticeId,
+      noticeTitle: title ?? noticeTitle,
+      noticeContent: content ?? noticeContent,
+      noticeCreatedOn: createdOn ?? noticeCreatedOn,
+      formattedCreatedOn: createdOnFormatted ?? formattedCreatedOn,
+      createdBy: createdByName ?? createdBy,
+      readStatus: isRead ?? readStatus,
+      popupStatus: isPopup ?? popupStatus,
     );
   }
 }

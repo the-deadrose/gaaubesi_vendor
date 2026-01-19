@@ -27,6 +27,22 @@ class BulkUploadOrdersRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CodTransferListScreen]
+class CodTransferListRoute extends PageRouteInfo<void> {
+  const CodTransferListRoute({List<PageRouteInfo>? children})
+    : super(CodTransferListRoute.name, initialChildren: children);
+
+  static const String name = 'CodTransferListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const CodTransferListScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [CommentPage]
 class CommentRoute extends PageRouteInfo<void> {
   const CommentRoute({List<PageRouteInfo>? children})
@@ -150,6 +166,55 @@ class CustomerListRoute extends PageRouteInfo<void> {
       return const CustomerListScreen();
     },
   );
+}
+
+/// generated route for
+/// [DailyTransactionScreen]
+class DailyTransactionRoute extends PageRouteInfo<DailyTransactionRouteArgs> {
+  DailyTransactionRoute({Key? key, String? date, List<PageRouteInfo>? children})
+    : super(
+        DailyTransactionRoute.name,
+        args: DailyTransactionRouteArgs(key: key, date: date),
+        rawQueryParams: {'date': date},
+        initialChildren: children,
+      );
+
+  static const String name = 'DailyTransactionRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final queryParams = data.queryParams;
+      final args = data.argsAs<DailyTransactionRouteArgs>(
+        orElse: () =>
+            DailyTransactionRouteArgs(date: queryParams.optString('date')),
+      );
+      return DailyTransactionScreen(key: args.key, date: args.date);
+    },
+  );
+}
+
+class DailyTransactionRouteArgs {
+  const DailyTransactionRouteArgs({this.key, this.date});
+
+  final Key? key;
+
+  final String? date;
+
+  @override
+  String toString() {
+    return 'DailyTransactionRouteArgs{key: $key, date: $date}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! DailyTransactionRouteArgs) return false;
+    return key == other.key && date == other.date;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ date.hashCode;
 }
 
 /// generated route for
@@ -338,22 +403,6 @@ class OrdersRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const OrdersPage();
-    },
-  );
-}
-
-/// generated route for
-/// [PaymentsPage]
-class PaymentsRoute extends PageRouteInfo<void> {
-  const PaymentsRoute({List<PageRouteInfo>? children})
-    : super(PaymentsRoute.name, initialChildren: children);
-
-  static const String name = 'PaymentsRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const PaymentsPage();
     },
   );
 }

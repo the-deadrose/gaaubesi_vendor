@@ -24,7 +24,6 @@ class MainScaffoldPage extends StatelessWidget {
         routes: const [
           HomeRoute(),
           OrdersRoute(),
-          PaymentsRoute(),
           UtilitiesRoute(),
         ],
         builder: (context, child) {

@@ -31,7 +31,6 @@ class _TicketScreenState extends State<TicketScreen>
   late TabController _tabController;
   late String _selectedCategory;
   late String _selectedStatus;
-  String _selectedSubject = 'pending';
 
   final List<Map<String, dynamic>> _categories = [
     {
@@ -93,9 +92,14 @@ class _TicketScreenState extends State<TicketScreen>
 
     _tabController = TabController(length: 3, vsync: this);
 
-    _selectedCategory = widget.subject ?? '';
+    final categoryValues = _categories
+        .map((c) => c['value'] as String)
+        .toList();
+    _selectedCategory =
+        (widget.subject != null && categoryValues.contains(widget.subject))
+        ? widget.subject!
+        : '';
     _selectedStatus = 'pending';
-    _selectedSubject = 'pending';
     _tabController.addListener(_handleTabChange);
 
     if (_ticketBloc.state is CreateTicketLoading ||
@@ -120,17 +124,14 @@ class _TicketScreenState extends State<TicketScreen>
     setState(() {
       if (_tabController.index == 0) {
         // Pending Tickets tab
-        _selectedSubject = 'pending';
         _selectedCategory = '';
         _selectedStatus = 'pending';
       } else if (_tabController.index == 1) {
         // Closed Tickets tab
-        _selectedSubject = 'closed';
         _selectedCategory = '';
         _selectedStatus = 'closed';
       } else {
         // Payment Tickets tab
-        _selectedSubject = 'payment';
         _selectedCategory = '';
         _selectedStatus = 'pending';
       }
@@ -139,11 +140,7 @@ class _TicketScreenState extends State<TicketScreen>
       _hasReachedMax = false;
       _isLoadingMore = false;
 
-      if (_selectedSubject == 'pending' || _selectedSubject == 'closed') {
-        _loadTicketsForCurrentFilters();
-      } else {
-        _ticketBloc.add(RefreshTicketsEvent(subject: 'payment', status: 'pending'));
-      }
+      _loadTicketsForCurrentFilters();
     });
   }
 
@@ -152,19 +149,10 @@ class _TicketScreenState extends State<TicketScreen>
   }
 
   void _loadTicketsForCurrentFilters() {
-    // Build the subject parameter based on category and status filters
-    String subject = _buildSubjectParameter();
-    _ticketBloc.add(FetchTicketsEvent(page: '1', subject: subject, status: _selectedStatus));
-  }
-
-  String _buildSubjectParameter() {
-    // If category is specific, use the category
-    if (_selectedCategory.isNotEmpty) {
-      return _selectedCategory;
-    }
-    
-    // Otherwise, return empty string (will use status-based URL)
-    return '';
+    final subject = _selectedCategory.isNotEmpty ? _selectedCategory : '';
+    _ticketBloc.add(
+      FetchTicketsEvent(page: '1', subject: subject, status: _selectedStatus),
+    );
   }
 
   void _loadMoreTickets() {
@@ -172,9 +160,13 @@ class _TicketScreenState extends State<TicketScreen>
 
     _isLoadingMore = true;
     final nextPage = _currentPage + 1;
-    String subject = _buildSubjectParameter();
+    final subject = _selectedCategory.isNotEmpty ? _selectedCategory : '';
     _ticketBloc.add(
-      FetchTicketsEvent(page: nextPage.toString(), subject: subject, status: _selectedStatus),
+      FetchTicketsEvent(
+        page: nextPage.toString(),
+        subject: subject,
+        status: _selectedStatus,
+      ),
     );
   }
 
@@ -202,8 +194,10 @@ class _TicketScreenState extends State<TicketScreen>
     _hasReachedMax = false;
     _isLoadingMore = false;
 
-    String subject = _buildSubjectParameter();
-    _ticketBloc.add(RefreshTicketsEvent(subject: subject, status: _selectedStatus));
+    final subject = _selectedCategory.isNotEmpty ? _selectedCategory : '';
+    _ticketBloc.add(
+      RefreshTicketsEvent(subject: subject, status: _selectedStatus),
+    );
 
     await Future.delayed(const Duration(milliseconds: 500));
 
@@ -273,6 +267,7 @@ class _TicketScreenState extends State<TicketScreen>
 
   Widget _buildCategoryChips() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: AppTheme.whiteSmoke,
       child: Column(
@@ -287,44 +282,88 @@ class _TicketScreenState extends State<TicketScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
+          Row(
             children: [
-              GestureDetector(
-                onTap: () {
-                  context.router.push(CreateTicketRoute());
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightGray,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.powerBlue, width: 1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.add_circle_outline,
-                        size: 14,
-                        color: AppTheme.blackBean,
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      context.router.push(CreateTicketRoute());
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Add Inquiry',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.blackBean,
-                        ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightGray,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppTheme.powerBlue, width: 1),
                       ),
-                    ],
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline,
+                            size: 14,
+                            color: AppTheme.blackBean,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Add Inquiry',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.blackBean,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
+              ),
+              SizedBox(width: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightGray,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppTheme.powerBlue, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.payment,
+                            size: 14,
+                            color: AppTheme.blackBean,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'COD Request',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.blackBean,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -443,7 +482,8 @@ class _TicketScreenState extends State<TicketScreen>
       ),
       body: Column(
         children: [
-          if (_tabController.index == 0 || _tabController.index == 1) _buildCategoryChips(),
+          if (_tabController.index == 0 || _tabController.index == 1)
+            _buildCategoryChips(),
 
           Expanded(
             child: TabBarView(
@@ -976,7 +1016,7 @@ class _TicketScreenState extends State<TicketScreen>
     final description = _selectedStatus == 'pending'
         ? 'All tickets have been processed or assigned'
         : 'No closed tickets found';
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16),

@@ -12,6 +12,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_delive
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_possible_redirect_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_returned_order_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_rtv_order_response_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/paginated_stale_orders_response_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_request_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/edit_order_request_entity.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/domain/entities/order_detail_entity.dart';
@@ -288,4 +289,20 @@ class OrderRepositoryImpl implements OrderRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, PaginatedStaleOrdersResponseEntity>> fetchStaleOrders({required int page}) async {
+    try {
+      final result = await remoteDataSource.fetchStaleOrders(page: page);
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+
 }

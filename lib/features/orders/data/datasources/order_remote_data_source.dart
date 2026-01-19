@@ -11,6 +11,7 @@ import 'package:gaaubesi_vendor/features/orders/data/models/paginated_delivered_
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_possible_redirect_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_returned_order_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_rtv_order_response_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/paginated_stale_orders_response_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/create_order_request_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/edit_order_request_model.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/data/model/order_detail_model.dart';
@@ -24,6 +25,7 @@ abstract class OrderRemoteDataSource {
     String? startDate,
     String? endDate,
   });
+  Future<PaginatedStaleOrdersResponseModel> fetchStaleOrders({required int page});
 
   Future<PaginatedDeliveredOrderResponseModel> fetchDeliveredOrders({
     required int page,
@@ -514,6 +516,42 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         );
       } else {
         throw ServerException('Failed to fetch warehouse orders');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  Future<PaginatedStaleOrdersResponseModel> fetchStaleOrders({
+    required int page,
+  }) async {
+    try {
+      final queryParameters = <String, dynamic>{'page': page};
+
+      final response = await _dioClient.get(
+        ApiEndpoints.staleOrders,
+        queryParameters: queryParameters,
+      );
+
+      if (response.statusCode == 200) {
+        return PaginatedStaleOrdersResponseModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw ServerException('Failed to fetch stale orders');
       }
     } on DioException catch (e) {
       String errorMessage = e.message ?? 'Unknown error';

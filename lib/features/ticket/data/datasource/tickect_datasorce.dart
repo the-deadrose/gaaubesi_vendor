@@ -16,14 +16,10 @@ abstract class RemoteTicketDataSource {
     required String status,
   });
 
-  Future<PendingTicketListEntity> fetchTicketsByStatus({
+  Future<PendingTicketListEntity> fetchTicketsByFilter({
     required String page,
     required String status,
-  });
-
-  Future<PendingTicketListEntity> fetchTicketsBySubject({
-    required String page,
-    required String subject,
+    String subject = '',
   });
 }
 
@@ -52,43 +48,27 @@ class TickectDatasorceImp implements RemoteTicketDataSource {
     required String page,
     required String status,
   }) async {
-    if (subject.isEmpty) {
-      return await fetchTicketsByStatus(page: page, status: status);
-    } else {
-      return await fetchTicketsBySubject(page: page, subject: subject);
-    }
+    return await fetchTicketsByFilter(
+      page: page,
+      status: status,
+      subject: subject,
+    );
   }
 
   @override
-  Future<PendingTicketListEntity> fetchTicketsByStatus({
+  Future<PendingTicketListEntity> fetchTicketsByFilter({
     required String page,
     required String status,
+    String subject = '',
   }) async {
     try {
-      String url = '${ApiEndpoints.ticketList}$status/';
-      final queryParameters = {'page': page};
-
-      final response = await _dioClient.get(
-        url,
-        queryParameters: queryParameters,
-      );
-
-      return PendingTicketListModel.fromJson(
-        response.data as Map<String, dynamic>,
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<PendingTicketListEntity> fetchTicketsBySubject({
-    required String page,
-    required String subject,
-  }) async {
-    try {
-      final url = ApiEndpoints.ticketList;
-      final queryParameters = {'page': page, 'subject': subject};
+      String url = ApiEndpoints.ticketList;
+      final queryParameters = {
+        'page': page,
+        'status': status,
+        // Only add subject if it's not empty and not a status value
+        if (subject.isNotEmpty && subject != 'pending' && subject != 'closed') 'subject': subject,
+      };
 
       final response = await _dioClient.get(
         url,

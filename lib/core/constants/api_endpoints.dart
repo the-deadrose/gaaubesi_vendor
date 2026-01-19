@@ -25,6 +25,7 @@ class ApiEndpoints {
 
   static const String orderList = '/order/list/';
 
+  static const String staleOrders = '/stale-orders/';
 
   static const String orderDetail = '/order/detail/';
 
@@ -52,11 +53,13 @@ class ApiEndpoints {
 
   static const String warehouseOrderList = '/warehouse/';
   
-  static const String paymentRequestList = '/payment/request/';
+  static const String codTransfer = '/cod-transfer/';
 
   static const String customerList = '/customers/';
 
   static const String noticeList = '/notices/';
+
+  static const String dailyTransections = '/daily-transactions/';
 }
 class QueryParams {
   QueryParams._();
