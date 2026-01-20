@@ -102,15 +102,7 @@ class AppDrawer extends StatelessWidget {
                     colorScheme: colorScheme,
                     initiallyExpanded: true,
                     children: [
-                      _DrawerSubItem(
-                        icon: Icons.route_rounded,
-                        title: 'Extra Mileage',
-                        colorScheme: colorScheme,
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.router.push(const ExtraMileageRoute());
-                        },
-                      ),
+                     
                       _DrawerSubItem(
                         icon: Icons.support_agent_rounded,
                         title: 'Contact Support',
@@ -189,15 +181,7 @@ class AppDrawer extends StatelessWidget {
                           );
                         },
                       ),
-                      _DrawerSubItem(
-                        icon: Icons.schedule_rounded,
-                        title: 'Stale Orders',
-                        colorScheme: colorScheme,
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.router.push(const StaleOrdersRoute());
-                        },
-                      ),
+                     
                       _DrawerSubItem(
                         icon: Icons.alt_route_rounded,
                         title: 'Redirected Orders',
@@ -207,15 +191,7 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const RedirectedOrdersRoute());
                         },
                       ),
-                      _DrawerSubItem(
-                        icon: Icons.assignment_return_outlined,
-                        title: 'Return Orders',
-                        colorScheme: colorScheme,
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.router.push(const ReturnOrdersRoute());
-                        },
-                      ),
+                    
                     ],
                   ),
 

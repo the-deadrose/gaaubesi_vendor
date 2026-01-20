@@ -3,6 +3,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'daily_transections_model.g.dart';
 
+/// --------------------
+/// Safe converters
+/// --------------------
 
 int _intFromJson(dynamic value) {
   if (value == null) return 0;
@@ -19,17 +22,37 @@ DateTime _dateTimeFromJson(dynamic value) {
   return DateTime.tryParse(value?.toString() ?? '') ?? DateTime.now();
 }
 
+/// SAFE list parser (null → [])
+List<DailyOrderModel> _dailyOrderListFromJson(dynamic json) {
+  if (json == null) return [];
+  if (json is! List) return [];
 
+  return json
+      .map(
+        (e) => DailyOrderModel.fromJson(e as Map<String, dynamic>),
+      )
+      .toList();
+}
+
+/// --------------------
+/// Daily Transactions
+/// --------------------
 
 @JsonSerializable()
 class DailyTransectionsModel {
   @JsonKey(fromJson: _stringFromJson)
   final String date;
 
-  @JsonKey(name: 'delivered_orders')
+  @JsonKey(
+    name: 'delivered_orders',
+    fromJson: _dailyOrderListFromJson,
+  )
   final List<DailyOrderModel> deliveredOrders;
 
-  @JsonKey(name: 'returned_orders')
+  @JsonKey(
+    name: 'returned_orders',
+    fromJson: _dailyOrderListFromJson,
+  )
   final List<DailyOrderModel> returnedOrders;
 
   @JsonKey(name: 'cod_transfer_total', fromJson: _stringFromJson)
@@ -71,14 +94,11 @@ class DailyTransectionsModel {
 
   Map<String, dynamic> toJson() => _$DailyTransectionsModelToJson(this);
 
-
   DailyTransections toEntity() {
     return DailyTransections(
       date: date,
-      deliveredOrders:
-          deliveredOrders.map((e) => e.toEntity()).toList(),
-      returnedOrders:
-          returnedOrders.map((e) => e.toEntity()).toList(),
+      deliveredOrders: deliveredOrders.map((e) => e.toEntity()).toList(),
+      returnedOrders: returnedOrders.map((e) => e.toEntity()).toList(),
       codTransferTotal: codTransferTotal,
       deliveredOrdersCount: deliveredOrdersCount,
       returnedOrdersCount: returnedOrdersCount,
@@ -90,7 +110,9 @@ class DailyTransectionsModel {
   }
 }
 
-
+/// --------------------
+/// Daily Order
+/// --------------------
 
 @JsonSerializable()
 class DailyOrderModel {

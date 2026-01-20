@@ -6,6 +6,7 @@ import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calculate_delivery_charge_bloc.dart';
 import 'package:gaaubesi_vendor/features/cod_transfer/presentation/bloc/cod_transfer_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
@@ -14,6 +15,7 @@ import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/da
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
 
@@ -51,6 +53,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<NoticeBloc>()),
         BlocProvider(create: (context) => getIt<CodTransferBloc>()),
         BlocProvider(create: (context) => getIt<DailyTransactionBloc>()),
+        BlocProvider(create: (context) => getIt<RedirectedOrdersBloc>()),
+        BlocProvider(create: (context) => getIt<CalculateDeliveryChargeBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

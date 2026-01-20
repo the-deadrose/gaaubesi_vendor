@@ -13,12 +13,8 @@ import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/pages/bulk_upload_orders_page.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/pages/extra_mileage_page.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/presentation/screen/order_detail_page.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/pages/stale_orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/pages/return_orders_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
 import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
 import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';
@@ -27,6 +23,8 @@ import 'package:gaaubesi_vendor/core/router/auth_guard.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_page.dart';
 import 'package:gaaubesi_vendor/features/cod_transfer/presentation/page/cod_transfer_list_page.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/page/daily_transaction_screen.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/pages/todays_redirected_orders_screen.dart';
+import 'package:gaaubesi_vendor/features/calculate_charge/presentation/page/calculate_delivery_charge_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -47,21 +45,13 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: UtilitiesRoute.page, path: 'utilities'),
       ],
     ),
-    AutoRoute(
-      page: ExtraMileageRoute.page,
-      path: '/extra-mileage',
-      guards: [AuthGuard()],
-    ),
+
     AutoRoute(
       page: CreateOrderRoute.page,
       path: '/create-order',
       guards: [AuthGuard()],
     ),
-    AutoRoute(
-      page: BulkUploadOrdersRoute.page,
-      path: '/bulk-upload-orders',
-      guards: [AuthGuard()],
-    ),
+
     AutoRoute(page: ContactRoute.page, path: '/contact', guards: [AuthGuard()]),
     AutoRoute(page: CommentRoute.page, path: '/comment', guards: [AuthGuard()]),
     AutoRoute(
@@ -74,21 +64,13 @@ class AppRouter extends RootStackRouter {
       path: '/order-detail/:orderId',
       guards: [AuthGuard()],
     ),
-    AutoRoute(
-      page: StaleOrdersRoute.page,
-      path: '/stale-orders',
-      guards: [AuthGuard()],
-    ),
+
     AutoRoute(
       page: RedirectedOrdersRoute.page,
       path: '/redirected-orders',
       guards: [AuthGuard()],
     ),
-    AutoRoute(
-      page: ReturnOrdersRoute.page,
-      path: '/return-orders',
-      guards: [AuthGuard()],
-    ),
+ 
     AutoRoute(page: TicketRoute.page, 
     path: '/tickets',
      guards: [AuthGuard()]),
@@ -132,7 +114,18 @@ class AppRouter extends RootStackRouter {
       page: DailyTransactionRoute.page,
       path: '/daily-transactions',
       guards: [AuthGuard()],
-    )
+    ),
+
+    AutoRoute(page: TodaysRedirectedOrdersRoute.page,
+    path: '/todays-redirected-orders',
+    guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: CalculateDeliveryChargeRoute.page,
+      path: '/calculate-delivery-charge',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -155,4 +148,6 @@ extension AppRoutesExtension on AppRouter {
   static const String createTicket = '/create-ticket';
   static const String codTransferList = '/cod-transfer-list';
   static const String dailyTransaction = '/daily-transaction';
+  static const String todaysRedirectedOrders = '/todays-redirected-orders';
+  static const String calculateDeliveryCharge = '/calculate-delivery-charge';
 }

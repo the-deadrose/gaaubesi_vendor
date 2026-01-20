@@ -44,6 +44,16 @@ import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_pickup_point_
     as _i598;
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart'
     as _i764;
+import 'package:gaaubesi_vendor/features/calculate_charge/data/datasource/calculate_delivery_charge_datasource.dart'
+    as _i15;
+import 'package:gaaubesi_vendor/features/calculate_charge/data/repo/calculate_delivery_charge_repo_imp.dart'
+    as _i839;
+import 'package:gaaubesi_vendor/features/calculate_charge/domain/repo/calculate_delivery_charge_repo.dart'
+    as _i629;
+import 'package:gaaubesi_vendor/features/calculate_charge/domain/usecase/calculate_delivery_charge_usecase.dart'
+    as _i104;
+import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calculate_delivery_charge_bloc.dart'
+    as _i44;
 import 'package:gaaubesi_vendor/features/cod_transfer/data/datasource/cod_transfer_datasource.dart'
     as _i1017;
 import 'package:gaaubesi_vendor/features/cod_transfer/data/repo/cod_transfer_repo_imp.dart'
@@ -132,12 +142,16 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_orders_use
     as _i340;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_possible_redirect_orders_usecase.dart'
     as _i83;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_redirected_usecsae.dart'
+    as _i522;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_returned_orders_usecase.dart'
     as _i466;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_rtv_orders_usecase.dart'
     as _i287;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_stale_orders_usecase.dart'
     as _i255;
+import 'package:gaaubesi_vendor/features/orders/domain/usecases/fetch_todays_redirect_usecase.dart'
+    as _i358;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/search_orders_usecase.dart'
     as _i1053;
 import 'package:gaaubesi_vendor/features/orders/domain/usecases/warehouse_order_list_usecase.dart'
@@ -150,6 +164,8 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/o
     as _i124;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_bloc.dart'
     as _i894;
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_bloc.dart'
+    as _i114;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_bloc.dart'
     as _i337;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart'
@@ -213,6 +229,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i311.AuthRemoteDataSource>(
       () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
+    gh.lazySingleton<_i15.CalculateDeliveryChargeRemoteDatasource>(
+      () => _i15.CalculateDeliveryChargeDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i630.HomeRemoteDataSource>(
       () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
@@ -241,6 +260,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i598.GetPickupPointUsecase>(
       () => _i598.GetPickupPointUsecase(gh<_i684.BranchListRepository>()),
     );
+    gh.lazySingleton<_i629.CalculateDeliveryChargeRepo>(
+      () => _i839.CalculateDeliveryChargeRepoImp(
+        remoteDatasource: gh<_i15.CalculateDeliveryChargeRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i104.CalculateDeliveryChargeUsecase>(
+      () => _i104.CalculateDeliveryChargeUsecase(
+        gh<_i629.CalculateDeliveryChargeRepo>(),
+      ),
+    );
     gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
       () => _i170.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
     );
@@ -260,6 +289,9 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i83.FetchPossibleRedirectOrdersUseCase(gh<_i532.OrderRepository>()),
     );
+    gh.lazySingleton<_i522.FetchRedirectedUsecsae>(
+      () => _i522.FetchRedirectedUsecsae(gh<_i532.OrderRepository>()),
+    );
     gh.lazySingleton<_i466.FetchReturnedOrdersUseCase>(
       () => _i466.FetchReturnedOrdersUseCase(gh<_i532.OrderRepository>()),
     );
@@ -268,6 +300,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i255.FetchStaleOrdersUseCase>(
       () => _i255.FetchStaleOrdersUseCase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i358.FetchTodaysRedirectUsecase>(
+      () => _i358.FetchTodaysRedirectUsecase(gh<_i532.OrderRepository>()),
     );
     gh.lazySingleton<_i1053.SearchOrdersUseCase>(
       () => _i1053.SearchOrdersUseCase(gh<_i532.OrderRepository>()),
@@ -313,6 +348,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i567.TicketRepository>(
       () => _i716.TicketImpRepository(
         remoteTicketDataSource: gh<_i576.RemoteTicketDataSource>(),
+      ),
+    );
+    gh.factory<_i114.RedirectedOrdersBloc>(
+      () => _i114.RedirectedOrdersBloc(
+        gh<_i522.FetchRedirectedUsecsae>(),
+        gh<_i358.FetchTodaysRedirectUsecase>(),
       ),
     );
     gh.lazySingleton<_i646.CodTransferRepo>(
@@ -372,6 +413,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i894.PossibleRedirectOrderBloc(
         fetchPossibleRedirectOrdersUseCase:
             gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
+      ),
+    );
+    gh.factory<_i44.CalculateDeliveryChargeBloc>(
+      () => _i44.CalculateDeliveryChargeBloc(
+        gh<_i104.CalculateDeliveryChargeUsecase>(),
       ),
     );
     gh.factory<_i764.BranchListBloc>(

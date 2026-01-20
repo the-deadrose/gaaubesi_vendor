@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/redirected_orders_model.dart';
+import 'package:gaaubesi_vendor/features/orders/data/models/today_redirect_order_model.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/ware_house_orders_model.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/redirected_orders_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/today_redirect_order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
@@ -25,7 +29,9 @@ abstract class OrderRemoteDataSource {
     String? startDate,
     String? endDate,
   });
-  Future<PaginatedStaleOrdersResponseModel> fetchStaleOrders({required int page});
+  Future<PaginatedStaleOrdersResponseModel> fetchStaleOrders({
+    required int page,
+  });
 
   Future<PaginatedDeliveredOrderResponseModel> fetchDeliveredOrders({
     required int page,
@@ -79,6 +85,8 @@ abstract class OrderRemoteDataSource {
 
   Future<PaginatedOrderResponseModel> searchOrderId({String? orderId});
   Future<WarehouseOrdersListEntity> fetchWareHouseList(String page);
+  Future<RedirectedOrders> fetchRedirectedOrders({required int page});
+  Future<TodayRedirectOrderList> fetchRedirectedOrdersToday({required int page});
 }
 
 @LazySingleton(as: OrderRemoteDataSource)
@@ -569,5 +577,69 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
       throw ServerException(errorMessage, statusCode: e.response?.statusCode);
     }
+  }
+
+  @override
+  Future<RedirectedOrders> fetchRedirectedOrders({required int page}) async {
+    try {
+      final queryParameters = <String, dynamic>{'page': page};
+      final response = await _dioClient.get(
+        ApiEndpoints.redirectedOrders,
+        queryParameters: queryParameters,
+      );
+      if (response.statusCode == 200) {
+        return RedirectedOrdersModel.fromJson(
+          response.data as Map<String, dynamic>,
+        ).toEntity();
+      } else {
+        throw ServerException('Failed to fetch redirected orders');
+      }
+    } on DioException catch (e) {
+      String errorMessage = e.message ?? 'Unknown error';
+      if (e.response?.data != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        if (data.isNotEmpty) {
+          final firstValue = data.values.first;
+          if (firstValue is List && firstValue.isNotEmpty) {
+            errorMessage = firstValue.first.toString();
+          } else if (firstValue is String) {
+            errorMessage = firstValue;
+          }
+        }
+      }
+      throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    }
+  }
+
+  @override
+  Future<TodayRedirectOrderList> fetchRedirectedOrdersToday({required int page}) async {
+    // try {
+      final queryParameters = <String, dynamic>{'page': page};
+      final response = await _dioClient.get(
+        ApiEndpoints.redirectedOrdersToday,
+        queryParameters: queryParameters,
+      );
+      if (response.statusCode == 200) {
+        return TodayRedirectOrderListModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw ServerException('Failed to fetch today\'s redirected orders');
+      }
+    // } on DioException catch (e) {
+    //   String errorMessage = e.message ?? 'Unknown error';
+    //   if (e.response?.data != null && e.response?.data is Map) {
+    //     final data = e.response?.data as Map;
+    //     if (data.isNotEmpty) {
+    //       final firstValue = data.values.first;
+    //       if (firstValue is List && firstValue.isNotEmpty) {
+    //         errorMessage = firstValue.first.toString();
+    //       } else if (firstValue is String) {
+    //         errorMessage = firstValue;
+    //       }
+    //     }
+    //   }
+    //   throw ServerException(errorMessage, statusCode: e.response?.statusCode);
+    // }
   }
 }

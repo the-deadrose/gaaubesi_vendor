@@ -11,17 +11,17 @@
 part of 'app_router.dart';
 
 /// generated route for
-/// [BulkUploadOrdersPage]
-class BulkUploadOrdersRoute extends PageRouteInfo<void> {
-  const BulkUploadOrdersRoute({List<PageRouteInfo>? children})
-    : super(BulkUploadOrdersRoute.name, initialChildren: children);
+/// [CalculateDeliveryChargeScreen]
+class CalculateDeliveryChargeRoute extends PageRouteInfo<void> {
+  const CalculateDeliveryChargeRoute({List<PageRouteInfo>? children})
+    : super(CalculateDeliveryChargeRoute.name, initialChildren: children);
 
-  static const String name = 'BulkUploadOrdersRoute';
+  static const String name = 'CalculateDeliveryChargeRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const BulkUploadOrdersPage();
+      return const CalculateDeliveryChargeScreen();
     },
   );
 }
@@ -218,22 +218,6 @@ class DailyTransactionRouteArgs {
 }
 
 /// generated route for
-/// [ExtraMileagePage]
-class ExtraMileageRoute extends PageRouteInfo<void> {
-  const ExtraMileageRoute({List<PageRouteInfo>? children})
-    : super(ExtraMileageRoute.name, initialChildren: children);
-
-  static const String name = 'ExtraMileageRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const ExtraMileagePage();
-    },
-  );
-}
-
-/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
@@ -408,7 +392,7 @@ class OrdersRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [RedirectedOrdersPage]
+/// [RedirectedOrdersScreen]
 class RedirectedOrdersRoute extends PageRouteInfo<void> {
   const RedirectedOrdersRoute({List<PageRouteInfo>? children})
     : super(RedirectedOrdersRoute.name, initialChildren: children);
@@ -418,39 +402,7 @@ class RedirectedOrdersRoute extends PageRouteInfo<void> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const RedirectedOrdersPage();
-    },
-  );
-}
-
-/// generated route for
-/// [ReturnOrdersPage]
-class ReturnOrdersRoute extends PageRouteInfo<void> {
-  const ReturnOrdersRoute({List<PageRouteInfo>? children})
-    : super(ReturnOrdersRoute.name, initialChildren: children);
-
-  static const String name = 'ReturnOrdersRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const ReturnOrdersPage();
-    },
-  );
-}
-
-/// generated route for
-/// [StaleOrdersPage]
-class StaleOrdersRoute extends PageRouteInfo<void> {
-  const StaleOrdersRoute({List<PageRouteInfo>? children})
-    : super(StaleOrdersRoute.name, initialChildren: children);
-
-  static const String name = 'StaleOrdersRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const StaleOrdersPage();
+      return const RedirectedOrdersScreen();
     },
   );
 }
@@ -562,6 +514,22 @@ class TicketRouteArgs {
 
   @override
   int get hashCode => key.hashCode ^ subject.hashCode;
+}
+
+/// generated route for
+/// [TodaysRedirectedOrdersScreen]
+class TodaysRedirectedOrdersRoute extends PageRouteInfo<void> {
+  const TodaysRedirectedOrdersRoute({List<PageRouteInfo>? children})
+    : super(TodaysRedirectedOrdersRoute.name, initialChildren: children);
+
+  static const String name = 'TodaysRedirectedOrdersRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const TodaysRedirectedOrdersScreen();
+    },
+  );
 }
 
 /// generated route for

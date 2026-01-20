@@ -60,6 +60,12 @@ class ApiEndpoints {
   static const String noticeList = '/notices/';
 
   static const String dailyTransections = '/daily-transactions/';
+
+  static const String redirectedOrders = '/redirect-orders/';
+
+  static const String redirectedOrdersToday = '/redirect-orders/today/';
+
+  static const String calculateDeliveryCharge = '/order/delivery-charge/calculate/';
 }
 class QueryParams {
   QueryParams._();

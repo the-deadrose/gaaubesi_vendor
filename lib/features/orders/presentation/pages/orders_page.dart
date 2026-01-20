@@ -10,6 +10,8 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_orde
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_event.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_bloc.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/returned_order/returned_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart';
@@ -18,6 +20,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/usecases/search_orders_us
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/all_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/delivered_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/possible_redirect_orders_tab.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/redirected_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/returned_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/rtv_orders_tab.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/stale_orders_tab.dart';
@@ -27,6 +30,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/ware
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_search_delegate.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/today_redirect_order_tab.dart';
 
 @RoutePage()
 class OrdersPage extends StatelessWidget {
@@ -55,7 +59,7 @@ class _OrdersViewState extends State<_OrdersView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 9, vsync: this);
   }
 
   @override
@@ -121,9 +125,23 @@ class _OrdersViewState extends State<_OrdersView>
           // Stale Orders
           BlocProvider(
             create: (context) =>
-                getIt<StaleOrderBloc>()
-                  ..add(const StaleOrderLoadRequested()),
+                getIt<StaleOrderBloc>()..add(const StaleOrderLoadRequested()),
             child: const StaleOrdersTab(),
+          ),
+          // Redirected Orders
+          BlocProvider(
+            create: (context) =>
+                getIt<RedirectedOrdersBloc>()
+                  ..add(FetchRedirectedOrdersEvent(page: 1)),
+            child: const RedirectedOrdersTab(),
+          ),
+
+          // Today's Redirected Orders
+          BlocProvider(
+            create: (context) =>
+                getIt<RedirectedOrdersBloc>()
+                  ..add(FetchTodaysRedirectedOrdersEvent(page: 1)),
+            child: const TodayRedirectOrderTab(),
           ),
         ],
       ),
@@ -212,6 +230,8 @@ class _OrdersViewState extends State<_OrdersView>
           Tab(text: 'RTV'),
           Tab(text: 'Warehouse'),
           Tab(text: 'Stale'),
+          Tab(text: 'Redirected'),
+          Tab(text: 'Today\'s Redirected'),
         ],
       ),
     );

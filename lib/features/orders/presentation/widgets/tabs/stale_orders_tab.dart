@@ -23,6 +23,8 @@ class _StaleOrdersTabState extends BaseOrderTabViewState<StaleOrdersTab> {
     context.read<StaleOrderBloc>().add(const StaleOrderRefreshRequested());
   }
 
+
+
   @override
   List<Widget> buildSlivers(BuildContext context) {
     return [

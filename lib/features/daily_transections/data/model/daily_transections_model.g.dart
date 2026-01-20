@@ -10,12 +10,8 @@ DailyTransectionsModel _$DailyTransectionsModelFromJson(
   Map<String, dynamic> json,
 ) => DailyTransectionsModel(
   date: _stringFromJson(json['date']),
-  deliveredOrders: (json['delivered_orders'] as List<dynamic>)
-      .map((e) => DailyOrderModel.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  returnedOrders: (json['returned_orders'] as List<dynamic>)
-      .map((e) => DailyOrderModel.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  deliveredOrders: _dailyOrderListFromJson(json['delivered_orders']),
+  returnedOrders: _dailyOrderListFromJson(json['returned_orders']),
   codTransferTotal: _stringFromJson(json['cod_transfer_total']),
   deliveredOrdersCount: _intFromJson(json['delivered_orders_count']),
   returnedOrdersCount: _intFromJson(json['returned_orders_count']),

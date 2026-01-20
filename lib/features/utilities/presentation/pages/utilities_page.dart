@@ -27,6 +27,11 @@ class UtilitiesPage extends StatelessWidget {
         'icon': Icons.monetization_on,
         'label': 'Daily Transactions',
         'color': Colors.orange,
+      },
+         {
+        'icon': Icons.calculate,
+        'label': 'Calculate Delivery Charge',
+        'color': Colors.green,
       }
     ];
 
@@ -60,6 +65,9 @@ class UtilitiesPage extends StatelessWidget {
               if (item['label'] == 'Daily Transactions') {
                 context.router.push(DailyTransactionRoute());
               }
+              if (item['label'] == 'Calculate Delivery Charge') {
+                context.router.push(CalculateDeliveryChargeRoute());
+              }
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +87,7 @@ class UtilitiesPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   item['label'] as String,
-                  style: AppTextStyles.h3.copyWith(fontSize: 16),
+                  style: AppTextStyles.h3.copyWith(fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
               ],

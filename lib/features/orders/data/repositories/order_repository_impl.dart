@@ -1,4 +1,6 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/redirected_orders_entity.dart';
+import 'package:gaaubesi_vendor/features/orders/domain/entities/today_redirect_order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
@@ -277,7 +279,9 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<Failure, WarehouseOrdersListEntity>> wareHouseList({required String page}) async {
+  Future<Either<Failure, WarehouseOrdersListEntity>> wareHouseList({
+    required String page,
+  }) async {
     try {
       final result = await remoteDataSource.fetchWareHouseList(page);
       return Right(result);
@@ -291,7 +295,9 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<Failure, PaginatedStaleOrdersResponseEntity>> fetchStaleOrders({required int page}) async {
+  Future<Either<Failure, PaginatedStaleOrdersResponseEntity>> fetchStaleOrders({
+    required int page,
+  }) async {
     try {
       final result = await remoteDataSource.fetchStaleOrders(page: page);
       return Right(result.toEntity());
@@ -304,5 +310,35 @@ class OrderRepositoryImpl implements OrderRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, RedirectedOrders>> fetchRedirectedOrders({
+    required int page,
+  }) async {
+    try {
+      final result = await remoteDataSource.fetchRedirectedOrders(page: page);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 
+  @override
+  Future<Either<Failure, TodayRedirectOrderList>> fetchRedirectedOrdersToday({
+    required int page,
+  }) async {
+    // try {
+      final result = await remoteDataSource.fetchRedirectedOrdersToday(page: page);
+      return Right(result);
+    // } on ServerException catch (e) {
+    //   return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    // } on NetworkException catch (e) {
+    //   return Left(NetworkFailure(e.message));
+    // } catch (e) {
+    //   return Left(ServerFailure(e.toString()));
+    // }
+  }
 }
