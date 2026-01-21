@@ -28,11 +28,27 @@ class UtilitiesPage extends StatelessWidget {
         'label': 'Daily Transactions',
         'color': Colors.orange,
       },
-         {
+      {
         'icon': Icons.calculate,
         'label': 'Calculate Delivery Charge',
         'color': Colors.green,
-      }
+      },
+      {
+        'icon': Icons.payment,
+
+        'label': 'Payment Requests',
+        'color': Colors.purple,
+      },
+      {
+        'icon': Icons.comment,
+        'label': 'Comments',
+        'color': Colors.grey,
+      },
+      {
+        'icon': Icons.payments,
+        'label': 'Payment Request List',
+        'color': Colors.blueGrey,
+      },
     ];
 
     return Scaffold(
@@ -67,6 +83,14 @@ class UtilitiesPage extends StatelessWidget {
               }
               if (item['label'] == 'Calculate Delivery Charge') {
                 context.router.push(CalculateDeliveryChargeRoute());
+              }if (item['label'] == 'Payment Requests') {
+                context.router.push(PaymentRequestRoute());
+              }
+              if (item['label'] == 'Comments') {
+                context.router.push(CommentsRoute());
+              }
+              if (item['label'] == 'Payment Request List') {
+                context.router.push(PaymentRequestListRoute());
               }
             },
             child: Column(

@@ -17,6 +17,8 @@ import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.da
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
+import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart';
+import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
 
 void main() async {
@@ -55,6 +57,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<DailyTransactionBloc>()),
         BlocProvider(create: (context) => getIt<RedirectedOrdersBloc>()),
         BlocProvider(create: (context) => getIt<CalculateDeliveryChargeBloc>()),
+        BlocProvider(create: (context) => getIt<FrequentlyUsedPaymentMethodBloc>()),
+        BlocProvider(create: (context) => getIt<PaymentRequestBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

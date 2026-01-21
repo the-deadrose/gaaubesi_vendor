@@ -66,6 +66,10 @@ class ApiEndpoints {
   static const String redirectedOrdersToday = '/redirect-orders/today/';
 
   static const String calculateDeliveryCharge = '/order/delivery-charge/calculate/';
+
+  static const String frequentlyUsedPaymentMethods = '/payment/request/';
+
+  static const String paymentRequest = '/payment-tickets/';
 }
 class QueryParams {
   QueryParams._();

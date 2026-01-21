@@ -43,22 +43,6 @@ class CodTransferListRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [CommentPage]
-class CommentRoute extends PageRouteInfo<void> {
-  const CommentRoute({List<PageRouteInfo>? children})
-    : super(CommentRoute.name, initialChildren: children);
-
-  static const String name = 'CommentRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const CommentPage();
-    },
-  );
-}
-
-/// generated route for
 /// [CommentsPage]
 class CommentsRoute extends PageRouteInfo<CommentsRouteArgs> {
   CommentsRoute({Key? key, int initialTab = 0, List<PageRouteInfo>? children})
@@ -102,22 +86,6 @@ class CommentsRouteArgs {
 
   @override
   int get hashCode => key.hashCode ^ initialTab.hashCode;
-}
-
-/// generated route for
-/// [ContactPage]
-class ContactRoute extends PageRouteInfo<void> {
-  const ContactRoute({List<PageRouteInfo>? children})
-    : super(ContactRoute.name, initialChildren: children);
-
-  static const String name = 'ContactRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const ContactPage();
-    },
-  );
 }
 
 /// generated route for
@@ -387,6 +355,38 @@ class OrdersRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const OrdersPage();
+    },
+  );
+}
+
+/// generated route for
+/// [PaymentRequestListScreen]
+class PaymentRequestListRoute extends PageRouteInfo<void> {
+  const PaymentRequestListRoute({List<PageRouteInfo>? children})
+    : super(PaymentRequestListRoute.name, initialChildren: children);
+
+  static const String name = 'PaymentRequestListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const PaymentRequestListScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [PaymentRequestScreen]
+class PaymentRequestRoute extends PageRouteInfo<void> {
+  const PaymentRequestRoute({List<PageRouteInfo>? children})
+    : super(PaymentRequestRoute.name, initialChildren: children);
+
+  static const String name = 'PaymentRequestRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const PaymentRequestScreen();
     },
   );
 }

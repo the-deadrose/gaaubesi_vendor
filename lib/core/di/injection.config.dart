@@ -174,6 +174,22 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/st
     as _i850;
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart'
     as _i682;
+import 'package:gaaubesi_vendor/features/payment_request/data/datasource/payment_request_datasource.dart'
+    as _i515;
+import 'package:gaaubesi_vendor/features/payment_request/data/repo/payment_request_repo_imp.dart'
+    as _i771;
+import 'package:gaaubesi_vendor/features/payment_request/domain/repo/payment_request_repo.dart'
+    as _i492;
+import 'package:gaaubesi_vendor/features/payment_request/domain/usecase/create_payment_request_usecase.dart'
+    as _i151;
+import 'package:gaaubesi_vendor/features/payment_request/domain/usecase/fetch_frequently_used_payment_usecase.dart'
+    as _i935;
+import 'package:gaaubesi_vendor/features/payment_request/domain/usecase/fetch_payment_request_usecase.dart'
+    as _i324;
+import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart'
+    as _i218;
+import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart'
+    as _i724;
 import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart'
     as _i576;
 import 'package:gaaubesi_vendor/features/ticket/data/repository/ticket_imp_repository.dart'
@@ -213,6 +229,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i18.AuthLocalDataSource>(
       () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i515.PaymentRequestRemoteDatasource>(
+      () => _i515.PaymentRequestDatasourceImpl(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i576.RemoteTicketDataSource>(
       () => _i576.TickectDatasorceImp(gh<_i619.DioClient>()),
@@ -268,6 +287,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i104.CalculateDeliveryChargeUsecase>(
       () => _i104.CalculateDeliveryChargeUsecase(
         gh<_i629.CalculateDeliveryChargeRepo>(),
+      ),
+    );
+    gh.lazySingleton<_i492.PaymentRequestRepo>(
+      () => _i771.PaymentRequestRepoImp(
+        remoteDatasource: gh<_i515.PaymentRequestRemoteDatasource>(),
       ),
     );
     gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
@@ -356,6 +380,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i358.FetchTodaysRedirectUsecase>(),
       ),
     );
+    gh.lazySingleton<_i151.CreatePaymentRequestUsecase>(
+      () => _i151.CreatePaymentRequestUsecase(gh<_i492.PaymentRequestRepo>()),
+    );
+    gh.lazySingleton<_i935.FetchFrequentlyUsedPaymentUsecase>(
+      () => _i935.FetchFrequentlyUsedPaymentUsecase(
+        gh<_i492.PaymentRequestRepo>(),
+      ),
+    );
+    gh.lazySingleton<_i324.FetchPaymentRequestUsecase>(
+      () => _i324.FetchPaymentRequestUsecase(gh<_i492.PaymentRequestRepo>()),
+    );
     gh.lazySingleton<_i646.CodTransferRepo>(
       () => _i841.CodTransferRepoImp(
         remoteDataSource: gh<_i1017.CodTransferRemoteDataource>(),
@@ -408,6 +443,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i7.FetchDailyTransactionUsecase>(
       () => _i7.FetchDailyTransactionUsecase(gh<_i523.DailyTransectionRepo>()),
+    );
+    gh.factory<_i724.PaymentRequestBloc>(
+      () => _i724.PaymentRequestBloc(
+        gh<_i151.CreatePaymentRequestUsecase>(),
+        gh<_i324.FetchPaymentRequestUsecase>(),
+      ),
     );
     gh.factory<_i894.PossibleRedirectOrderBloc>(
       () => _i894.PossibleRedirectOrderBloc(
@@ -483,6 +524,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i414.CodTransferListUsecase>(
       () => _i414.CodTransferListUsecase(gh<_i646.CodTransferRepo>()),
+    );
+    gh.factory<_i218.FrequentlyUsedPaymentMethodBloc>(
+      () => _i218.FrequentlyUsedPaymentMethodBloc(
+        gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
+      ),
     );
     gh.lazySingleton<_i25.CustomerListUseCase>(
       () => _i25.CustomerListUseCase(gh<_i894.CustomerRepo>()),

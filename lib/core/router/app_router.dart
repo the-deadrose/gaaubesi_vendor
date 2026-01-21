@@ -15,8 +15,6 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.d
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/presentation/screen/order_detail_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
-import 'package:gaaubesi_vendor/features/support/presentation/pages/contact_page.dart';
-import 'package:gaaubesi_vendor/features/support/presentation/pages/comment_page.dart';
 import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/pages/main_scaffold.dart';
 import 'package:gaaubesi_vendor/core/router/auth_guard.dart';
@@ -25,6 +23,8 @@ import 'package:gaaubesi_vendor/features/cod_transfer/presentation/page/cod_tran
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/page/daily_transaction_screen.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/todays_redirected_orders_screen.dart';
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/page/calculate_delivery_charge_screen.dart';
+import 'package:gaaubesi_vendor/features/payment_request/presentation/page/create_payment_screen.dart';
+import 'package:gaaubesi_vendor/features/payment_request/presentation/page/payment_request_list_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -52,8 +52,6 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
 
-    AutoRoute(page: ContactRoute.page, path: '/contact', guards: [AuthGuard()]),
-    AutoRoute(page: CommentRoute.page, path: '/comment', guards: [AuthGuard()]),
     AutoRoute(
       page: CommentsRoute.page,
       path: '/comments',
@@ -126,6 +124,18 @@ class AppRouter extends RootStackRouter {
       path: '/calculate-delivery-charge',
       guards: [AuthGuard()],
     ),
+
+    AutoRoute(
+      page: PaymentRequestRoute.page,
+      path: '/payment-request',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: PaymentRequestListRoute.page,
+      path: '/payment-request-list',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -138,7 +148,6 @@ extension AppRoutesExtension on AppRouter {
   static const String utilities = '/utilities';
   static const String extraMileage = '/extra-mileage';
   static const String contact = '/contact';
-  static const String comment = '/comment';
   static const String comments = '/comments';
   static const String tickets = '/tickets';
   static const String customerList = '/customer-list';
@@ -150,4 +159,6 @@ extension AppRoutesExtension on AppRouter {
   static const String dailyTransaction = '/daily-transaction';
   static const String todaysRedirectedOrders = '/todays-redirected-orders';
   static const String calculateDeliveryCharge = '/calculate-delivery-charge';
+  static const String orderDetail = '/payment-request';
+  static const String redirectedOrders = '/payment-request-list';
 }

@@ -103,24 +103,7 @@ class AppDrawer extends StatelessWidget {
                     initiallyExpanded: true,
                     children: [
                      
-                      _DrawerSubItem(
-                        icon: Icons.support_agent_rounded,
-                        title: 'Contact Support',
-                        colorScheme: colorScheme,
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.router.push(const ContactRoute());
-                        },
-                      ),
-                      _DrawerSubItem(
-                        icon: Icons.chat_bubble_outline_rounded,
-                        title: 'Comments',
-                        colorScheme: colorScheme,
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.router.push(const CommentRoute());
-                        },
-                      ),
+                  
                     ],
                   ),
 

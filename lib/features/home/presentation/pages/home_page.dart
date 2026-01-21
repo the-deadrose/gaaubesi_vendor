@@ -19,151 +19,208 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<HomeBloc>()..add(const HomeLoadStats()),
-      child: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          String vendorName = 'Home';
-          if (state is HomeLoaded) {
-            vendorName = state.stats.vendorName;
-          }
-          return Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            appBar: AppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  final scaffoldState = Scaffold.of(context);
-                  if (scaffoldState.hasDrawer) {
-                    scaffoldState.openDrawer();
-                  }
-                },
-              ),
-              title: Text(
-                vendorName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              elevation: 0,
-            ),
-            body: BlocListener<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is AuthUnauthenticated) {
-                  context.router.replace(const LoginRoute());
-                }
-              },
-              child: BlocBuilder<AuthBloc, AuthState>(
-                builder: (authContext, authState) {
-                  // If user is being logged out, show loading instead of error
-                  if (authState is AuthUnauthenticated || authState is AuthLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  
-                  return Builder(
-                    builder: (context) {
-                      if (state is HomeLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (state is HomeError) {
-                        return _ErrorView(message: state.message);
-                      } else if (state is HomeLoaded) {
-                        return _HomeContent(stats: state.stats);
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  );
-                },
-              ),
-            ),
-          );
-        },
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          elevation: 0,
+          title: const Text(
+            'Dashboard',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        body: BlocListener<AuthBloc, AuthState>(
+          listener: (context, authState) {
+            if (authState is AuthUnauthenticated) {
+              context.router.replace(const LoginRoute());
+            }
+          },
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return _buildLoadingState();
+              }
+              if (state is HomeError) {
+                return _buildErrorState(context, state.message);
+              }
+              if (state is HomeLoaded) {
+                return _buildLoadedState(context, state.stats);
+              }
+              return const SizedBox();
+            },
+          ),
+        ),
       ),
     );
   }
-}
 
-class _HomeContent extends StatelessWidget {
-  final VendorStatsEntity stats;
+  Widget _buildLoadingState() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildShimmerCard(height: 120),
+        const SizedBox(height: 16),
+        _buildShimmerCard(height: 80),
+        const SizedBox(height: 16),
+        _buildShimmerCard(height: 200),
+        const SizedBox(height: 16),
+        _buildShimmerCard(height: 150),
+      ],
+    );
+  }
 
-  const _HomeContent({required this.stats});
+  Widget _buildShimmerCard({required double height}) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildErrorState(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text(message, style: const TextStyle(color: Colors.grey)),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () =>
+                context.read<HomeBloc>().add(const HomeLoadStats()),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadedState(BuildContext context, VendorStatsEntity stats) {
     return RefreshIndicator(
       onRefresh: () async {
         context.read<HomeBloc>().add(const HomeRefreshStats());
         await Future.delayed(const Duration(seconds: 1));
       },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _FinancialCard(stats: stats),
-            const SizedBox(height: 24),
-            _SimplifiedMetricsSection(stats: stats),
-            const SizedBox(height: 24),
-            _SimplifiedActivitySection(stats: stats),
-            const SizedBox(height: 24),
-            _SimplifiedProcessingSection(stats: stats),
-            const SizedBox(height: 24),
-            _SimplifiedPackagesSection(stats: stats),
-            const SizedBox(height: 24),
-            _SimplifiedOrderStatusSection(stats: stats),
-            const SizedBox(height: 24),
-            _SimplifiedReturnsSection(stats: stats),
-            const SizedBox(height: 40),
-          ],
-        ),
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _WelcomeCard(vendorName: stats.vendorName, onAddPressed: () {
+          }),
+          const SizedBox(height: 16),
+
+          _StatCard(
+            title: 'Pending COD',
+            value: 'Rs. ${_formatCurrency(stats.pendingCod)}',
+            icon: Icons.account_balance_wallet,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 16),
+
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  title: 'Success Rate',
+                  value: '${stats.successPercent.toStringAsFixed(1)}%',
+                  icon: Icons.trending_up,
+                  color: AppTheme.successGreen,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _StatCard(
+                  title: 'Return Rate',
+                  value: '${stats.returnPercent.toStringAsFixed(1)}%',
+                  icon: Icons.trending_down,
+                  color: AppTheme.warningYellow,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          _ActivityCard(stats: stats),
+          const SizedBox(height: 16),
+
+          _ProcessingCard(stats: stats),
+          const SizedBox(height: 16),
+
+          _PackagesCard(stats: stats),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
 }
 
-class _SimplifiedMetricsSection extends StatelessWidget {
-  final VendorStatsEntity stats;
+class _WelcomeCard extends StatelessWidget {
+  final String vendorName;
+  final VoidCallback onAddPressed;
 
-  const _SimplifiedMetricsSection({required this.stats});
+  const _WelcomeCard({
+    required this.vendorName,
+    required this.onAddPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final hour = DateTime.now().hour;
+    String greeting;
+    if (hour < 12) {
+      greeting = 'Good Morning';
+    } else if (hour < 17) {
+      greeting = 'Good Afternoon';
+    } else {
+      greeting = 'Good Evening';
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha:  0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Key Metrics',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  greeting,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  vendorName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _SimplifiedMetricItem(
-                  title: 'Success Rate',
-                  value: '${stats.successPercent.toStringAsFixed(1)}%',
-                  color: AppTheme.successGreen,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedMetricItem(
-                  title: 'Return Rate',
-                  value: '${stats.returnPercent.toStringAsFixed(1)}%',
-                  color: AppTheme.warningYellow,
-                ),
-              ),
-            ],
+          IconButton(
+            onPressed: onAddPressed,
+            icon: const Icon(Icons.add_circle_outline),
+            color: Colors.blue,
+            tooltip: 'Add',
           ),
         ],
       ),
@@ -171,62 +228,31 @@ class _SimplifiedMetricsSection extends StatelessWidget {
   }
 }
 
-class _SimplifiedMetricItem extends StatelessWidget {
+class _StatCard extends StatelessWidget {
   final String title;
   final String value;
+  final IconData icon;
   final Color color;
 
-  const _SimplifiedMetricItem({
+  const _StatCard({
     required this.title,
     required this.value,
+    required this.icon,
     required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FinancialCard extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _FinancialCard({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1A1F38), Color(0xFF2C3E50)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1A1F38).withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -236,47 +262,21 @@ class _FinancialCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Icon(icon, color: color, size: 24),
               Text(
-                'Pending COD',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: Colors.white70),
+                value,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
               ),
-              const Icon(Icons.account_balance_wallet, color: Colors.white70),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Rs. ${_formatCurrency(stats.pendingCod)}',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _FinancialDetailItem(
-                  label: 'Last COD',
-                  value: 'Rs. ${_formatCurrency(stats.lastCodAmount)}',
-                  date: stats.lasstCodDate.isNotEmpty
-                      ? stats.lasstCodDate
-                      : null,
-                ),
-              ),
-              Container(width: 1, height: 40, color: Colors.white24),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: _FinancialDetailItem(
-                    label: 'In Process',
-                    value: 'Rs. ${_formatCurrency(stats.ordersInProcessVal)}',
-                    count: stats.ordersInProcess,
-                  ),
-                ),
-              ),
-            ],
+            title,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
           ),
         ],
       ),
@@ -284,65 +284,10 @@ class _FinancialCard extends StatelessWidget {
   }
 }
 
-class _FinancialDetailItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final String? date;
-  final int? count;
-
-  const _FinancialDetailItem({
-    required this.label,
-    required this.value,
-    this.date,
-    this.count,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: Colors.white54),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        if (date != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            date!,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.white54),
-          ),
-        ],
-        if (count != null) ...[
-          const SizedBox(height: 4),
-          Text(
-            '$count orders',
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.white54),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _SimplifiedActivitySection extends StatelessWidget {
+class _ActivityCard extends StatelessWidget {
   final VendorStatsEntity stats;
 
-  const _SimplifiedActivitySection({required this.stats});
+  const _ActivityCard({required this.stats});
 
   void _navigateToComments(BuildContext context) {
     context.router.push(CommentsRoute(initialTab: 0));
@@ -353,59 +298,53 @@ class _SimplifiedActivitySection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             "Today's Activity",
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-          Row(
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 2.5,
             children: [
-              Expanded(
-                child: _SimplifiedActivityItem(
-                  label: 'Orders Created',
-                  value: stats.todayOrderCreated.toString(),
-                  color: AppTheme.infoBlue,
-                ),
+              _ActivityItem(
+                label: 'Orders Created',
+                value: stats.todayOrderCreated.toString(),
+                color: AppTheme.infoBlue,
               ),
-              Expanded(
-                child: _SimplifiedActivityItem(
-                  label: 'Deliveries',
-                  value: stats.todayDelivery.toString(),
-                  color: AppTheme.successGreen,
-                ),
+              _ActivityItem(
+                label: 'Deliveries',
+                value: stats.todayDelivery.toString(),
+                color: AppTheme.successGreen,
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _SimplifiedActivityItem(
-                  label: 'Returns',
-                  value: stats.todaysReturnedDelivery.toString(),
-                  color: AppTheme.rojo,
-                ),
+              _ActivityItem(
+                label: 'Returns',
+                value: stats.todaysReturnedDelivery.toString(),
+                color: AppTheme.rojo,
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _navigateToComments(context),
-                  child: _SimplifiedActivityItem(
-                    label: "Today's Comments",
-                    value: stats.todaysComment.toString(),
-                    color: AppTheme.marianBlue,
-                    isInteractive: true,
-                  ),
+              GestureDetector(
+                onTap: () => _navigateToComments(context),
+                child: _ActivityItem(
+                  label: 'Comments',
+                  value: stats.todaysComment.toString(),
+                  color: AppTheme.marianBlue,
                 ),
               ),
             ],
@@ -416,10 +355,53 @@ class _SimplifiedActivitySection extends StatelessWidget {
   }
 }
 
-class _SimplifiedProcessingSection extends StatelessWidget {
+class _ActivityItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _ActivityItem({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProcessingCard extends StatelessWidget {
   final VendorStatsEntity stats;
 
-  const _SimplifiedProcessingSection({required this.stats});
+  const _ProcessingCard({required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -427,18 +409,21 @@ class _SimplifiedProcessingSection extends StatelessWidget {
     final totalProcessing =
         processing.dropOff +
         processing.pickup +
-        processing.sentPickup +
         processing.dispatch +
-        processing.arrived;
+        processing.hold;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,86 +431,69 @@ class _SimplifiedProcessingSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Processing Status',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+              const Text(
+                'Order Processing',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.marianBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '$totalProcessing total',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.marianBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              Text(
+                '$totalProcessing orders',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _SimplifiedProcessingRow(
-            label: 'Drop Off',
-            count: processing.dropOff,
-            color: AppTheme.infoBlue,
+          Column(
+            children: [
+              _ProcessingItem(
+                label: 'Drop Off',
+                count: processing.dropOff,
+                total: totalProcessing,
+              ),
+              _ProcessingItem(
+                label: 'Pickup',
+                count: processing.pickup,
+                total: totalProcessing,
+              ),
+              _ProcessingItem(
+                label: 'Dispatch',
+                count: processing.dispatch,
+                total: totalProcessing,
+              ),
+              if (processing.hold > 0)
+                _ProcessingItem(
+                  label: 'On Hold',
+                  count: processing.hold,
+                  total: totalProcessing,
+                ),
+            ],
           ),
-          _SimplifiedProcessingRow(
-            label: 'Pickup',
-            count: processing.pickup,
-            color: AppTheme.marianBlue,
-          ),
-          _SimplifiedProcessingRow(
-            label: 'Dispatch',
-            count: processing.dispatch,
-            color: AppTheme.warningYellow,
-          ),
-          if (processing.hold > 0)
-            _SimplifiedProcessingRow(
-              label: 'On Hold',
-              count: processing.hold,
-              color: AppTheme.rojo,
-            ),
         ],
       ),
     );
   }
 }
 
-class _SimplifiedProcessingRow extends StatelessWidget {
+class _ProcessingItem extends StatelessWidget {
   final String label;
   final int count;
-  final Color color;
+  final int total;
 
-  const _SimplifiedProcessingRow({
+  const _ProcessingItem({
     required this.label,
     required this.count,
-    required this.color,
+    required this.total,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-            ),
-          ),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
           Text(
             count.toString(),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -533,440 +501,95 @@ class _SimplifiedProcessingRow extends StatelessWidget {
   }
 }
 
-class _SimplifiedPackagesSection extends StatelessWidget {
+class _PackagesCard extends StatelessWidget {
   final VendorStatsEntity stats;
 
-  const _SimplifiedPackagesSection({required this.stats});
+  const _PackagesCard({required this.stats});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Package Overview',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+          const Text(
+            'Packages Overview',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: _SimplifiedPackageItem(
-                  label: 'Total Packages',
-                  value: stats.totalPackages.toString(),
-                  color: AppTheme.marianBlue,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      stats.totalPackages.toString(),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Total Packages',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
-                child: _SimplifiedPackageItem(
-                  label: 'Delivered',
-                  value: stats.deliveredPackages.toString(),
-                  color: AppTheme.successGreen,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _SimplifiedPackageItem(
-                  label: 'Total Value',
-                  value: 'Rs. ${_formatCurrency(stats.totalPackagesValue)}',
-                  color: AppTheme.successGreen,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedPackageItem(
-                  label: 'Delivered Value',
-                  value: 'Rs. ${_formatCurrency(stats.deliveredPackagesValue)}',
-                  color: AppTheme.successGreen,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SimplifiedOrderStatusSection extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _SimplifiedOrderStatusSection({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Order Status',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _SimplifiedStatusItem(
-                  label: 'In Process',
-                  value: stats.ordersInProcess.toString(),
-                  color: AppTheme.infoBlue,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedStatusItem(
-                  label: 'In Delivery',
-                  value: stats.ordersInDeliveryProcess.toString(),
-                  color: AppTheme.marianBlue,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedStatusItem(
-                  label: 'In Return',
-                  value: stats.ordersInReturnProcess.toString(),
-                  color: AppTheme.warningYellow,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _SimplifiedStatusItem(
-                  label: 'Incoming',
-                  value: stats.incomingReturns.toString(),
-                  color: AppTheme.rojo,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedStatusItem(
-                  label: 'Hold',
-                  value: stats.totalHoldOrder.toString(),
-                  color: AppTheme.warningYellow,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedStatusItem(
-                  label: 'RTV',
-                  value: stats.totalRtvOrder.toString(),
-                  color: AppTheme.rojo,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      stats.deliveredPackages.toString(),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.successGreen,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Delivered',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SimplifiedReturnsSection extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _SimplifiedReturnsSection({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Returns Analysis',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _SimplifiedReturnItem(
-                  label: 'True Returns',
-                  count: stats.trueReturnedPackages.count,
-                  value: stats.trueReturnedPackages.value,
-                  color: AppTheme.rojo,
-                ),
-              ),
-              Expanded(
-                child: _SimplifiedReturnItem(
-                  label: 'False Returns',
-                  count: stats.falseReturnedPackages.count,
-                  value: stats.falseReturnedPackages.value,
-                  color: AppTheme.warningYellow,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SimplifiedActivityItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final bool isInteractive;
-
-  const _SimplifiedActivityItem({
-    required this.label,
-    required this.value,
-    required this.color,
-    this.isInteractive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-            decoration: isInteractive ? TextDecoration.underline : null,
-            decorationColor: isInteractive ? color.withValues(alpha: 0.5) : null,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SimplifiedStatusItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _SimplifiedStatusItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-}
-
-class _SimplifiedReturnItem extends StatelessWidget {
-  final String label;
-  final int count;
-  final double value;
-  final Color color;
-
-  const _SimplifiedReturnItem({
-    required this.label,
-    required this.count,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Count',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            Text(
-              count.toString(),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Value',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            Text(
-              _formatCurrency(value),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _SimplifiedPackageItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _SimplifiedPackageItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-
-  const _ErrorView({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error loading stats',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<HomeBloc>().add(const HomeLoadStats());
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
-          ],
-        ),
       ),
     );
   }
 }
 
 String _formatCurrency(double amount) {
-  if (amount >= 100000) {
+  if (amount >= 10000000) {
+    return '${(amount / 10000000).toStringAsFixed(1)}Cr';
+  } else if (amount >= 100000) {
+    return '${(amount / 100000).toStringAsFixed(1)}L';
+  } else if (amount >= 1000) {
     return '${(amount / 1000).toStringAsFixed(1)}K';
   }
   return amount.toStringAsFixed(0);
