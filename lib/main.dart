@@ -13,6 +13,7 @@ import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_pa
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_bloc.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
+import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_bloc.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order_detail/order_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_bloc.dart';
@@ -57,8 +58,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<DailyTransactionBloc>()),
         BlocProvider(create: (context) => getIt<RedirectedOrdersBloc>()),
         BlocProvider(create: (context) => getIt<CalculateDeliveryChargeBloc>()),
-        BlocProvider(create: (context) => getIt<FrequentlyUsedPaymentMethodBloc>()),
+        BlocProvider(
+          create: (context) => getIt<FrequentlyUsedPaymentMethodBloc>(),
+        ),
         BlocProvider(create: (context) => getIt<PaymentRequestBloc>()),
+        BlocProvider(create: (context) => getIt<VendorMessageBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

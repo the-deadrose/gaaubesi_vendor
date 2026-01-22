@@ -70,6 +70,8 @@ class ApiEndpoints {
   static const String frequentlyUsedPaymentMethods = '/payment/request/';
 
   static const String paymentRequest = '/payment-tickets/';
+
+  static const String vendorMessages = '/messages/';
 }
 class QueryParams {
   QueryParams._();

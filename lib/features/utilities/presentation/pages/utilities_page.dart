@@ -49,6 +49,11 @@ class UtilitiesPage extends StatelessWidget {
         'label': 'Payment Request List',
         'color': Colors.blueGrey,
       },
+      {
+        'icon': Icons.message,
+        'label': 'Vendor Messages',
+        'color': Colors.teal,
+      },
     ];
 
     return Scaffold(
@@ -91,6 +96,9 @@ class UtilitiesPage extends StatelessWidget {
               }
               if (item['label'] == 'Payment Request List') {
                 context.router.push(PaymentRequestListRoute());
+              }
+              if (item['label'] == 'Vendor Messages') {
+                context.router.push(VendorMessagesRoute());
               }
             },
             child: Column(

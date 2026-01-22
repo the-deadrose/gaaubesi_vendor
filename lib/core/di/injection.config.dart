@@ -114,6 +114,16 @@ import 'package:gaaubesi_vendor/features/home/domain/usecases/get_vendor_stats_u
     as _i84;
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart'
     as _i915;
+import 'package:gaaubesi_vendor/features/message/data/datasource/vendor_message_datasource.dart'
+    as _i745;
+import 'package:gaaubesi_vendor/features/message/data/repo/vendor_message_repo_impl.dart'
+    as _i977;
+import 'package:gaaubesi_vendor/features/message/domain/repo/vendor_message_repo.dart'
+    as _i962;
+import 'package:gaaubesi_vendor/features/message/domain/usecase/fetch_vendor_message_list_usecase.dart'
+    as _i780;
+import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_bloc.dart'
+    as _i409;
 import 'package:gaaubesi_vendor/features/notice/data/datasource/notice_datasource.dart'
     as _i906;
 import 'package:gaaubesi_vendor/features/notice/data/repo/notice_list_repo_imp.dart'
@@ -226,6 +236,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i433.BranchListRemoteDatasource>(
       () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i745.VendorMessageRemoteDatasource>(
+      () => _i745.VendorMessageDatasourceImpl(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i18.AuthLocalDataSource>(
       () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
@@ -351,6 +364,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i635.AuthRepositoryImpl(
         remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
         localDataSource: gh<_i18.AuthLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i962.VendorMessageRepository>(
+      () => _i977.VendorMessageRepoImpl(
+        remoteDatasource: gh<_i745.VendorMessageRemoteDatasource>(),
       ),
     );
     gh.lazySingleton<_i795.NoticeRepository>(
@@ -525,6 +543,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i414.CodTransferListUsecase>(
       () => _i414.CodTransferListUsecase(gh<_i646.CodTransferRepo>()),
     );
+    gh.lazySingleton<_i780.FetchVendorMessageListUsecase>(
+      () => _i780.FetchVendorMessageListUsecase(
+        repository: gh<_i962.VendorMessageRepository>(),
+      ),
+    );
     gh.factory<_i218.FrequentlyUsedPaymentMethodBloc>(
       () => _i218.FrequentlyUsedPaymentMethodBloc(
         gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
@@ -537,6 +560,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i459.CodTransferBloc(
         codTransferListUsecase: gh<_i414.CodTransferListUsecase>(),
       ),
+    );
+    gh.lazySingleton<_i409.VendorMessageBloc>(
+      () => _i409.VendorMessageBloc(gh<_i780.FetchVendorMessageListUsecase>()),
     );
     gh.factory<_i488.TicketBloc>(
       () => _i488.TicketBloc(

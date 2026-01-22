@@ -547,3 +547,19 @@ class UtilitiesRoute extends PageRouteInfo<void> {
     },
   );
 }
+
+/// generated route for
+/// [VendorMessagesScreen]
+class VendorMessagesRoute extends PageRouteInfo<void> {
+  const VendorMessagesRoute({List<PageRouteInfo>? children})
+    : super(VendorMessagesRoute.name, initialChildren: children);
+
+  static const String name = 'VendorMessagesRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const VendorMessagesScreen();
+    },
+  );
+}

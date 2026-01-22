@@ -25,6 +25,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/todays_redire
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/page/calculate_delivery_charge_screen.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/page/create_payment_screen.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/page/payment_request_list_screen.dart';
+import 'package:gaaubesi_vendor/features/message/presetantion/page/vendor_message.dart';  
 
 part 'app_router.gr.dart';
 
@@ -136,6 +137,11 @@ class AppRouter extends RootStackRouter {
       path: '/payment-request-list',
       guards: [AuthGuard()],
     ),
+
+    AutoRoute(page: VendorMessagesRoute.page,
+    path: '/vendor-messages',
+    guards: [AuthGuard()],
+    )
   ];
 }
 
@@ -161,4 +167,5 @@ extension AppRoutesExtension on AppRouter {
   static const String calculateDeliveryCharge = '/calculate-delivery-charge';
   static const String orderDetail = '/payment-request';
   static const String redirectedOrders = '/payment-request-list';
+  static const String vendorMessages = '/vendor-messages';
 }
