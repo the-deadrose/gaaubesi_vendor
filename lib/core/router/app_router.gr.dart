@@ -121,6 +121,58 @@ class CreateTicketRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [CustomerDetailScreen]
+class CustomerDetailRoute extends PageRouteInfo<CustomerDetailRouteArgs> {
+  CustomerDetailRoute({
+    Key? key,
+    required String customerId,
+    List<PageRouteInfo>? children,
+  }) : super(
+         CustomerDetailRoute.name,
+         args: CustomerDetailRouteArgs(key: key, customerId: customerId),
+         rawPathParams: {'id': customerId},
+         initialChildren: children,
+       );
+
+  static const String name = 'CustomerDetailRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<CustomerDetailRouteArgs>(
+        orElse: () =>
+            CustomerDetailRouteArgs(customerId: pathParams.getString('id')),
+      );
+      return CustomerDetailScreen(key: args.key, customerId: args.customerId);
+    },
+  );
+}
+
+class CustomerDetailRouteArgs {
+  const CustomerDetailRouteArgs({this.key, required this.customerId});
+
+  final Key? key;
+
+  final String customerId;
+
+  @override
+  String toString() {
+    return 'CustomerDetailRouteArgs{key: $key, customerId: $customerId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! CustomerDetailRouteArgs) return false;
+    return key == other.key && customerId == other.customerId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ customerId.hashCode;
+}
+
+/// generated route for
 /// [CustomerListScreen]
 class CustomerListRoute extends PageRouteInfo<void> {
   const CustomerListRoute({List<PageRouteInfo>? children})
@@ -533,17 +585,17 @@ class TodaysRedirectedOrdersRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [UtilitiesPage]
-class UtilitiesRoute extends PageRouteInfo<void> {
-  const UtilitiesRoute({List<PageRouteInfo>? children})
-    : super(UtilitiesRoute.name, initialChildren: children);
+/// [VendorInfoScreen]
+class VendorInfoRoute extends PageRouteInfo<void> {
+  const VendorInfoRoute({List<PageRouteInfo>? children})
+    : super(VendorInfoRoute.name, initialChildren: children);
 
-  static const String name = 'UtilitiesRoute';
+  static const String name = 'VendorInfoRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const UtilitiesPage();
+      return const VendorInfoScreen();
     },
   );
 }

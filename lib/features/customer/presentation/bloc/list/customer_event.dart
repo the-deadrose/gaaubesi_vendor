@@ -1,14 +1,13 @@
 import 'package:equatable/equatable.dart';
 
-
-abstract class CustomerEvent extends Equatable {
-  const CustomerEvent();
+abstract class CustomerListEvent extends Equatable {
+  const CustomerListEvent();
 
   @override
   List<Object?> get props => [];
 }
 
-class FetchCustomerList extends CustomerEvent {
+class FetchCustomerList extends CustomerListEvent {
   final int page;
   final bool isRefresh;
 
@@ -21,7 +20,7 @@ class FetchCustomerList extends CustomerEvent {
   List<Object?> get props => [page, isRefresh];
 }
 
-class LoadMoreCustomerList extends CustomerEvent {
+class LoadMoreCustomerList extends CustomerListEvent {
   final int nextPage;
 
   const LoadMoreCustomerList(this.nextPage);
@@ -30,14 +29,14 @@ class LoadMoreCustomerList extends CustomerEvent {
   List<Object?> get props => [nextPage];
 }
 
-class RefreshCustomerList extends CustomerEvent {
+class RefreshCustomerList extends CustomerListEvent {
   const RefreshCustomerList();
 
   @override
   List<Object?> get props => [];
 }
 
-class SearchCustomerList extends CustomerEvent {
+class SearchCustomerList extends CustomerListEvent {
   final String query;
 
   const SearchCustomerList(this.query);
@@ -46,11 +45,18 @@ class SearchCustomerList extends CustomerEvent {
   List<Object?> get props => [query];
 }
 
-class CustomerScreenPagination extends CustomerEvent {
+class CustomerListScreenPagination extends CustomerListEvent {
   final int page;
 
-  const CustomerScreenPagination(this.page);
+  const CustomerListScreenPagination(this.page);
 
   @override
   List<Object?> get props => [page];
+}
+
+class ResetCustomerListState extends CustomerListEvent {
+  const ResetCustomerListState();
+
+  @override
+  List<Object?> get props => [];
 }

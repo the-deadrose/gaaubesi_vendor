@@ -10,7 +10,8 @@ import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calc
 import 'package:gaaubesi_vendor/features/cod_transfer/presentation/bloc/cod_transfer_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
-import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_bloc.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_bloc.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/detail/customer_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_bloc.dart';
@@ -21,6 +22,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/ware
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
+import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +54,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<TicketBloc>()),
         BlocProvider(create: (context) => getIt<BranchListBloc>()),
         BlocProvider(create: (context) => getIt<WarehouseOrderBloc>()),
-        BlocProvider(create: (context) => getIt<CustomerBloc>()),
+        BlocProvider(create: (context) => getIt<CustomerListBloc>()),
         BlocProvider(create: (context) => getIt<NoticeBloc>()),
         BlocProvider(create: (context) => getIt<CodTransferBloc>()),
         BlocProvider(create: (context) => getIt<DailyTransactionBloc>()),
@@ -63,6 +65,8 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(create: (context) => getIt<PaymentRequestBloc>()),
         BlocProvider(create: (context) => getIt<VendorMessageBloc>()),
+        BlocProvider(create: (context) => getIt<CustomerDetailBloc>()),
+        BlocProvider(create: (context) => getIt<VendorInfoBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

@@ -72,6 +72,10 @@ class ApiEndpoints {
   static const String paymentRequest = '/payment-tickets/';
 
   static const String vendorMessages = '/messages/';
+
+  static const String customerDetail = '/account/customer/';
+
+  static const String vendorInfo = '/account/vendor/';
 }
 class QueryParams {
   QueryParams._();

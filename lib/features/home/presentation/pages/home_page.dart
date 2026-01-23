@@ -33,6 +33,14 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications_none, color: Colors.white),
+              onPressed: () {
+                context.router.push(const NoticeListRoute());
+              },
+            ),
+          ],
         ),
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, authState) {
@@ -112,8 +120,18 @@ class HomePage extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _WelcomeCard(vendorName: stats.vendorName, onAddPressed: () {
-          }),
+          _WelcomeCard(
+            vendorName: stats.vendorName,
+            onAddTicket: () {
+              context.router.push(const CreateTicketRoute());
+            },
+            onCodRequest: () {
+              context.router.push(const PaymentRequestRoute());
+            },
+            onAddOrder: () {
+              context.router.push(const CreateOrderRoute());
+            },
+          ),
           const SizedBox(height: 16),
 
           _StatCard(
@@ -163,11 +181,15 @@ class HomePage extends StatelessWidget {
 
 class _WelcomeCard extends StatelessWidget {
   final String vendorName;
-  final VoidCallback onAddPressed;
+  final VoidCallback onAddTicket;
+  final VoidCallback onCodRequest;
+  final VoidCallback onAddOrder;
 
   const _WelcomeCard({
     required this.vendorName,
-    required this.onAddPressed,
+    required this.onAddTicket,
+    required this.onCodRequest,
+    required this.onAddOrder,
   });
 
   @override
@@ -189,7 +211,7 @@ class _WelcomeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -216,11 +238,56 @@ class _WelcomeCard extends StatelessWidget {
               ],
             ),
           ),
+
           IconButton(
-            onPressed: onAddPressed,
             icon: const Icon(Icons.add_circle_outline),
             color: Colors.blue,
-            tooltip: 'Add',
+            onPressed: () async {
+              final result = await showMenu<String>(
+                context: context,
+                position: const RelativeRect.fromLTRB(100, 80, 16, 0),
+                items: const [
+                  PopupMenuItem(
+                    value: 'ticket',
+                    child: Row(
+                      children: [
+                        Icon(Icons.confirmation_number_outlined),
+                        SizedBox(width: 8),
+                        Text('Add Tickets'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'cod',
+                    child: Row(
+                      children: [
+                        Icon(Icons.payment),
+                        SizedBox(width: 8),
+                        Text('COD Request'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: '0rder',
+                    child: Row(
+                      children: [
+                        Icon(Icons.local_shipping_outlined),
+                        SizedBox(width: 8),
+                        Text('Add Order'),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+
+              if (result == 'ticket') {
+                onAddTicket();
+              }  if (result == 'cod') {
+                onCodRequest();
+              } if (result == '0rder') {
+                onAddOrder();
+              }
+            },
           ),
         ],
       ),

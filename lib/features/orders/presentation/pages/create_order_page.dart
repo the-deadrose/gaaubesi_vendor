@@ -352,6 +352,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            centerTitle: true,
             backgroundColor: theme.primaryColor,
             elevation: 0,
             flexibleSpace: Container(

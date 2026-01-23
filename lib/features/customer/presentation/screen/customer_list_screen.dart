@@ -2,10 +2,11 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/customer/domain/entity/customer_list_entity.dart';
-import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_bloc.dart';
-import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_event.dart';
-import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_state.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_bloc.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_event.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_state.dart';
 
 @RoutePage()
 class CustomerListScreen extends StatefulWidget {
@@ -19,19 +20,21 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   Timer? _searchDebounceTimer;
-  bool _isInitialLoad = true;
   bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchInitialData();
-
     _scrollController.addListener(_onScroll);
+    
+    // Initialize data when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInitialData();
+    });
   }
 
   void _fetchInitialData() {
-    context.read<CustomerBloc>().add(const FetchCustomerList());
+    context.read<CustomerListBloc>().add(const FetchCustomerList());
   }
 
   void _onScroll() {
@@ -46,11 +49,11 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
   void _loadMoreData() {
     if (_isLoadingMore) return;
 
-    final state = context.read<CustomerBloc>().state;
+    final state = context.read<CustomerListBloc>().state;
     if (state is CustomerListLoaded && !state.hasReachedMax) {
       if (state.customers.isNotEmpty) {
         _isLoadingMore = true;
-        context.read<CustomerBloc>().add(
+        context.read<CustomerListBloc>().add(
           LoadMoreCustomerList(state.currentPage + 1),
         );
       }
@@ -61,29 +64,32 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     _searchDebounceTimer?.cancel();
 
     _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-      context.read<CustomerBloc>().add(SearchCustomerList(query));
+      context.read<CustomerListBloc>().add(SearchCustomerList(query));
     });
   }
 
   Future<void> _refreshData() async {
     _searchController.clear();
-    context.read<CustomerBloc>().add(const RefreshCustomerList());
+    context.read<CustomerListBloc>().add(const RefreshCustomerList());
   }
 
-  void _onCustomerTap(CustomerList customer) {}
+  void _onCustomerTap(CustomerList customer) {
+    context.router.push(
+      CustomerDetailRoute(customerId: customer.id.toString()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-        final theme = Theme.of(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
-         backgroundColor: theme.colorScheme.surface,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
         title: const Text('Customers'),
         centerTitle: true,
-      
       ),
       body: Column(
         children: [
@@ -112,10 +118,9 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           ),
 
           Expanded(
-            child: BlocConsumer<CustomerBloc, CustomerState>(
+            child: BlocConsumer<CustomerListBloc, CustomerListState>(
               listener: (context, state) {
                 if (state is CustomerListLoaded) {
-                  _isInitialLoad = false;
                   _isLoadingMore = false;
                 } else if (state is CustomerListError) {
                   _isLoadingMore = false;
@@ -131,8 +136,8 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     );
   }
 
-  Widget _buildContent(CustomerState state) {
-    if (_isInitialLoad && state is! CustomerListLoaded) {
+  Widget _buildContent(CustomerListState state) {
+    if (state is CustomerListLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -183,7 +188,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       );
     }
 
-    if (state is CustomerSearching) {
+    if (state is CustomerListSearching) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -196,6 +201,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
       );
     }
 
+    // Initial state
     return const Center(child: CircularProgressIndicator());
   }
 

@@ -127,15 +127,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Navigate to create payment request screen
-          context.router.push(const PaymentRequestRoute());
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New Request'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
+     
       body: BlocConsumer<PaymentRequestBloc, PaymentRequestState>(
         listener: (context, state) {
           if (state is FetchPaymentRequestsSuccess && _isLoadingMore) {

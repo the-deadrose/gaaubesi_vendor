@@ -90,10 +90,14 @@ import 'package:gaaubesi_vendor/features/customer/data/repo/customer_repo_imp.da
     as _i362;
 import 'package:gaaubesi_vendor/features/customer/domain/repository/customer_repo.dart'
     as _i894;
+import 'package:gaaubesi_vendor/features/customer/domain/usecase/customer_detail_usecase.dart'
+    as _i431;
 import 'package:gaaubesi_vendor/features/customer/domain/usecase/customer_list_usecase.dart'
     as _i25;
-import 'package:gaaubesi_vendor/features/customer/presentation/bloc/customer_bloc.dart'
-    as _i512;
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/detail/customer_detail_bloc.dart'
+    as _i989;
+import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_bloc.dart'
+    as _i246;
 import 'package:gaaubesi_vendor/features/daily_transections/data/datasource/daily_transection_datasource.dart'
     as _i339;
 import 'package:gaaubesi_vendor/features/daily_transections/data/repo/daily_transection_repo_imp.dart'
@@ -212,6 +216,16 @@ import 'package:gaaubesi_vendor/features/ticket/domain/usecase/tickets_list_usec
     as _i457;
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart'
     as _i488;
+import 'package:gaaubesi_vendor/features/vendor_info/data/datasource/vendor_info_datasource.dart'
+    as _i838;
+import 'package:gaaubesi_vendor/features/vendor_info/data/repo/vendor_info_repo_impl.dart'
+    as _i1066;
+import 'package:gaaubesi_vendor/features/vendor_info/domain/repo/vendor_info_repo.dart'
+    as _i749;
+import 'package:gaaubesi_vendor/features/vendor_info/domain/usecase/vendor_info_usecase.dart'
+    as _i365;
+import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart'
+    as _i74;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -280,6 +294,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i800.OrderRepositoryImpl(
         remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
       ),
+    );
+    gh.lazySingleton<_i838.VendorInfoRemoteDatasource>(
+      () => _i838.VendorInfoDatasourceImpl(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i684.BranchListRepository>(
       () => _i218.BranchListRepoImp(
@@ -374,6 +391,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i795.NoticeRepository>(
       () => _i1054.NoticeListRepoImp(
         remoteDatasource: gh<_i906.NoticeRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i749.VendorInfoRepo>(
+      () => _i1066.VendorInfoRepoImpl(
+        remoteDatasource: gh<_i838.VendorInfoRemoteDatasource>(),
       ),
     );
     gh.lazySingleton<_i84.GetVendorStatsUseCase>(
@@ -548,10 +570,16 @@ extension GetItInjectableX on _i174.GetIt {
         repository: gh<_i962.VendorMessageRepository>(),
       ),
     );
+    gh.lazySingleton<_i365.VendorInfoUsecase>(
+      () => _i365.VendorInfoUsecase(gh<_i749.VendorInfoRepo>()),
+    );
     gh.factory<_i218.FrequentlyUsedPaymentMethodBloc>(
       () => _i218.FrequentlyUsedPaymentMethodBloc(
         gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
       ),
+    );
+    gh.lazySingleton<_i431.CustomerDetailUsecase>(
+      () => _i431.CustomerDetailUsecase(gh<_i894.CustomerRepo>()),
     );
     gh.lazySingleton<_i25.CustomerListUseCase>(
       () => _i25.CustomerListUseCase(gh<_i894.CustomerRepo>()),
@@ -570,8 +598,15 @@ extension GetItInjectableX on _i174.GetIt {
         createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
       ),
     );
-    gh.factory<_i512.CustomerBloc>(
-      () => _i512.CustomerBloc(gh<_i25.CustomerListUseCase>()),
+    gh.lazySingleton<_i74.VendorInfoBloc>(
+      () =>
+          _i74.VendorInfoBloc(vendorInfoUsecase: gh<_i365.VendorInfoUsecase>()),
+    );
+    gh.factory<_i246.CustomerListBloc>(
+      () => _i246.CustomerListBloc(gh<_i25.CustomerListUseCase>()),
+    );
+    gh.factory<_i989.CustomerDetailBloc>(
+      () => _i989.CustomerDetailBloc(gh<_i431.CustomerDetailUsecase>()),
     );
     return this;
   }

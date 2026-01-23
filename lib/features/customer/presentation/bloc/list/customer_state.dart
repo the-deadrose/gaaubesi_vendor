@@ -1,18 +1,18 @@
 import 'package:equatable/equatable.dart';
 import 'package:gaaubesi_vendor/features/customer/domain/entity/customer_list_entity.dart';
 
-abstract class CustomerState extends Equatable {
-  const CustomerState();
+abstract class CustomerListState extends Equatable {
+  const CustomerListState();
 
   @override
   List<Object?> get props => [];
 }
 
-class CustomerInitial extends CustomerState {}
+class CustomerListInitial extends CustomerListState {}
 
-class CustomerListLoading extends CustomerState {}
+class CustomerListLoading extends CustomerListState {}
 
-class CustomerListLoaded extends CustomerState {
+class CustomerListLoaded extends CustomerListState {
   final List<CustomerList> customers;
   final int currentPage;
   final int totalPages;
@@ -45,15 +45,15 @@ class CustomerListLoaded extends CustomerState {
 
   @override
   List<Object?> get props => [
-        customers,
-        currentPage,
-        totalPages,
-        hasReachedMax,
-        isSearchResult,
-      ];
+    customers,
+    currentPage,
+    totalPages,
+    hasReachedMax,
+    isSearchResult,
+  ];
 }
 
-class CustomerListError extends CustomerState {
+class CustomerListError extends CustomerListState {
   final String message;
 
   const CustomerListError(this.message);
@@ -62,39 +62,29 @@ class CustomerListError extends CustomerState {
   List<Object?> get props => [message];
 }
 
+class CustomerListSearching extends CustomerListState {}
 
-
-class CustomerSearching extends CustomerState {}
-
-class CustomerSearchLoaded extends CustomerState {
+class CustomerListSearchLoaded extends CustomerListState {
   final List<CustomerList> customers;
 
-  const CustomerSearchLoaded({required this.customers});
+  const CustomerListSearchLoaded({required this.customers});
 
   @override
   List<Object?> get props => [customers];
 }
 
-class CustomerSearchError extends CustomerState {
+class CustomerListSearchError extends CustomerListState {
   final String message;
 
-  const CustomerSearchError(this.message);
+  const CustomerListSearchError(this.message);
 
   @override
   List<Object?> get props => [message];
 }
 
-class CustomerListPaginating extends CustomerState {}
+class CustomerListPaginating extends CustomerListState {}
 
-class CustomerListPaginated extends CustomerState{
-  final CustomerList customer;
-  const CustomerListPaginated({required this.customer});
-  @override
-  List<Object?> get props => [customer];
-
-}
-
-class CustomerListPaginationError extends CustomerState {
+class CustomerListPaginationError extends CustomerListState {
   final String message;
 
   const CustomerListPaginationError(this.message);

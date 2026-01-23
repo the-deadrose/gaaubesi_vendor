@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
+import 'package:gaaubesi_vendor/features/customer/presentation/screen/customer_detail_screen.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/screen/customer_list_screen.dart';
 import 'package:gaaubesi_vendor/features/notice/domain/entity/notice_list_entity.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/screen/notice_detail_screen.dart';
@@ -15,7 +16,6 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.d
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
 import 'package:gaaubesi_vendor/features/orderdetail/presentation/screen/order_detail_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/redirected_orders_page.dart';
-import 'package:gaaubesi_vendor/features/utilities/presentation/pages/utilities_page.dart';
 import 'package:gaaubesi_vendor/features/navigation/presentation/pages/main_scaffold.dart';
 import 'package:gaaubesi_vendor/core/router/auth_guard.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_page.dart';
@@ -25,7 +25,8 @@ import 'package:gaaubesi_vendor/features/orders/presentation/pages/todays_redire
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/page/calculate_delivery_charge_screen.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/page/create_payment_screen.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/page/payment_request_list_screen.dart';
-import 'package:gaaubesi_vendor/features/message/presetantion/page/vendor_message.dart';  
+import 'package:gaaubesi_vendor/features/message/presetantion/page/vendor_message.dart';
+import 'package:gaaubesi_vendor/features/vendor_info/presentaion/page/vendor_info_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -43,7 +44,6 @@ class AppRouter extends RootStackRouter {
       children: [
         AutoRoute(page: HomeRoute.page, path: 'home', initial: true),
         AutoRoute(page: OrdersRoute.page, path: 'orders'),
-        AutoRoute(page: UtilitiesRoute.page, path: 'utilities'),
       ],
     ),
 
@@ -69,10 +69,8 @@ class AppRouter extends RootStackRouter {
       path: '/redirected-orders',
       guards: [AuthGuard()],
     ),
- 
-    AutoRoute(page: TicketRoute.page, 
-    path: '/tickets',
-     guards: [AuthGuard()]),
+
+    AutoRoute(page: TicketRoute.page, path: '/tickets', guards: [AuthGuard()]),
 
     AutoRoute(
       page: CustomerListRoute.page,
@@ -104,9 +102,10 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
 
-    AutoRoute(page: CodTransferListRoute.page,
-    path: '/cod-transfer-list',
-    guards: [AuthGuard()],
+    AutoRoute(
+      page: CodTransferListRoute.page,
+      path: '/cod-transfer-list',
+      guards: [AuthGuard()],
     ),
 
     AutoRoute(
@@ -115,9 +114,10 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
 
-    AutoRoute(page: TodaysRedirectedOrdersRoute.page,
-    path: '/todays-redirected-orders',
-    guards: [AuthGuard()],
+    AutoRoute(
+      page: TodaysRedirectedOrdersRoute.page,
+      path: '/todays-redirected-orders',
+      guards: [AuthGuard()],
     ),
 
     AutoRoute(
@@ -138,10 +138,23 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
 
-    AutoRoute(page: VendorMessagesRoute.page,
-    path: '/vendor-messages',
-    guards: [AuthGuard()],
-    )
+    AutoRoute(
+      page: VendorMessagesRoute.page,
+      path: '/vendor-messages',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: CustomerDetailRoute.page,
+      path: '/customer-detail/:id',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: VendorInfoRoute.page,
+      path: '/vendor-info',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -151,7 +164,6 @@ extension AppRoutesExtension on AppRouter {
   static const String home = '/home';
   static const String orders = '/orders';
   static const String deliveredOrders = '/delivered-orders';
-  static const String utilities = '/utilities';
   static const String extraMileage = '/extra-mileage';
   static const String contact = '/contact';
   static const String comments = '/comments';
@@ -168,4 +180,6 @@ extension AppRoutesExtension on AppRouter {
   static const String orderDetail = '/payment-request';
   static const String redirectedOrders = '/payment-request-list';
   static const String vendorMessages = '/vendor-messages';
+  static const String customerDetail = '/customer-detail';
+  static const String vendorInfo = '/vendor-info';
 }

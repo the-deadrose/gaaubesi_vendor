@@ -16,9 +16,7 @@ class AppDrawer extends StatelessWidget {
 
     return Drawer(
       backgroundColor: colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: SafeArea(
         child: Column(
           children: [
@@ -65,20 +63,50 @@ class AppDrawer extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              vendorName,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                context.router.push(const VendorInfoRoute());
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    vendorName,
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: colorScheme.onSurface,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        "Edit",
+                                        style: TextStyle(
+                                          color: colorScheme.primary,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.edit,
+                                        size: 14,
+                                        color: colorScheme.primary,
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Vendor Dashboard',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
                           ],
@@ -95,19 +123,39 @@ class AppDrawer extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
-                  // Menu Section
-                  _ExpandableSection(
+                  // Normal Tile - Dashboard
+                  _NormalTile(
                     icon: Icons.dashboard_rounded,
-                    title: 'Menu',
+                    title: 'Dashboard',
                     colorScheme: colorScheme,
-                    initiallyExpanded: true,
-                    children: [
-                     
-                  
-                    ],
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
                   ),
 
-                  // Utilities Section
+            
+                  _NormalTile(
+                    icon: Icons.people,
+                    title: 'Customers',
+                    colorScheme: colorScheme,
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.router.push(const CustomerListRoute());
+                    },
+                  ),
+
+                  // Normal Tile - Orders
+                  _NormalTile(
+                    icon: Icons.shopping_bag_rounded,
+                    title: 'Orders',
+                    colorScheme: colorScheme,
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.router.push(const OrdersRoute());
+                    },
+                  ),
+
+                  // Expandable Section - Utilities
                   _ExpandableSection(
                     icon: Icons.build_rounded,
                     title: 'Utilities',
@@ -119,15 +167,7 @@ class AppDrawer extends StatelessWidget {
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Tickets coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          context.router.push(TicketRoute());
                         },
                       ),
                       _DrawerSubItem(
@@ -136,15 +176,16 @@ class AppDrawer extends StatelessWidget {
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Messages coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          context.router.push(const VendorMessagesRoute());
+                        },
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.comment_outlined,
+                        title: 'Comments',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(CommentsRoute());
                         },
                       ),
                       _DrawerSubItem(
@@ -153,32 +194,58 @@ class AppDrawer extends StatelessWidget {
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Notices coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          context.router.push(NoticeListRoute());
                         },
                       ),
-                     
-                      _DrawerSubItem(
-                        icon: Icons.alt_route_rounded,
-                        title: 'Redirected Orders',
+                         _DrawerSubItem(
+                        icon: Icons.calculate_outlined,
+                        title: 'Calculate Delivery Charge',
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          context.router.push(const RedirectedOrdersRoute());
+                          context.router.push(CalculateDeliveryChargeRoute());
                         },
                       ),
-                    
                     ],
                   ),
 
-                  // Settings Section
+                  _ExpandableSection(
+                    icon: Icons.analytics_rounded,
+                    title: 'Payments',
+                    colorScheme: colorScheme,
+                    children: [
+                      _DrawerSubItem(
+                        icon: Icons.bar_chart_rounded,
+                        title: 'COD Transfers',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(const CodTransferListRoute());
+                        },
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.bar_chart_rounded,
+                        title: 'Payment Requests',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(const PaymentRequestListRoute());
+                        },
+                      ),
+                             _DrawerSubItem(
+                        icon: Icons.monetization_on_outlined,
+                        title: 'Daily Transactions',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push( DailyTransactionRoute());
+                        },
+                      ),
+                      
+                    ],
+                  ),
+
+                  // Expandable Section - Settings
                   _ExpandableSection(
                     icon: Icons.settings_rounded,
                     title: 'Settings',
@@ -210,6 +277,23 @@ class AppDrawer extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: const Text('Help page coming soon'),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.info_outline_rounded,
+                        title: 'About App',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('About page coming soon'),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -255,9 +339,7 @@ class AppDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Logout'),
         content: const Text('Are you sure you want to logout?'),
         actions: [
@@ -265,7 +347,9 @@ class AppDrawer extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ),
           ),
           TextButton(
@@ -273,10 +357,7 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
               context.read<AuthBloc>().add(AuthLogoutRequested());
             },
-            child: Text(
-              'Logout',
-              style: TextStyle(color: colorScheme.error),
-            ),
+            child: Text('Logout', style: TextStyle(color: colorScheme.error)),
           ),
         ],
       ),
@@ -289,14 +370,12 @@ class _ExpandableSection extends StatelessWidget {
   final String title;
   final ColorScheme colorScheme;
   final List<Widget> children;
-  final bool initiallyExpanded;
 
   const _ExpandableSection({
     required this.icon,
     required this.title,
     required this.colorScheme,
     required this.children,
-    this.initiallyExpanded = false,
   });
 
   @override
@@ -315,11 +394,7 @@ class _ExpandableSection extends StatelessWidget {
             color: colorScheme.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: colorScheme.primary,
-            size: 20,
-          ),
+          child: Icon(icon, color: colorScheme.primary, size: 20),
         ),
         title: Text(
           title,
@@ -331,7 +406,6 @@ class _ExpandableSection extends StatelessWidget {
         ),
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         childrenPadding: const EdgeInsets.only(bottom: 8),
-        initiallyExpanded: initiallyExpanded,
         shape: const Border(),
         collapsedShape: const Border(),
         iconColor: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -342,6 +416,69 @@ class _ExpandableSection extends StatelessWidget {
   }
 }
 
+class _NormalTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final ColorScheme colorScheme;
+
+  const _NormalTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Material(
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          splashColor: colorScheme.primary.withValues(alpha: 0.08),
+          highlightColor: colorScheme.primary.withValues(alpha: 0.04),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: colorScheme.primary, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: colorScheme.primary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Sub-item for expandable sections
 class _DrawerSubItem extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -396,14 +533,12 @@ class _DrawerSubItem extends StatelessWidget {
   }
 }
 
+// Logout Button
 class _LogoutButton extends StatelessWidget {
   final ColorScheme colorScheme;
   final VoidCallback onTap;
 
-  const _LogoutButton({
-    required this.colorScheme,
-    required this.onTap,
-  });
+  const _LogoutButton({required this.colorScheme, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -439,6 +574,127 @@ class _LogoutButton extends StatelessWidget {
                   color: colorScheme.error,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Bottom Navigation Bar
+class AppNavigationBar extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const AppNavigationBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Container(
+          height: 80,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _NavBarItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'Home',
+                isActive: currentIndex == 0,
+                onTap: () => onTap(0),
+                color: theme.primaryColor,
+              ),
+              _NavBarItem(
+                icon: Icons.shopping_bag_outlined,
+                activeIcon: Icons.shopping_bag,
+                label: 'Orders',
+                isActive: currentIndex == 1,
+                onTap: () => onTap(1),
+                color: theme.primaryColor,
+              ),
+              _NavBarItem(
+                icon: Icons.apps_outlined,
+                activeIcon: Icons.apps,
+                label: 'Utilities',
+                isActive: currentIndex == 2,
+                onTap: () => onTap(2),
+                color: theme.primaryColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavBarItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+  final Color color;
+
+  const _NavBarItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isActive ? color.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isActive ? activeIcon : icon,
+                color: isActive ? color : Colors.grey[600],
+                size: 24,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isActive ? color : Colors.grey[600],
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
             ],
