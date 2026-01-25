@@ -238,6 +238,22 @@ class DailyTransactionRouteArgs {
 }
 
 /// generated route for
+/// [ExtraMileageScreen]
+class ExtraMileageRoute extends PageRouteInfo<void> {
+  const ExtraMileageRoute({List<PageRouteInfo>? children})
+    : super(ExtraMileageRoute.name, initialChildren: children);
+
+  static const String name = 'ExtraMileageRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ExtraMileageScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})

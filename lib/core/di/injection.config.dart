@@ -108,6 +108,16 @@ import 'package:gaaubesi_vendor/features/daily_transections/domain/usecase/fetch
     as _i7;
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart'
     as _i117;
+import 'package:gaaubesi_vendor/features/extra_mileage/data/datasource/extra_mileage_datasource.dart'
+    as _i1041;
+import 'package:gaaubesi_vendor/features/extra_mileage/data/repo/extra_mileage_repo_impl.dart'
+    as _i302;
+import 'package:gaaubesi_vendor/features/extra_mileage/domain/repo/extra_mileage_repo.dart'
+    as _i347;
+import 'package:gaaubesi_vendor/features/extra_mileage/domain/usecase/extra_mileage_usecase.dart'
+    as _i966;
+import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_mileage_list_bloc.dart'
+    as _i219;
 import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart'
     as _i630;
 import 'package:gaaubesi_vendor/features/home/data/repositories/home_repository_impl.dart'
@@ -257,6 +267,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i18.AuthLocalDataSource>(
       () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
     );
+    gh.lazySingleton<_i1041.ExtraMileageRemoteDatasource>(
+      () => _i1041.ExtraMileageRemoteDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i515.PaymentRequestRemoteDatasource>(
       () => _i515.PaymentRequestDatasourceImpl(gh<_i619.DioClient>()),
     );
@@ -294,6 +307,10 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i800.OrderRepositoryImpl(
         remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
       ),
+    );
+    gh.lazySingleton<_i347.ExtraMileageRepo>(
+      () =>
+          _i302.ExtraMileageRepoImpl(gh<_i1041.ExtraMileageRemoteDatasource>()),
     );
     gh.lazySingleton<_i838.VendorInfoRemoteDatasource>(
       () => _i838.VendorInfoDatasourceImpl(gh<_i619.DioClient>()),
@@ -377,6 +394,9 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDatasource: gh<_i339.DailyTransectionRemoteDatasource>(),
       ),
     );
+    gh.lazySingleton<_i966.ExtraMileageUsecase>(
+      () => _i966.ExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
+    );
     gh.lazySingleton<_i40.AuthRepository>(
       () => _i635.AuthRepositoryImpl(
         remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
@@ -440,6 +460,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i850.StaleOrderBloc(
         fetchStaleOrdersUseCase: gh<_i255.FetchStaleOrdersUseCase>(),
       ),
+    );
+    gh.lazySingleton<_i219.ExtraMileageBloc>(
+      () => _i219.ExtraMileageBloc(gh<_i966.ExtraMileageUsecase>()),
     );
     gh.lazySingleton<_i277.GetCurrentUserUseCase>(
       () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),

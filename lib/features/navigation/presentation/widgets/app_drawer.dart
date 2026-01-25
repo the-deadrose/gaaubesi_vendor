@@ -20,7 +20,6 @@ class AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header with vendor info
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) {
                 String vendorName = 'Vendor';
@@ -69,14 +68,16 @@ class AppDrawer extends StatelessWidget {
                                 context.router.push(const VendorInfoRoute());
                               },
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     vendorName,
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: colorScheme.onSurface,
-                                    ),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: colorScheme.onSurface,
+                                        ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -130,10 +131,10 @@ class AppDrawer extends StatelessWidget {
                     colorScheme: colorScheme,
                     onTap: () {
                       Navigator.pop(context);
+                      context.router.push(const HomeRoute());
                     },
                   ),
 
-            
                   _NormalTile(
                     icon: Icons.people,
                     title: 'Customers',
@@ -144,15 +145,39 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // Normal Tile - Orders
                   _NormalTile(
-                    icon: Icons.shopping_bag_rounded,
-                    title: 'Orders',
+                    icon: Icons.security_rounded,
+                    title: 'Staffs and Permissions',
                     colorScheme: colorScheme,
                     onTap: () {
                       Navigator.pop(context);
-                      context.router.push(const OrdersRoute());
                     },
+                  ),
+
+                  _ExpandableSection(
+                    icon: Icons.analytics_rounded,
+                    title: 'Orders',
+                    colorScheme: colorScheme,
+                    children: [
+                      _DrawerSubItem(
+                        icon: Icons.list_alt_rounded,
+                        title: 'Order List',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(const OrdersRoute());
+                        },
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.add_rounded,
+                        title: 'Create Order',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(const CreateOrderRoute());
+                        },
+                      ),
+                    ],
                   ),
 
                   // Expandable Section - Utilities
@@ -197,7 +222,7 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(NoticeListRoute());
                         },
                       ),
-                         _DrawerSubItem(
+                      _DrawerSubItem(
                         icon: Icons.calculate_outlined,
                         title: 'Calculate Delivery Charge',
                         colorScheme: colorScheme,
@@ -205,6 +230,15 @@ class AppDrawer extends StatelessWidget {
                           Navigator.pop(context);
                           context.router.push(CalculateDeliveryChargeRoute());
                         },
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.directions_car_rounded,
+                        title: "Extra Mileage",
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(ExtraMileageRoute());
+                        },
+                        colorScheme: colorScheme,
                       ),
                     ],
                   ),
@@ -232,16 +266,15 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const PaymentRequestListRoute());
                         },
                       ),
-                             _DrawerSubItem(
+                      _DrawerSubItem(
                         icon: Icons.monetization_on_outlined,
                         title: 'Daily Transactions',
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          context.router.push( DailyTransactionRoute());
+                          context.router.push(DailyTransactionRoute());
                         },
                       ),
-                      
                     ],
                   ),
 
@@ -252,14 +285,16 @@ class AppDrawer extends StatelessWidget {
                     colorScheme: colorScheme,
                     children: [
                       _DrawerSubItem(
-                        icon: Icons.tune_rounded,
-                        title: 'Preferences',
+                        icon: Icons.lock_outline_rounded,
+                        title: 'Change Password',
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('Settings page coming soon'),
+                              content: const Text(
+                                'Change Password page coming soon',
+                              ),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -268,32 +303,42 @@ class AppDrawer extends StatelessWidget {
                           );
                         },
                       ),
-                      _DrawerSubItem(
-                        icon: Icons.help_outline_rounded,
-                        title: 'Help & Support',
-                        colorScheme: colorScheme,
-                        onTap: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Help page coming soon'),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+
                       _DrawerSubItem(
                         icon: Icons.info_outline_rounded,
                         title: 'About App',
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
+                        
+                        },
+                      ),
+                    ],
+                  ),
+
+                  // _NormalTile(
+                  //   icon: Icons.local_gas_station_rounded,
+                  //   title: 'Service Stations',
+                  //   colorScheme: colorScheme,
+                  //   onTap: () {
+                  //    SnackBar(content: const Text('Service Stations page coming soon'));
+                  //   },
+                  // ),
+                  _ExpandableSection(
+                    icon: Icons.contact_emergency,
+                    title: "Contact",
+                    colorScheme: colorScheme,
+                    children: [
+                      _DrawerSubItem(
+                        icon: Icons.local_post_office,
+                        title: "Service Stations",
+                        onTap: () {
+                          Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('About page coming soon'),
+                              content: const Text(
+                                'Service Stations page coming soon',
+                              ),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -301,6 +346,45 @@ class AppDrawer extends StatelessWidget {
                             ),
                           );
                         },
+                        colorScheme: colorScheme,
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.home_work,
+                        title: "Head Office",
+                        onTap: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Head Office page coming soon',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
+                        },
+                        colorScheme: colorScheme,
+                      ),
+                      _DrawerSubItem(
+                        icon: Icons.location_history,
+                        title: "Redirect Stations",
+                        onTap: () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Redirect Stations page coming soon',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
+                        },
+                        colorScheme: colorScheme,
                       ),
                     ],
                   ),
@@ -308,7 +392,6 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
 
-            // Logout button at bottom
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               decoration: BoxDecoration(
