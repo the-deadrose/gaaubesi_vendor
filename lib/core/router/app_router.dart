@@ -28,6 +28,7 @@ import 'package:gaaubesi_vendor/features/payment_request/presentation/page/payme
 import 'package:gaaubesi_vendor/features/message/presetantion/page/vendor_message.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/page/vendor_info_screen.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/page/extra_mileage_list.dart';
+import 'package:gaaubesi_vendor/features/auth/presentation/pages/change_password.dart';
 
 part 'app_router.gr.dart';
 
@@ -163,6 +164,11 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
 
+    AutoRoute(
+      page: ChangePasswordRoute.page,
+      path: '/change-password',
+      guards: [AuthGuard()],
+    ),
   
   ];
 }
@@ -192,4 +198,5 @@ extension AppRoutesExtension on AppRouter {
   static const String customerDetail = '/customer-detail';
   static const String vendorInfo = '/vendor-info';
   static const String extraMileagePage = '/extra-mileage';
+  static const String changePassword = '/change-password';
 }

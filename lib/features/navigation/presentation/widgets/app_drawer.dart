@@ -290,17 +290,7 @@ class AppDrawer extends StatelessWidget {
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'Change Password page coming soon',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          context.router.push(const ChangePasswordRoute());
                         },
                       ),
 
@@ -316,14 +306,7 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
 
-                  // _NormalTile(
-                  //   icon: Icons.local_gas_station_rounded,
-                  //   title: 'Service Stations',
-                  //   colorScheme: colorScheme,
-                  //   onTap: () {
-                  //    SnackBar(content: const Text('Service Stations page coming soon'));
-                  //   },
-                  // ),
+       
                   _ExpandableSection(
                     icon: Icons.contact_emergency,
                     title: "Contact",

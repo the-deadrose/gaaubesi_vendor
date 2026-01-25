@@ -24,6 +24,8 @@ import 'package:gaaubesi_vendor/features/auth/data/repositories/auth_repository_
     as _i635;
 import 'package:gaaubesi_vendor/features/auth/domain/repositories/auth_repository.dart'
     as _i40;
+import 'package:gaaubesi_vendor/features/auth/domain/usecases/change_password_usecase.dart'
+    as _i385;
 import 'package:gaaubesi_vendor/features/auth/domain/usecases/get_current_user_usecase.dart'
     as _i277;
 import 'package:gaaubesi_vendor/features/auth/domain/usecases/login_usecase.dart'
@@ -464,6 +466,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i219.ExtraMileageBloc>(
       () => _i219.ExtraMileageBloc(gh<_i966.ExtraMileageUsecase>()),
     );
+    gh.lazySingleton<_i385.ChangePasswordUsecase>(
+      () => _i385.ChangePasswordUsecase(gh<_i40.AuthRepository>()),
+    );
     gh.lazySingleton<_i277.GetCurrentUserUseCase>(
       () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
     );
@@ -475,13 +480,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i587.NoticeBloc>(
       () => _i587.NoticeBloc(gh<_i83.NoticeListUsecase>()),
-    );
-    gh.singleton<_i365.AuthBloc>(
-      () => _i365.AuthBloc(
-        loginUseCase: gh<_i634.LoginUseCase>(),
-        logoutUseCase: gh<_i357.LogoutUseCase>(),
-        getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
-      ),
     );
     gh.factory<_i691.RtvOrderBloc>(
       () => _i691.RtvOrderBloc(
@@ -583,6 +581,14 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i350.CreateCommentOrderdetailUsecase>(),
         replyCommentOrderDetailUsecase:
             gh<_i942.ReplyCommentOrderDetailUsecase>(),
+      ),
+    );
+    gh.singleton<_i365.AuthBloc>(
+      () => _i365.AuthBloc(
+        loginUseCase: gh<_i634.LoginUseCase>(),
+        logoutUseCase: gh<_i357.LogoutUseCase>(),
+        getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
+        changePasswordUsecase: gh<_i385.ChangePasswordUsecase>(),
       ),
     );
     gh.lazySingleton<_i414.CodTransferListUsecase>(

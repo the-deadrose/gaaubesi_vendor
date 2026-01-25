@@ -27,11 +27,11 @@ class AuthRepositoryImpl implements AuthRepository {
       debugPrint('📲 [AuthRepository] Login with username: $username');
       final user = await remoteDataSource.login(username, password);
       debugPrint('✅ [AuthRepository] User fetched from remote');
-      
+
       // Save user data locally for persistence
       await localDataSource.saveUser(user);
       debugPrint('✅ [AuthRepository] User saved to local storage');
-      
+
       return Right(user);
     } on ServerException catch (e) {
       debugPrint('❌ [AuthRepository] ServerException: ${e.message}');
@@ -67,6 +67,28 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword(
+    String oldPassword,
+    String newPassword,
+    String confirmPassword,
+  ) async {
+    try {
+      await remoteDataSource.changePassword(
+        confirmPassword: confirmPassword,
+        currentPassword: oldPassword,
+        newPassword: newPassword,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

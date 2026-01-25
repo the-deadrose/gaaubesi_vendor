@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/features/auth/domain/usecases/change_password_usecase.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/usecase/base_usecase.dart';
 import 'package:gaaubesi_vendor/features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -13,20 +14,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase _loginUseCase;
   final LogoutUseCase _logoutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
+  final ChangePasswordUsecase _changePasswordUsecase;
 
   AuthBloc({
     required LoginUseCase loginUseCase,
     required LogoutUseCase logoutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
-  }) : _loginUseCase = loginUseCase,
-       _logoutUseCase = logoutUseCase,
-       _getCurrentUserUseCase = getCurrentUserUseCase,
-       super(AuthInitial()) {
+    required ChangePasswordUsecase changePasswordUsecase,
+  })  : _loginUseCase = loginUseCase,
+        _logoutUseCase = logoutUseCase,
+        _getCurrentUserUseCase = getCurrentUserUseCase,
+        _changePasswordUsecase = changePasswordUsecase,
+        super(AuthInitial()) {
+    // Auth events
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
+
+    // Change password event
+    on<ChangePasswordRequested>(_onChangePasswordRequested);
   }
 
+  // -------------------- Auth Logic --------------------
   Future<void> _onAuthCheckRequested(
     AuthCheckRequested event,
     Emitter<AuthState> emit,
@@ -46,7 +55,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     debugPrint('🚀 [AuthBloc] Login requested for: ${event.username}');
     emit(AuthLoading());
-    
+
     try {
       final result = await _loginUseCase(
         LoginParams(username: event.username, password: event.password),
@@ -80,5 +89,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) => emit(AuthFailure(failure.message)),
       (_) => emit(AuthUnauthenticated()),
     );
+  }
+
+  // -------------------- Change Password Logic --------------------
+  Future<void> _onChangePasswordRequested(
+    ChangePasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(ChangePasswordLoading());
+
+    try {
+      final result = await _changePasswordUsecase(
+        ChangePasswordParams(
+          currentPassword: event.currentPassword,
+          newPassword: event.newPassword,
+          confirmPassword: event.confirmPassword,
+        ),
+      );
+
+      result.fold(
+        (failure) {
+          debugPrint('❌ [AuthBloc] Change password failed: ${failure.message}');
+          emit(ChangePasswordFailure(failure.message));
+        },
+        (successMessage) {
+          debugPrint('✅ [AuthBloc] Password changed successfully');
+          emit(ChangePasswordSuccess('Password changed successfully'));
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ [AuthBloc] Unexpected error during password change: $e');
+      emit(ChangePasswordFailure('Unexpected error: $e'));
+    }
   }
 }

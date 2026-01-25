@@ -78,6 +78,8 @@ class ApiEndpoints {
   static const String vendorInfo = '/account/vendor/';
 
   static const String extraMileageList = '/extra-mileage/list/';
+
+  static const String changePassword = '/account/vendor/change-password/';
 }
 class QueryParams {
   QueryParams._();

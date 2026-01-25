@@ -9,6 +9,11 @@ import 'package:gaaubesi_vendor/features/auth/data/models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String username, String password);
   Future<String> refreshAccessToken(String refreshToken);
+    Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  });
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -114,6 +119,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       debugPrint('❌ [AuthRemoteDataSource] Unexpected error during token refresh: $e');
       throw ServerException('Unexpected error: $e');
+    }
+  }
+
+   @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      final response = await _dioClient.post(
+        ApiEndpoints.changePassword,
+        data: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+          'confirm_password': confirmPassword,
+        },
+      );
+      if (response.statusCode != 200) {
+        throw CacheException('Failed to change password');
+      }
+    } catch (e) {
+      throw CacheException('Failed to change password');
     }
   }
 }

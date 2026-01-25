@@ -14,6 +14,7 @@ abstract class AuthLocalDataSource {
   Future<String?> getRefreshToken();
   Future<void> updateAccessToken(String accessToken);
   Future<void> updateRefreshToken(String refreshToken);
+
 }
 
 @LazySingleton(as: AuthLocalDataSource)
@@ -26,8 +27,10 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> saveUser(UserModel user) async {
     try {
-      debugPrint('💾 [AuthLocalDataSource] Saving user data for: ${user.userId}');
-      
+      debugPrint(
+        '💾 [AuthLocalDataSource] Saving user data for: ${user.userId}',
+      );
+
       // Save user data as JSON
       final jsonString = json.encode(user.toJson());
       await _secureStorage.write(key: _userKey, value: jsonString);
@@ -38,14 +41,18 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         key: AppConstants.tokenKey,
         value: user.accessToken,
       );
-      debugPrint('✅ [AuthLocalDataSource] Access token saved (length: ${user.accessToken.length})');
-      
+      debugPrint(
+        '✅ [AuthLocalDataSource] Access token saved (length: ${user.accessToken.length})',
+      );
+
       // Save refresh token separately for token refresh logic
       await _secureStorage.write(
         key: 'refresh_token',
         value: user.refreshToken,
       );
-      debugPrint('✅ [AuthLocalDataSource] Refresh token saved (length: ${user.refreshToken.length})');
+      debugPrint(
+        '✅ [AuthLocalDataSource] Refresh token saved (length: ${user.refreshToken.length})',
+      );
     } catch (e) {
       debugPrint('❌ [AuthLocalDataSource] Failed to save user data: $e');
       throw CacheException('Failed to save user data');
@@ -121,12 +128,11 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> updateRefreshToken(String refreshToken) async {
     try {
-      await _secureStorage.write(
-        key: 'refresh_token',
-        value: refreshToken,
-      );
+      await _secureStorage.write(key: 'refresh_token', value: refreshToken);
     } catch (e) {
       throw CacheException('Failed to update refresh token');
     }
   }
+
+ 
 }

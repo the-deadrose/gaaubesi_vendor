@@ -54,7 +54,6 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
       backgroundColor: theme.colorScheme.surface,
       body: BlocConsumer<CustomerDetailBloc, CustomerDetailState>(
         listener: (context, state) {
-          // Handle state changes if needed
         },
         builder: (context, state) {
           return CustomScrollView(
