@@ -80,6 +80,8 @@ class ApiEndpoints {
   static const String extraMileageList = '/extra-mileage/list/';
 
   static const String changePassword = '/account/vendor/change-password/';
+
+  static const String editProfile = '/account/vendor/edit/';
 }
 class QueryParams {
   QueryParams._();

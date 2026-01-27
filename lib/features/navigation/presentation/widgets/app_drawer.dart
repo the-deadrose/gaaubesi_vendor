@@ -295,10 +295,11 @@ class AppDrawer extends StatelessWidget {
                       ),
 
                       _DrawerSubItem(
-                        icon: Icons.info_outline_rounded,
-                        title: 'About App',
+                        icon: Icons.edit_rounded,
+                        title: 'Edit Profile',
                         colorScheme: colorScheme,
                         onTap: () {
+                          context.router.push(const EditProfileRoute());
                           Navigator.pop(context);
                         
                         },

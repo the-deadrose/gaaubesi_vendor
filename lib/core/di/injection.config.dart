@@ -236,6 +236,8 @@ import 'package:gaaubesi_vendor/features/vendor_info/domain/repo/vendor_info_rep
     as _i749;
 import 'package:gaaubesi_vendor/features/vendor_info/domain/usecase/vendor_info_usecase.dart'
     as _i365;
+import 'package:gaaubesi_vendor/features/vendor_info/domain/usecase/vendor_update_usecase.dart'
+    as _i119;
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart'
     as _i74;
 import 'package:get_it/get_it.dart' as _i174;
@@ -602,6 +604,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i365.VendorInfoUsecase>(
       () => _i365.VendorInfoUsecase(gh<_i749.VendorInfoRepo>()),
     );
+    gh.lazySingleton<_i119.VendorUpdateUsecase>(
+      () => _i119.VendorUpdateUsecase(gh<_i749.VendorInfoRepo>()),
+    );
     gh.factory<_i218.FrequentlyUsedPaymentMethodBloc>(
       () => _i218.FrequentlyUsedPaymentMethodBloc(
         gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
@@ -627,12 +632,14 @@ extension GetItInjectableX on _i174.GetIt {
         createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
       ),
     );
-    gh.lazySingleton<_i74.VendorInfoBloc>(
-      () =>
-          _i74.VendorInfoBloc(vendorInfoUsecase: gh<_i365.VendorInfoUsecase>()),
-    );
     gh.factory<_i246.CustomerListBloc>(
       () => _i246.CustomerListBloc(gh<_i25.CustomerListUseCase>()),
+    );
+    gh.lazySingleton<_i74.VendorInfoBloc>(
+      () => _i74.VendorInfoBloc(
+        vendorInfoUsecase: gh<_i365.VendorInfoUsecase>(),
+        vendorUpdateUsecase: gh<_i119.VendorUpdateUsecase>(),
+      ),
     );
     gh.factory<_i989.CustomerDetailBloc>(
       () => _i989.CustomerDetailBloc(gh<_i431.CustomerDetailUsecase>()),

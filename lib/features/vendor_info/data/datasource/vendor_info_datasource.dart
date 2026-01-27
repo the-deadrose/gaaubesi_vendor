@@ -6,6 +6,13 @@ import 'package:injectable/injectable.dart';
 
 abstract class VendorInfoRemoteDatasource {
   Future<VendorInfoEntity> getVendorInfo();
+  Future<void> updateVendorInfo({
+    required String address,
+    required int? nearestPickupPoint,
+    required double? latitude,
+    required double? longitude,
+    required String? profilePicture,
+  });
 }
 
 @LazySingleton(as: VendorInfoRemoteDatasource)
@@ -36,6 +43,38 @@ class VendorInfoDatasourceImpl implements VendorInfoRemoteDatasource {
       return model.toEntity();
     } catch (e) {
       throw Exception('Error fetching vendor info: $e');
+    }
+  }
+
+  @override
+  Future<void> updateVendorInfo({
+    required String address,
+    required int? nearestPickupPoint,
+    required double? latitude,
+    required double? longitude,
+    required String? profilePicture,
+  }) async {
+    try {
+      final Map<String, dynamic> body = {"address": address};
+
+      if (nearestPickupPoint != null) {
+        body["nearest_pickup_point"] = nearestPickupPoint;
+      }
+
+      if (latitude != null && longitude != null) {
+        body["vendor_location"] = {
+          "type": "Point",
+          "coordinates": [longitude, latitude],
+        };
+      }
+
+      if (profilePicture != null && profilePicture.isNotEmpty) {
+        body["profile_picture"] = profilePicture;
+      }
+
+      await _dioClient.patch(ApiEndpoints.editProfile, data: body);
+    } catch (e) {
+      throw Exception('Error updating vendor info: $e');
     }
   }
 }

@@ -23,3 +23,19 @@ class VendorInfoErrorState extends VendorInfoState {
   @override
   List<Object?> get props => [message];
 }
+
+class VendorInfoUpdatingState extends VendorInfoState {}
+
+class VendorInfoUpdatedState extends VendorInfoState {
+  final String message;
+  VendorInfoUpdatedState({required this.message});
+  @override
+  List<Object?> get props => [message];
+}
+
+class VendorInfoUpdateErrorState extends VendorInfoState {
+  final String message;
+  VendorInfoUpdateErrorState({required this.message});
+  @override
+  List<Object?> get props => [message];
+}

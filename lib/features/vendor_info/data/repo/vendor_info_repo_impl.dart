@@ -20,4 +20,26 @@ class VendorInfoRepoImpl implements VendorInfoRepo {
       return Left(ServerFailure('Failed to fetch vendor info: $e'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateVendorInfo({
+    required String address,
+    required int? nearestPickupPoint,
+    required double? latitude,
+    required double? longitude,
+    required String? profilePicture,
+  }) async {
+    try {
+      final result = await remoteDatasource.updateVendorInfo(
+        address: address,
+        nearestPickupPoint: nearestPickupPoint,
+        latitude: latitude,
+        longitude: longitude,
+        profilePicture: profilePicture,
+      );
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure('Failed to update vendor info: $e'));
+    }
+  }
 }
