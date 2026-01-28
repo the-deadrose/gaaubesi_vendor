@@ -82,6 +82,8 @@ class ApiEndpoints {
   static const String changePassword = '/account/vendor/change-password/';
 
   static const String editProfile = '/account/vendor/edit/';
+
+  static const String headOfficeContacts = '/head-office/';
 }
 class QueryParams {
   QueryParams._();

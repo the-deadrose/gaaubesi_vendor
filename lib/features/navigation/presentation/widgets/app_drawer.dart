@@ -29,35 +29,46 @@ class AppDrawer extends StatelessWidget {
                 }
 
                 return Container(
-                  width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     border: Border(
                       bottom: BorderSide(
-                        color: colorScheme.outline.withValues(alpha: 0.2),
+                        color: colorScheme.outline.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
                   ),
                   child: Row(
                     children: [
-                      // Avatar
                       Container(
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          gradient: LinearGradient(
+                            colors: [
+                              colorScheme.primary.withValues(alpha: 0.9),
+                              colorScheme.primary.withValues(alpha: 0.7),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.store_rounded,
-                          color: colorScheme.primary,
+                          color: Colors.white,
                           size: 28,
                         ),
                       ),
-                      const SizedBox(width: 14),
-                      // Vendor info
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,41 +78,69 @@ class AppDrawer extends StatelessWidget {
                                 Navigator.pop(context);
                                 context.router.push(const VendorInfoRoute());
                               },
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    vendorName,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: colorScheme.onSurface,
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        vendorName,
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: colorScheme.onSurface,
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.primary.withValues(
+                                          alpha: 0.1,
                                         ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "Edit",
-                                        style: TextStyle(
-                                          color: colorScheme.primary,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: colorScheme.primary.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          width: 0.5,
                                         ),
                                       ),
-                                      Icon(
-                                        Icons.edit,
-                                        size: 14,
-                                        color: colorScheme.primary,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "Edit",
+                                            style: TextStyle(
+                                              color: colorScheme.primary,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            Icons.edit_outlined,
+                                            size: 12,
+                                            color: colorScheme.primary,
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 4),
                             Text(
                               'Vendor Dashboard',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -119,47 +158,40 @@ class AppDrawer extends StatelessWidget {
               },
             ),
 
-            // Navigation items
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 children: [
-                  // Normal Tile - Dashboard
-                  _NormalTile(
-                    icon: Icons.dashboard_rounded,
-                    title: 'Dashboard',
+                  _DrawerSection(
+                    title: 'Main',
                     colorScheme: colorScheme,
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.router.push(const HomeRoute());
-                    },
+                    children: [
+                      _NavTile(
+                        icon: Icons.dashboard_rounded,
+                        title: 'Dashboard',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(const HomeRoute());
+                        },
+                      ),
+                      _NavTile(
+                        icon: Icons.people_outline_rounded,
+                        title: 'Customers',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(const CustomerListRoute());
+                        },
+                      ),
+                    ],
                   ),
 
-                  _NormalTile(
-                    icon: Icons.people,
-                    title: 'Customers',
-                    colorScheme: colorScheme,
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.router.push(const CustomerListRoute());
-                    },
-                  ),
-
-                  _NormalTile(
-                    icon: Icons.security_rounded,
-                    title: 'Staffs and Permissions',
-                    colorScheme: colorScheme,
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-
-                  _ExpandableSection(
-                    icon: Icons.analytics_rounded,
+                  _DrawerSection(
                     title: 'Orders',
                     colorScheme: colorScheme,
                     children: [
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.list_alt_rounded,
                         title: 'Order List',
                         colorScheme: colorScheme,
@@ -168,8 +200,8 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const OrdersRoute());
                         },
                       ),
-                      _DrawerSubItem(
-                        icon: Icons.add_rounded,
+                      _NavTile(
+                        icon: Icons.add_circle_outline_rounded,
                         title: 'Create Order',
                         colorScheme: colorScheme,
                         onTap: () {
@@ -180,13 +212,35 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
 
-                  // Expandable Section - Utilities
-                  _ExpandableSection(
-                    icon: Icons.build_rounded,
+                  _DrawerSection(
+                    title: 'Management',
+                    colorScheme: colorScheme,
+                    children: [
+                      _NavTile(
+                        icon: Icons.security_rounded,
+                        title: 'Staff & Permissions',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      _NavTile(
+                        icon: Icons.analytics_rounded,
+                        title: 'Analytics',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          Navigator.pop(context);
+                          context.router.push(TicketRoute());
+                        },
+                      ),
+                    ],
+                  ),
+
+                  _DrawerSection(
                     title: 'Utilities',
                     colorScheme: colorScheme,
                     children: [
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.confirmation_number_outlined,
                         title: 'Tickets',
                         colorScheme: colorScheme,
@@ -195,7 +249,7 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(TicketRoute());
                         },
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.mail_outline_rounded,
                         title: 'Messages',
                         colorScheme: colorScheme,
@@ -204,7 +258,7 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const VendorMessagesRoute());
                         },
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.comment_outlined,
                         title: 'Comments',
                         colorScheme: colorScheme,
@@ -213,7 +267,7 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(CommentsRoute());
                         },
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.notifications_none_rounded,
                         title: 'Notices',
                         colorScheme: colorScheme,
@@ -222,16 +276,16 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(NoticeListRoute());
                         },
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.calculate_outlined,
-                        title: 'Calculate Delivery Charge',
+                        title: 'Delivery Calculator',
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
                           context.router.push(CalculateDeliveryChargeRoute());
                         },
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.directions_car_rounded,
                         title: "Extra Mileage",
                         onTap: () {
@@ -243,13 +297,12 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
 
-                  _ExpandableSection(
-                    icon: Icons.analytics_rounded,
+                  _DrawerSection(
                     title: 'Payments',
                     colorScheme: colorScheme,
                     children: [
-                      _DrawerSubItem(
-                        icon: Icons.bar_chart_rounded,
+                      _NavTile(
+                        icon: Icons.attach_money_rounded,
                         title: 'COD Transfers',
                         colorScheme: colorScheme,
                         onTap: () {
@@ -257,8 +310,8 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const CodTransferListRoute());
                         },
                       ),
-                      _DrawerSubItem(
-                        icon: Icons.bar_chart_rounded,
+                      _NavTile(
+                        icon: Icons.request_page_outlined,
                         title: 'Payment Requests',
                         colorScheme: colorScheme,
                         onTap: () {
@@ -266,7 +319,7 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const PaymentRequestListRoute());
                         },
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.monetization_on_outlined,
                         title: 'Daily Transactions',
                         colorScheme: colorScheme,
@@ -278,13 +331,11 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
 
-                  // Expandable Section - Settings
-                  _ExpandableSection(
-                    icon: Icons.settings_rounded,
+                  _DrawerSection(
                     title: 'Settings',
                     colorScheme: colorScheme,
                     children: [
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.lock_outline_rounded,
                         title: 'Change Password',
                         colorScheme: colorScheme,
@@ -293,80 +344,46 @@ class AppDrawer extends StatelessWidget {
                           context.router.push(const ChangePasswordRoute());
                         },
                       ),
-
-                      _DrawerSubItem(
-                        icon: Icons.edit_rounded,
+                      _NavTile(
+                        icon: Icons.person_outline_rounded,
                         title: 'Edit Profile',
                         colorScheme: colorScheme,
                         onTap: () {
                           context.router.push(const EditProfileRoute());
                           Navigator.pop(context);
-                        
                         },
                       ),
                     ],
                   ),
 
-       
-                  _ExpandableSection(
-                    icon: Icons.contact_emergency,
-                    title: "Contact",
+                  _DrawerSection(
+                    title: 'Contact',
                     colorScheme: colorScheme,
                     children: [
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.local_post_office,
                         title: "Service Stations",
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'Service Stations page coming soon',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          _showComingSoonSnackbar(context, 'Service Stations');
                         },
                         colorScheme: colorScheme,
                       ),
-                      _DrawerSubItem(
+                      _NavTile(
                         icon: Icons.home_work,
                         title: "Head Office",
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'Head Office page coming soon',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          context.router.push(const HeadOfficeContactsRoute());
                         },
                         colorScheme: colorScheme,
                       ),
-                      _DrawerSubItem(
-                        icon: Icons.location_history,
+                      _NavTile(
+                        icon: Icons.location_on_outlined,
                         title: "Redirect Stations",
                         onTap: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'Redirect Stations page coming soon',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          );
+                          _showComingSoonSnackbar(context, 'Redirect Stations');
                         },
                         colorScheme: colorScheme,
                       ),
@@ -377,11 +394,11 @@ class AppDrawer extends StatelessWidget {
             ),
 
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: colorScheme.outline.withValues(alpha: 0.2),
+                    color: colorScheme.outline.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -400,6 +417,17 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
+  void _showComingSoonSnackbar(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$feature page coming soon'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _showLogoutDialog(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -407,24 +435,37 @@ class AppDrawer extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(
+          'Logout',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onSurface.withValues(alpha: 0.7),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               context.read<AuthBloc>().add(AuthLogoutRequested());
             },
-            child: Text('Logout', style: TextStyle(color: colorScheme.error)),
+            style: TextButton.styleFrom(
+              backgroundColor: colorScheme.error.withValues(alpha: 0.1),
+              foregroundColor: colorScheme.error,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text('Logout'),
           ),
         ],
       ),
@@ -432,14 +473,12 @@ class AppDrawer extends StatelessWidget {
   }
 }
 
-class _ExpandableSection extends StatelessWidget {
-  final IconData icon;
+class _DrawerSection extends StatelessWidget {
   final String title;
   final ColorScheme colorScheme;
   final List<Widget> children;
 
-  const _ExpandableSection({
-    required this.icon,
+  const _DrawerSection({
     required this.title,
     required this.colorScheme,
     required this.children,
@@ -447,49 +486,35 @@ class _ExpandableSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent,
-        splashColor: colorScheme.primary.withValues(alpha: 0.08),
-        highlightColor: colorScheme.primary.withValues(alpha: 0.04),
-      ),
-      child: ExpansionTile(
-        leading: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: colorScheme.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: colorScheme.primary, size: 20),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
+          child: Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.8,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
           ),
         ),
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        childrenPadding: const EdgeInsets.only(bottom: 8),
-        shape: const Border(),
-        collapsedShape: const Border(),
-        iconColor: colorScheme.onSurface.withValues(alpha: 0.5),
-        collapsedIconColor: colorScheme.onSurface.withValues(alpha: 0.5),
-        children: children,
-      ),
+        ...children,
+        const SizedBox(height: 4),
+      ],
     );
   }
 }
 
-class _NormalTile extends StatelessWidget {
+class _NavTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final VoidCallback onTap;
   final ColorScheme colorScheme;
 
-  const _NormalTile({
+  const _NavTile({
     required this.icon,
     required this.title,
     required this.onTap,
@@ -499,16 +524,18 @@ class _NormalTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Material(
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          splashColor: colorScheme.primary.withValues(alpha: 0.08),
-          highlightColor: colorScheme.primary.withValues(alpha: 0.04),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          borderRadius: BorderRadius.circular(10),
+          splashColor: colorScheme.primary.withValues(alpha: 0.1),
+          highlightColor: colorScheme.primary.withValues(alpha: 0.05),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
                 Container(
@@ -516,11 +543,15 @@ class _NormalTile extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     color: colorScheme.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(9),
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                      width: 1,
+                    ),
                   ),
                   child: Icon(icon, color: colorScheme.primary, size: 20),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     title,
@@ -533,7 +564,7 @@ class _NormalTile extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: colorScheme.primary,
+                  color: colorScheme.onSurface.withValues(alpha: 0.3),
                   size: 20,
                 ),
               ],
@@ -545,62 +576,6 @@ class _NormalTile extends StatelessWidget {
   }
 }
 
-// Sub-item for expandable sections
-class _DrawerSubItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-  final ColorScheme colorScheme;
-
-  const _DrawerSubItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          splashColor: colorScheme.primary.withValues(alpha: 0.08),
-          highlightColor: colorScheme.primary.withValues(alpha: 0.04),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 12),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: colorScheme.onSurface.withValues(alpha: 0.8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Logout Button
 class _LogoutButton extends StatelessWidget {
   final ColorScheme colorScheme;
   final VoidCallback onTap;
@@ -615,18 +590,23 @@ class _LogoutButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
-        splashColor: colorScheme.error.withValues(alpha: 0.08),
-        highlightColor: colorScheme.error.withValues(alpha: 0.04),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        splashColor: colorScheme.error.withValues(alpha: 0.1),
+        highlightColor: colorScheme.error.withValues(alpha: 0.05),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: colorScheme.error.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: colorScheme.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(
+                    color: colorScheme.error.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
                 ),
                 child: Icon(
                   Icons.logout_rounded,
@@ -634,13 +614,15 @@ class _LogoutButton extends StatelessWidget {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 14),
-              Text(
-                'Logout',
-                style: TextStyle(
-                  color: colorScheme.error,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: colorScheme.error,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -651,7 +633,6 @@ class _LogoutButton extends StatelessWidget {
   }
 }
 
-// Bottom Navigation Bar
 class AppNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -665,48 +646,55 @@ class AppNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
             offset: const Offset(0, -2),
           ),
         ],
+        border: Border(
+          top: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
       ),
       child: SafeArea(
         child: Container(
-          height: 80,
+          height: 72,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _NavBarItem(
                 icon: Icons.home_outlined,
-                activeIcon: Icons.home,
+                activeIcon: Icons.home_rounded,
                 label: 'Home',
                 isActive: currentIndex == 0,
                 onTap: () => onTap(0),
-                color: theme.primaryColor,
+                color: colorScheme.primary,
               ),
               _NavBarItem(
                 icon: Icons.shopping_bag_outlined,
-                activeIcon: Icons.shopping_bag,
+                activeIcon: Icons.shopping_bag_rounded,
                 label: 'Orders',
                 isActive: currentIndex == 1,
                 onTap: () => onTap(1),
-                color: theme.primaryColor,
+                color: colorScheme.primary,
               ),
               _NavBarItem(
                 icon: Icons.apps_outlined,
-                activeIcon: Icons.apps,
+                activeIcon: Icons.apps_rounded,
                 label: 'Utilities',
                 isActive: currentIndex == 2,
                 onTap: () => onTap(2),
-                color: theme.primaryColor,
+                color: colorScheme.primary,
               ),
             ],
           ),
@@ -736,35 +724,47 @@ class _NavBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isActive ? color.withValues(alpha: 0.1) : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                isActive ? activeIcon : icon,
-                color: isActive ? color : Colors.grey[600],
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isActive ? color : Colors.grey[600],
-                  fontSize: 12,
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          splashColor: color.withValues(alpha: 0.1),
+          highlightColor: color.withValues(alpha: 0.05),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? color.withValues(alpha: 0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isActive ? activeIcon : icon,
+                    color: isActive ? color : Colors.grey[600],
+                    size: 24,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isActive ? color : Colors.grey[600],
+                    fontSize: 12,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -86,6 +86,16 @@ import 'package:gaaubesi_vendor/features/comments/domain/usecase/todays_comments
     as _i427;
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart'
     as _i11;
+import 'package:gaaubesi_vendor/features/contacts/data/datasource/contacts_datasources.dart'
+    as _i556;
+import 'package:gaaubesi_vendor/features/contacts/data/repository/contacts_repository_impl.dart'
+    as _i163;
+import 'package:gaaubesi_vendor/features/contacts/domain/repository/contacts_repository.dart'
+    as _i793;
+import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_headoffice_usecase.dart'
+    as _i612;
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/head_office/head_office_contact_bloc.dart'
+    as _i437;
 import 'package:gaaubesi_vendor/features/customer/data/datasource/customer_datasource.dart'
     as _i88;
 import 'package:gaaubesi_vendor/features/customer/data/repo/customer_repo_imp.dart'
@@ -292,6 +302,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i311.AuthRemoteDataSource>(
       () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
+    gh.lazySingleton<_i556.ContactsRemoteDatasources>(
+      () => _i556.ContactsRemoteDatasourcesImp(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i15.CalculateDeliveryChargeRemoteDatasource>(
       () => _i15.CalculateDeliveryChargeDatasourceImpl(gh<_i619.DioClient>()),
     );
@@ -384,6 +397,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i459.WarehouseOrderListUsecase>(
       () => _i459.WarehouseOrderListUsecase(gh<_i532.OrderRepository>()),
+    );
+    gh.lazySingleton<_i793.ContactsRepository>(
+      () => _i163.ContactsRepositoryImpl(
+        remoteDatasources: gh<_i556.ContactsRemoteDatasources>(),
+      ),
     );
     gh.lazySingleton<_i92.CommentsRepository>(
       () => _i944.CommentsRepoImp(
@@ -564,6 +582,11 @@ extension GetItInjectableX on _i174.GetIt {
         fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
       ),
     );
+    gh.lazySingleton<_i612.FetchHeadofficeUsecase>(
+      () => _i612.FetchHeadofficeUsecase(
+        contactsRepository: gh<_i793.ContactsRepository>(),
+      ),
+    );
     gh.factory<_i626.OrderBloc>(
       () => _i626.OrderBloc(
         fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
@@ -634,6 +657,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i246.CustomerListBloc>(
       () => _i246.CustomerListBloc(gh<_i25.CustomerListUseCase>()),
+    );
+    gh.factory<_i437.HeadOfficeContactsBloc>(
+      () => _i437.HeadOfficeContactsBloc(
+        fetchHeadofficeUsecase: gh<_i612.FetchHeadofficeUsecase>(),
+      ),
     );
     gh.lazySingleton<_i74.VendorInfoBloc>(
       () => _i74.VendorInfoBloc(

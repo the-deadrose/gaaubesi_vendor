@@ -10,6 +10,7 @@ import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calc
 import 'package:gaaubesi_vendor/features/cod_transfer/presentation/bloc/cod_transfer_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/head_office/head_office_contact_bloc.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_bloc.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/detail/customer_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart';
@@ -69,6 +70,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<CustomerDetailBloc>()),
         BlocProvider(create: (context) => getIt<VendorInfoBloc>()),
         BlocProvider(create: (context) => getIt<ExtraMileageBloc>()),
+        BlocProvider(create: (context) => getIt<HeadOfficeContactsBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

@@ -286,6 +286,22 @@ class ExtraMileageRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [HeadOfficeContactsPage]
+class HeadOfficeContactsRoute extends PageRouteInfo<void> {
+  const HeadOfficeContactsRoute({List<PageRouteInfo>? children})
+    : super(HeadOfficeContactsRoute.name, initialChildren: children);
+
+  static const String name = 'HeadOfficeContactsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const HeadOfficeContactsPage();
+    },
+  );
+}
+
+/// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})

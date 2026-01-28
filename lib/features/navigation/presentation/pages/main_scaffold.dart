@@ -29,5 +29,4 @@ class MainScaffoldPage extends StatelessWidget {
     );
   }
 
-  // Temporary inline definition
 }
