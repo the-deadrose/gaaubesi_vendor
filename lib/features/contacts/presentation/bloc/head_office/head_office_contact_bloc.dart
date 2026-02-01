@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/usecase/base_usecase.dart';
 import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_headoffice_usecase.dart';
@@ -26,9 +27,17 @@ class HeadOfficeContactsBloc
 
     result.fold(
       (failure) {
+        debugPrint('🔴 BLoC: Emitting Error State: ${failure.toString()}');
         emit(HeadOfficeContactsError(message: failure.toString()));
       },
       (headOfficeContacts) {
+        debugPrint('🟢 BLoC: Data received:');
+        debugPrint('csrContact: \\${headOfficeContacts.csrContact}');
+        debugPrint('departments: \\${headOfficeContacts.departments}');
+        debugPrint('provinces: \\${headOfficeContacts.provinces}');
+        debugPrint('hubContact: \\${headOfficeContacts.hubContact}');
+        debugPrint('valleyContact: \\${headOfficeContacts.valleyContact}');
+        debugPrint('issueContact: \\${headOfficeContacts.issueContact}');
         final hasData =
             headOfficeContacts.csrContact.isNotEmpty ||
             headOfficeContacts.departments.isNotEmpty ||
@@ -38,10 +47,12 @@ class HeadOfficeContactsBloc
             headOfficeContacts.issueContact.isNotEmpty;
 
         if (hasData) {
+          debugPrint('🟢 BLoC: Emitting Loaded State');
           emit(
             HeadOfficeContactsLoaded(headOfficeContacts: headOfficeContacts),
           );
         } else {
+          debugPrint('🟡 BLoC: Emitting Empty State');
           emit(HeadOfficeContactsEmpty());
         }
       },

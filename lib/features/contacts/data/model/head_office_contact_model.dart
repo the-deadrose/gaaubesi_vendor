@@ -1,27 +1,32 @@
 import 'package:equatable/equatable.dart';
-import 'package:gaaubesi_vendor/features/contacts/domain/entity/head_office_contact_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:gaaubesi_vendor/features/contacts/domain/entity/head_office_contact_entity.dart';
 
 part 'head_office_contact_model.g.dart';
 
+
 @JsonSerializable()
 class HeadOfficeContactResponse extends Equatable {
-  @JsonKey(name: 'message')
+  final bool? success;
   final String? message;
-
-  @JsonKey(name: 'data')
   final HeadOfficeContactDataModel? data;
 
-  const HeadOfficeContactResponse({this.message, this.data});
+  const HeadOfficeContactResponse({
+    this.success,
+    this.message,
+    this.data,
+  });
 
   factory HeadOfficeContactResponse.fromJson(Map<String, dynamic> json) =>
       _$HeadOfficeContactResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$HeadOfficeContactResponseToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$HeadOfficeContactResponseToJson(this);
 
   HeadOfficeContactEntity toEntity() {
-    if (data == null) {
-      return HeadOfficeContactEntity(
+    final d = data;
+    if (d == null) {
+      return const HeadOfficeContactEntity(
         csrContact: [],
         departments: {},
         provinces: {},
@@ -30,52 +35,49 @@ class HeadOfficeContactResponse extends Equatable {
         issueContact: [],
       );
     }
-
     return HeadOfficeContactEntity(
-      csrContact: data!.csrContact
-          .map((contact) => contact.toEntity())
-          .toList(),
-      departments: _convertMapToEntityMap(data!.departments),
-      provinces: _convertMapToEntityMap(data!.provinces),
-      hubContact: data!.hubContact
-          .map((contact) => contact.toEntity())
-          .toList(),
-      valleyContact: data!.valleyContact
-          .map((contact) => contact.toEntity())
-          .toList(),
-      issueContact: data!.issueContact
-          .map((contact) => contact.toEntity())
-          .toList(),
+      csrContact: d.csrContact.map((e) => e.toEntity()).toList(),
+      departments: d.departments.map(
+        (k, v) => MapEntry(
+          k,
+          v.map((e) => e.toEntity()).toList(),
+        ),
+      ),
+      provinces: d.provinces.map(
+        (k, v) => MapEntry(
+          k,
+          v.map((e) => e.toEntity()).toList(),
+        ),
+      ),
+      hubContact: d.hubContact.map((e) => e.toEntity()).toList(),
+      valleyContact: d.valleyContact.map((e) => e.toEntity()).toList(),
+      issueContact: d.issueContact.map((e) => e.toEntity()).toList(),
     );
   }
 
-  Map<String, List<ContactPersonEntity>> _convertMapToEntityMap(
-    Map<String, List<ContactPersonModel>>? modelMap,
-  ) {
-    if (modelMap == null || modelMap.isEmpty) {
-      return {};
-    }
-
-    final Map<String, List<ContactPersonEntity>> result = {};
-    modelMap.forEach((key, value) {
-      result[key] = value.map((model) => model.toEntity()).toList();
-    });
-    return result;
-  }
-
   @override
-  List<Object?> get props => [message, data];
+  List<Object?> get props => [success, message, data];
 }
-
 @JsonSerializable()
+
 class HeadOfficeContactDataModel extends Equatable {
   @JsonKey(name: 'csr_contact', defaultValue: [])
   final List<ContactPersonModel> csrContact;
 
-  @JsonKey(name: 'departments', defaultValue: {})
+  @JsonKey(
+    name: 'departments',
+    fromJson: _mapFromJson,
+    toJson: _mapToJson,
+    defaultValue: {},
+  )
   final Map<String, List<ContactPersonModel>> departments;
 
-  @JsonKey(name: 'provinces', defaultValue: {})
+  @JsonKey(
+    name: 'provinces',
+    fromJson: _mapFromJson,
+    toJson: _mapToJson,
+    defaultValue: {},
+  )
   final Map<String, List<ContactPersonModel>> provinces;
 
   @JsonKey(name: 'hub_contact', defaultValue: [])
@@ -86,6 +88,8 @@ class HeadOfficeContactDataModel extends Equatable {
 
   @JsonKey(name: 'issue_contact', defaultValue: [])
   final List<ContactPersonModel> issueContact;
+
+
 
   const HeadOfficeContactDataModel({
     required this.csrContact,
@@ -99,25 +103,50 @@ class HeadOfficeContactDataModel extends Equatable {
   factory HeadOfficeContactDataModel.fromJson(Map<String, dynamic> json) =>
       _$HeadOfficeContactDataModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$HeadOfficeContactDataModelToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$HeadOfficeContactDataModelToJson(this);
+
+  static Map<String, List<ContactPersonModel>> _mapFromJson(
+    Map<String, dynamic>? json,
+  ) {
+    if (json == null) return {};
+    return json.map(
+      (key, value) => MapEntry(
+        key,
+        (value as List)
+            .map((e) => ContactPersonModel.fromJson(e))
+            .toList(),
+      ),
+    );
+  }
+
+  static Map<String, dynamic> _mapToJson(
+    Map<String, List<ContactPersonModel>> map,
+  ) {
+    return map.map(
+      (key, value) => MapEntry(
+        key,
+        value.map((e) => e.toJson()).toList(),
+      ),
+    );
+  }
 
   @override
   List<Object?> get props => [
-    csrContact,
-    departments,
-    provinces,
-    hubContact,
-    valleyContact,
-    issueContact,
-  ];
+        csrContact,
+        departments,
+        provinces,
+        hubContact,
+        valleyContact,
+        issueContact,
+      ];
 }
-
 @JsonSerializable()
 class ContactPersonModel extends Equatable {
-  @JsonKey(name: 'contact_person', defaultValue: '')
+  @JsonKey(name: 'contact_person')
   final String contactPerson;
 
-  @JsonKey(name: 'phone_no', defaultValue: '')
+  @JsonKey(name: 'phone_no')
   final String phoneNo;
 
   const ContactPersonModel({
@@ -128,11 +157,14 @@ class ContactPersonModel extends Equatable {
   factory ContactPersonModel.fromJson(Map<String, dynamic> json) =>
       _$ContactPersonModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ContactPersonModelToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$ContactPersonModelToJson(this);
 
-  ContactPersonEntity toEntity() {
-    return ContactPersonEntity(contactPerson: contactPerson, phoneNo: phoneNo);
-  }
+  ContactPersonEntity toEntity() =>
+      ContactPersonEntity(
+        contactPerson: contactPerson,
+        phoneNo: phoneNo,
+      );
 
   @override
   List<Object?> get props => [contactPerson, phoneNo];

@@ -9,6 +9,7 @@ part of 'head_office_contact_model.dart';
 HeadOfficeContactResponse _$HeadOfficeContactResponseFromJson(
   Map<String, dynamic> json,
 ) => HeadOfficeContactResponse(
+  success: json['success'] as bool?,
   message: json['message'] as String?,
   data: json['data'] == null
       ? null
@@ -19,7 +20,11 @@ HeadOfficeContactResponse _$HeadOfficeContactResponseFromJson(
 
 Map<String, dynamic> _$HeadOfficeContactResponseToJson(
   HeadOfficeContactResponse instance,
-) => <String, dynamic>{'message': instance.message, 'data': instance.data};
+) => <String, dynamic>{
+  'success': instance.success,
+  'message': instance.message,
+  'data': instance.data,
+};
 
 HeadOfficeContactDataModel _$HeadOfficeContactDataModelFromJson(
   Map<String, dynamic> json,
@@ -29,30 +34,16 @@ HeadOfficeContactDataModel _$HeadOfficeContactDataModelFromJson(
           ?.map((e) => ContactPersonModel.fromJson(e as Map<String, dynamic>))
           .toList() ??
       [],
-  departments:
-      (json['departments'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(
-          k,
-          (e as List<dynamic>)
-              .map(
-                (e) => ContactPersonModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
+  departments: json['departments'] == null
+      ? {}
+      : HeadOfficeContactDataModel._mapFromJson(
+          json['departments'] as Map<String, dynamic>?,
         ),
-      ) ??
-      {},
-  provinces:
-      (json['provinces'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(
-          k,
-          (e as List<dynamic>)
-              .map(
-                (e) => ContactPersonModel.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
+  provinces: json['provinces'] == null
+      ? {}
+      : HeadOfficeContactDataModel._mapFromJson(
+          json['provinces'] as Map<String, dynamic>?,
         ),
-      ) ??
-      {},
   hubContact:
       (json['hub_contact'] as List<dynamic>?)
           ?.map((e) => ContactPersonModel.fromJson(e as Map<String, dynamic>))
@@ -74,8 +65,8 @@ Map<String, dynamic> _$HeadOfficeContactDataModelToJson(
   HeadOfficeContactDataModel instance,
 ) => <String, dynamic>{
   'csr_contact': instance.csrContact,
-  'departments': instance.departments,
-  'provinces': instance.provinces,
+  'departments': HeadOfficeContactDataModel._mapToJson(instance.departments),
+  'provinces': HeadOfficeContactDataModel._mapToJson(instance.provinces),
   'hub_contact': instance.hubContact,
   'valley_contact': instance.valleyContact,
   'issue_contact': instance.issueContact,
@@ -83,8 +74,8 @@ Map<String, dynamic> _$HeadOfficeContactDataModelToJson(
 
 ContactPersonModel _$ContactPersonModelFromJson(Map<String, dynamic> json) =>
     ContactPersonModel(
-      contactPerson: json['contact_person'] as String? ?? '',
-      phoneNo: json['phone_no'] as String? ?? '',
+      contactPerson: json['contact_person'] as String,
+      phoneNo: json['phone_no'] as String,
     );
 
 Map<String, dynamic> _$ContactPersonModelToJson(ContactPersonModel instance) =>

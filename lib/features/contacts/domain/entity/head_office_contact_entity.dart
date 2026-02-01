@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class HeadOfficeContactEntity extends Equatable {
@@ -27,9 +26,6 @@ class HeadOfficeContactEntity extends Equatable {
         valleyContact,
         issueContact,
       ];
-
-  @override
-  bool get stringify => true;
 }
 
 class ContactPersonEntity extends Equatable {
@@ -43,7 +39,4 @@ class ContactPersonEntity extends Equatable {
 
   @override
   List<Object?> get props => [contactPerson, phoneNo];
-
-  @override
-  bool get stringify => true;
 }
