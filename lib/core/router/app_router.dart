@@ -31,6 +31,7 @@ import 'package:gaaubesi_vendor/features/extra_mileage/presentation/page/extra_m
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/change_password.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/page/vendor_info_update_screen.dart';
 import 'package:gaaubesi_vendor/features/contacts/presentation/page/head_office_contacts_page.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/page/service_station_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -183,6 +184,8 @@ class AppRouter extends RootStackRouter {
       path : '/head-office-contacts',
       guards: [AuthGuard()],
     ),
+
+    AutoRoute(page: ServiceStationRoute.page, path: '/service-station', guards: [AuthGuard()]),
   ];
 }
 
@@ -214,4 +217,5 @@ extension AppRoutesExtension on AppRouter {
   static const String changePassword = '/change-password';
   static const String vendorInfoUpdate = '/vendor-info-update';
   static const String headOfficeContacts = '/head-office-contacts';
+  static const String serviceStation = '/service-station';
 }

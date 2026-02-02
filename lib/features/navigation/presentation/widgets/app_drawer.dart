@@ -365,7 +365,7 @@ class AppDrawer extends StatelessWidget {
                         title: "Service Stations",
                         onTap: () {
                           Navigator.pop(context);
-                          _showComingSoonSnackbar(context, 'Service Stations');
+                          context.router.push(const ServiceStationRoute());
                         },
                         colorScheme: colorScheme,
                       ),

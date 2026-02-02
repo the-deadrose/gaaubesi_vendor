@@ -524,6 +524,22 @@ class RedirectedOrdersRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [ServiceStationScreen]
+class ServiceStationRoute extends PageRouteInfo<void> {
+  const ServiceStationRoute({List<PageRouteInfo>? children})
+    : super(ServiceStationRoute.name, initialChildren: children);
+
+  static const String name = 'ServiceStationRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ServiceStationScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [TicketDetailScreen]
 class TicketDetailRoute extends PageRouteInfo<TicketDetailRouteArgs> {
   TicketDetailRoute({

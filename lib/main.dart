@@ -11,6 +11,7 @@ import 'package:gaaubesi_vendor/features/cod_transfer/presentation/bloc/cod_tran
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/head_office/head_office_contact_bloc.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/service_sation/service_station_bloc.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_bloc.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/detail/customer_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<VendorInfoBloc>()),
         BlocProvider(create: (context) => getIt<ExtraMileageBloc>()),
         BlocProvider(create: (context) => getIt<HeadOfficeContactsBloc>()),
+        BlocProvider(create: (context) => getIt<ServiceStationBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

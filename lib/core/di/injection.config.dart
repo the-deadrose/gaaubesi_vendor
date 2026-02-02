@@ -94,8 +94,12 @@ import 'package:gaaubesi_vendor/features/contacts/domain/repository/contacts_rep
     as _i793;
 import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_headoffice_usecase.dart'
     as _i612;
+import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_service_station_usecase.dart'
+    as _i617;
 import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/head_office/head_office_contact_bloc.dart'
     as _i437;
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/service_sation/service_station_bloc.dart'
+    as _i417;
 import 'package:gaaubesi_vendor/features/customer/data/datasource/customer_datasource.dart'
     as _i88;
 import 'package:gaaubesi_vendor/features/customer/data/repo/customer_repo_imp.dart'
@@ -587,6 +591,11 @@ extension GetItInjectableX on _i174.GetIt {
         contactsRepository: gh<_i793.ContactsRepository>(),
       ),
     );
+    gh.lazySingleton<_i617.FetchServiceStationUsecase>(
+      () => _i617.FetchServiceStationUsecase(
+        contactsRepository: gh<_i793.ContactsRepository>(),
+      ),
+    );
     gh.factory<_i626.OrderBloc>(
       () => _i626.OrderBloc(
         fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
@@ -653,6 +662,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i488.TicketBloc(
         ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
         createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
+      ),
+    );
+    gh.lazySingleton<_i417.ServiceStationBloc>(
+      () => _i417.ServiceStationBloc(
+        fetchServiceStationUsecase: gh<_i617.FetchServiceStationUsecase>(),
       ),
     );
     gh.factory<_i246.CustomerListBloc>(
