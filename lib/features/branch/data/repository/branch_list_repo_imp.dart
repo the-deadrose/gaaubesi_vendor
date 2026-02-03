@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/pickup_point_entity.dart';
+import 'package:gaaubesi_vendor/features/branch/domain/entity/redirect_station_list_entity.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/branch/data/datasource/branch_list_datasource.dart';
@@ -16,13 +17,19 @@ class BranchListRepoImp implements BranchListRepository {
   BranchListRepoImp({required this.remoteDatasource});
 
   @override
-  Future<Either<ServerFailure, List<OrderStatusEntity>>> getBranchList(String branch) async {
+  Future<Either<ServerFailure, List<OrderStatusEntity>>> getBranchList(
+    String branch,
+  ) async {
     try {
       debugPrint('[BranchListRepo] Fetching branch list for: $branch');
       final branchList = await remoteDatasource.fetchBranchList(branch);
-      debugPrint('[BranchListRepo] Got ${branchList.length} branches from datasource');
+      debugPrint(
+        '[BranchListRepo] Got ${branchList.length} branches from datasource',
+      );
       for (var i = 0; i < branchList.length && i < 3; i++) {
-        debugPrint('[BranchListRepo] Branch $i: value=${branchList[i].value}, label=${branchList[i].label}, code=${branchList[i].code}');
+        debugPrint(
+          '[BranchListRepo] Branch $i: value=${branchList[i].value}, label=${branchList[i].label}, code=${branchList[i].code}',
+        );
       }
       return Right(branchList);
     } on DioException catch (e) {
@@ -47,6 +54,33 @@ class BranchListRepoImp implements BranchListRepository {
     try {
       final pickupPoints = await remoteDatasource.fetchPickupPoints();
       return Right(pickupPoints);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint(
+          '[BranchListRepo] Session expired, returning silent failure',
+        );
+        return Left(ServerFailure('Session expired'));
+      }
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      debugPrint('[BranchListRepo] Unexpected error: $e');
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
+
+  @override
+  Future<Either<ServerFailure, RedirectStationListEntity>> getRedirectStations({
+    required String page,
+    String? searchQuery,
+  }) async {
+    try {
+      final redirectStations = await remoteDatasource.fetchRedirectStations(
+        page: page,
+        searchQuery: searchQuery,
+      );
+      return Right(redirectStations);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
         debugPrint(

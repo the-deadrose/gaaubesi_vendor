@@ -49,7 +49,7 @@ class ExtraMileageRemoteDatasourceImpl implements ExtraMileageRemoteDatasource {
         response = await _dioClient.get(ApiEndpoints.extraMileageList);
       }
 
-      return ExtraMileageResponseListModel.fromJson(response.data) as ExtraMileageResponseListEntity;
+      return ExtraMileageResponseListModel.fromJson(response.data).toEntity();
     } catch (e) {
       rethrow;
     }

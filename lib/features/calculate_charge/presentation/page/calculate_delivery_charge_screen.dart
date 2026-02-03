@@ -2,9 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_event.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
 import 'package:gaaubesi_vendor/features/calculate_charge/domain/entity/calculate_deliver_charge_entity.dart';
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calculate_delivery_charge_bloc.dart';
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calculate_delivery_charge_event.dart';
@@ -36,7 +36,6 @@ class _CalculateDeliveryChargeScreenState
     super.initState();
     _fetchBranchList();
 
-    // Setup shimmer animation
     _shimmerController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,

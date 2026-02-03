@@ -16,21 +16,18 @@ class NoticeDetailScreen extends StatefulWidget {
 class _NoticeDetailScreenState extends State<NoticeDetailScreen> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Notice Details')),
+      appBar: AppBar(
+        title: const Text('Notice Details'),
+        centerTitle: true,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header section
-            _buildHeader(),
-
-            // Content section
-            _buildContent(),
-
-            // Footer section
-            _buildFooter(),
-          ],
+          children: [_buildHeader(), _buildContent(), _buildFooter()],
         ),
       ),
     );
@@ -40,7 +37,6 @@ class _NoticeDetailScreenState extends State<NoticeDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.05),
         border: Border(
           bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
@@ -93,55 +89,43 @@ class _NoticeDetailScreenState extends State<NoticeDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Content',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade700,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            elevation: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Html(
-                data: widget.notice.content,
-                style: {
-                  'body': Style(
-                    margin: Margins.zero,
-                    padding: HtmlPaddings.zero,
-                    fontSize: FontSize(16),
-                    lineHeight: const LineHeight(1.5),
-                  ),
-                  'p': Style(margin: Margins.only(bottom: 16)),
-                  'h1': Style(
-                    fontSize: FontSize(24),
-                    fontWeight: FontWeight.bold,
-                    margin: Margins.only(bottom: 16, top: 8),
-                  ),
-                  'h2': Style(
-                    fontSize: FontSize(20),
-                    fontWeight: FontWeight.bold,
-                    margin: Margins.only(bottom: 14, top: 8),
-                  ),
-                  'h3': Style(
-                    fontSize: FontSize(18),
-                    fontWeight: FontWeight.bold,
-                    margin: Margins.only(bottom: 12, top: 8),
-                  ),
-                  'strong': Style(fontWeight: FontWeight.bold),
-                  'em': Style(fontStyle: FontStyle.italic),
-                  'ul': Style(margin: Margins.only(bottom: 16)),
-                  'ol': Style(margin: Margins.only(bottom: 16)),
-                  'li': Style(margin: Margins.only(bottom: 8)),
-                },
-                onLinkTap: (url, attributes, element) {
-                  // Handle link taps if needed
-                  if (url != null) {}
-                },
-              ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Html(
+              data: widget.notice.content,
+              style: {
+                'body': Style(
+                  margin: Margins.zero,
+                  padding: HtmlPaddings.zero,
+                  fontSize: FontSize(16),
+                  lineHeight: const LineHeight(1.5),
+                ),
+                'p': Style(margin: Margins.only(bottom: 16)),
+                'h1': Style(
+                  fontSize: FontSize(24),
+                  fontWeight: FontWeight.bold,
+                  margin: Margins.only(bottom: 16, top: 8),
+                ),
+                'h2': Style(
+                  fontSize: FontSize(20),
+                  fontWeight: FontWeight.bold,
+                  margin: Margins.only(bottom: 14, top: 8),
+                ),
+                'h3': Style(
+                  fontSize: FontSize(18),
+                  fontWeight: FontWeight.bold,
+                  margin: Margins.only(bottom: 12, top: 8),
+                ),
+                'strong': Style(fontWeight: FontWeight.bold),
+                'em': Style(fontStyle: FontStyle.italic),
+                'ul': Style(margin: Margins.only(bottom: 16)),
+                'ol': Style(margin: Margins.only(bottom: 16)),
+                'li': Style(margin: Margins.only(bottom: 8)),
+              },
+              onLinkTap: (url, attributes, element) {
+                // Handle link taps if needed
+                if (url != null) {}
+              },
             ),
           ),
         ],

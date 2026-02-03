@@ -10,9 +10,9 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/create_order_req
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_state.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_event.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/pickup_point_entity.dart';
 

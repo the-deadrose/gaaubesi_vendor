@@ -254,6 +254,22 @@ class DailyTransactionRouteArgs {
 }
 
 /// generated route for
+/// [DeliveryReportAnalysisScreen]
+class DeliveryReportAnalysisRoute extends PageRouteInfo<void> {
+  const DeliveryReportAnalysisRoute({List<PageRouteInfo>? children})
+    : super(DeliveryReportAnalysisRoute.name, initialChildren: children);
+
+  static const String name = 'DeliveryReportAnalysisRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const DeliveryReportAnalysisScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [EditProfileScreen]
 class EditProfileRoute extends PageRouteInfo<void> {
   const EditProfileRoute({List<PageRouteInfo>? children})
@@ -503,6 +519,22 @@ class PaymentRequestRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const PaymentRequestScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [RedirectStationListScreen]
+class RedirectStationListRoute extends PageRouteInfo<void> {
+  const RedirectStationListRoute({List<PageRouteInfo>? children})
+    : super(RedirectStationListRoute.name, initialChildren: children);
+
+  static const String name = 'RedirectStationListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const RedirectStationListScreen();
     },
   );
 }

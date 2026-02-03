@@ -12,9 +12,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_state.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_event.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
 
 @RoutePage()

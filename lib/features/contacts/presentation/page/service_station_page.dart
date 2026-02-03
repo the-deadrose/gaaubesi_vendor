@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +18,6 @@ class _ServiceStationScreenState extends State<ServiceStationScreen> {
   final _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   late ServiceStationBloc _serviceStationBloc;
-  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -39,7 +36,6 @@ class _ServiceStationScreenState extends State<ServiceStationScreen> {
       ..removeListener(_onScroll)
       ..dispose();
     _searchController.dispose();
-    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -61,18 +57,13 @@ class _ServiceStationScreenState extends State<ServiceStationScreen> {
     );
   }
 
-  void _onSearchChanged(String query) {
-    _searchDebounce?.cancel();
-
-    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
-      if (query.trim().isNotEmpty) {
-        _serviceStationBloc.add(
-          FetchServiceStationEvent(page: '1', searchQuery: query.trim()),
-        );
-      } else {
-        _clearSearch();
-      }
-    });
+  void _onSearchSubmitted() {
+    final query = _searchController.text.trim();
+    if (query.isNotEmpty) {
+      _serviceStationBloc.add(
+        FetchServiceStationEvent(page: '1', searchQuery: query),
+      );
+    }
   }
 
   void _clearSearch() {
@@ -95,50 +86,68 @@ class _ServiceStationScreenState extends State<ServiceStationScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search by name, district, area...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _clearSearch,
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search by name, district, area...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: _clearSearch,
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: theme.primaryColor,
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      fillColor: Colors.grey.shade50,
+                      filled: true,
+                    ),
+                    onSubmitted: (_) => _onSearchSubmitted(),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _onSearchSubmitted,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Search'),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.primaryColor, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                fillColor: Colors.grey.shade50,
-                filled: true,
-              ),
-              onChanged: _onSearchChanged,
+              ],
             ),
           ),
           Expanded(
             child: BlocConsumer<ServiceStationBloc, ServiceStationState>(
               listener: (context, state) {
                 if (state is ServiceStationError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                } else if (state is ServiceStationSearchError) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(state.message),
@@ -168,7 +177,7 @@ class _ServiceStationScreenState extends State<ServiceStationScreen> {
 
     if (state is ServiceStationSearchError &&
         state is! ServiceStationSearchLoaded) {
-      return _buildSearchError(state.message);
+      return _buildSearchEmpty();
     }
 
     if (state is ServiceStationSearchLoaded) {
@@ -229,48 +238,6 @@ class _ServiceStationScreenState extends State<ServiceStationScreen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchError(String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(fontSize: 16, color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _serviceStationBloc.add(
-                      FetchServiceStationEvent(
-                        page: '1',
-                        searchQuery: _searchController.text,
-                      ),
-                    );
-                  },
-                  child: const Text('Retry'),
-                ),
-                const SizedBox(width: 16),
-                OutlinedButton(
-                  onPressed: _clearSearch,
-                  child: const Text('Clear Search'),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );

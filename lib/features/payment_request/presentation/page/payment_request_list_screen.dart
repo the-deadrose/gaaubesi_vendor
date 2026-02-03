@@ -1,4 +1,3 @@
-// payment_request_list_screen.dart
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,14 +77,11 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
     }
   }
 
-
   void _showFiltersDialog() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
         final state = context.read<PaymentRequestBloc>().state;
         PaymentRequestListEntity? paymentRequestList;
@@ -107,7 +103,6 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
               _selectedBankName = bankName;
             });
             _fetchPaymentRequests();
-            Navigator.pop(context);
           },
         );
       },
@@ -116,18 +111,32 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[50],
       appBar: AppBar(
         title: const Text('Payment Requests'),
         centerTitle: true,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        
         actions: [
-          IconButton(
+          _buildActionButton(
+            icon: Icons.filter_list_rounded,
             onPressed: _showFiltersDialog,
-            icon: const Icon(Icons.filter_list_rounded),
           ),
+          const SizedBox(width: 8),
+          _buildActionButton(
+            icon: Icons.add_rounded,
+            onPressed: () {
+              context.router.push(const PaymentRequestRoute());
+            },
+          ),
+          const SizedBox(width: 8),
         ],
       ),
-     
       body: BlocConsumer<PaymentRequestBloc, PaymentRequestState>(
         listener: (context, state) {
           if (state is FetchPaymentRequestsSuccess && _isLoadingMore) {
@@ -154,7 +163,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           }
 
           if (state is CreatePaymentRequestLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildLoadingState();
           }
 
           return const SizedBox();
@@ -163,9 +172,29 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
     );
   }
 
+  Widget _buildActionButton({required IconData icon, required VoidCallback onPressed}) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 20),
+        padding: EdgeInsets.zero,
+      ),
+    );
+  }
+
   Widget _buildPaymentRequestList(PaymentRequestListEntity paymentRequestList) {
     return Column(
       children: [
+        // Active Filters Bar
+        if (_selectedStatus != 'all' || _selectedPaymentMethod != 'all' || _selectedBankName != 'all')
+          _buildActiveFilters(),
+
         // Stats Summary
         _buildStatsSummary(paymentRequestList),
         
@@ -175,19 +204,16 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
             onRefresh: () async {
               _fetchPaymentRequests();
             },
+            color: Theme.of(context).colorScheme.primary,
             child: ListView.separated(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
               itemCount: paymentRequestList.results.length + (_isLoadingMore ? 1 : 0),
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 if (index >= paymentRequestList.results.length) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
+                  return _buildLoadMoreIndicator();
                 }
                 
                 final request = paymentRequestList.results[index];
@@ -197,6 +223,118 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActiveFilters() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.filter_alt_rounded,
+            size: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  if (_selectedStatus != 'all')
+                    _buildActiveFilterChip(
+                      label: _selectedStatus.toUpperCase(),
+                      onRemove: () {
+                        setState(() => _selectedStatus = 'all');
+                        _fetchPaymentRequests();
+                      },
+                    ),
+                  if (_selectedPaymentMethod != 'all')
+                    _buildActiveFilterChip(
+                      label: 'Payment Method',
+                      onRemove: () {
+                        setState(() => _selectedPaymentMethod = 'all');
+                        _fetchPaymentRequests();
+                      },
+                    ),
+                  if (_selectedBankName != 'all')
+                    _buildActiveFilterChip(
+                      label: _selectedBankName,
+                      onRemove: () {
+                        setState(() => _selectedBankName = 'all');
+                        _fetchPaymentRequests();
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _selectedStatus = 'all';
+                _selectedPaymentMethod = 'all';
+                _selectedBankName = 'all';
+              });
+              _fetchPaymentRequests();
+            },
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+            ),
+            child: Text(
+              'Clear All',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActiveFilterChip({required String label, required VoidCallback onRemove}) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onRemove,
+            child: Icon(
+              Icons.close_rounded,
+              size: 14,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -214,14 +352,18 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
         .length;
 
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha:  0.1),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -231,15 +373,30 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
             label: 'Pending',
             color: Colors.orange,
           ),
+          Container(
+            width: 1,
+            height: 40,
+            color: Colors.grey.withOpacity(0.2),
+          ),
           _StatItem(
             count: approvedCount,
             label: 'Approved',
             color: Colors.green,
           ),
+          Container(
+            width: 1,
+            height: 40,
+            color: Colors.grey.withOpacity(0.2),
+          ),
           _StatItem(
             count: rejectedCount,
             label: 'Rejected',
             color: Colors.red,
+          ),
+          Container(
+            width: 1,
+            height: 40,
+            color: Colors.grey.withOpacity(0.2),
           ),
           _StatItem(
             count: paymentRequestList.count,
@@ -254,50 +411,91 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
   Widget _buildLoadingShimmer() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: 10,
+      itemCount: 8,
       itemBuilder: (context, index) {
-        return _ShimmerCard();
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: _ShimmerCard(),
+        );
       },
     );
   }
 
+  Widget _buildLoadMoreIndicator() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Center(
+        child: Container(
+          width: 32,
+          height: 32,
+          padding: const EdgeInsets.all(8),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildErrorState(String error) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                size: 48,
+                color: Colors.red,
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
-              'Failed to load payment requests',
+              'Failed to Load',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              error,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).extra.darkGray,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                error,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).extra.darkGray,
+                ),
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _fetchPaymentRequests,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 0,
               ),
-              child: const Text('Retry'),
+              child: const Text('Try Again'),
             ),
           ],
         ),
@@ -306,9 +504,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -316,46 +514,65 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.receipt_long_outlined,
-                size: 60,
+                Icons.receipt_long_rounded,
+                size: 56,
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 24),
             Text(
               'No Payment Requests',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            Text(
-              'Create your first payment request to get started',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).extra.darkGray,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'Start by creating your first payment request',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).extra.darkGray,
+                ),
               ),
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 context.router.push(const PaymentRequestRoute());
               },
+              icon: const Icon(Icons.add_rounded, size: 20),
+              label: const Text('Create Request'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 0,
               ),
-              child: const Text('Create Request'),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Creating payment request...'),
+        ],
       ),
     );
   }
@@ -366,7 +583,7 @@ class _PaymentRequestCard extends StatelessWidget {
 
   const _PaymentRequestCard({required this.request});
 
-  Color _getStatusColor(BuildContext context) {
+  Color _getStatusColor() {
     switch (request.status) {
       case 'pending':
         return Colors.orange;
@@ -375,7 +592,7 @@ class _PaymentRequestCard extends StatelessWidget {
       case 'rejected':
         return Colors.red;
       default:
-        return Theme.of(context).extra.darkGray;
+        return Colors.grey;
     }
   }
 
@@ -385,13 +602,30 @@ class _PaymentRequestCard extends StatelessWidget {
       return Icons.account_balance_wallet_rounded;
     } else if (method.contains('bank')) {
       return Icons.account_balance_rounded;
-    } else {
+    } else if (method.contains('khalti')) {
       return Icons.payment_rounded;
+    } else {
+      return Icons.attach_money_rounded;
+    }
+  }
+
+  String _getStatusText() {
+    switch (request.status) {
+      case 'pending':
+        return 'Pending Review';
+      case 'approved':
+        return 'Approved';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return request.statusDisplay;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _getStatusColor();
+    
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -399,18 +633,18 @@ class _PaymentRequestCard extends StatelessWidget {
           // Navigate to detail screen
           // context.router.push(PaymentRequestDetailRoute(request: request));
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha:  0.1),
+              color: Colors.grey.withOpacity(0.1),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:  0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -419,6 +653,7 @@ class _PaymentRequestCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -428,8 +663,8 @@ class _PaymentRequestCard extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           _getMethodIcon(),
@@ -442,7 +677,7 @@ class _PaymentRequestCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            request.paymentMethodName ?? 'N/A',
+                            request.paymentMethodName ?? 'Payment',
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -450,8 +685,9 @@ class _PaymentRequestCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             'ID: ${request.id}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).extra.darkGray,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
                             ),
                           ),
                         ],
@@ -459,79 +695,131 @@ class _PaymentRequestCard extends StatelessWidget {
                     ],
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(context).withValues(alpha:  0.1),
+                      color: statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
-                      request.statusDisplay,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: _getStatusColor(context),
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _getStatusIcon(),
+                          size: 12,
+                          color: statusColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _getStatusText(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: statusColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                request.description,
-                style: Theme.of(context).textTheme.bodyMedium,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  if (request.paymentBankName != null)
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.account_balance_rounded,
-                          size: 14,
-                          color: Theme.of(context).extra.darkGray,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          request.paymentBankName!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).extra.darkGray,
+              const SizedBox(height: 16),
+              
+              // Description
+              if (request.description.isNotEmpty)
+                Text(
+                  request.description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              
+              // Bank Details
+              if (request.paymentBankName != null || request.paymentAccountNumber != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      if (request.paymentBankName != null)
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.account_balance_rounded,
+                                size: 14,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  request.paymentBankName!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                      ],
-                    ),
-                  if (request.paymentAccountNumber != null)
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.credit_card_rounded,
-                          size: 14,
-                          color: Theme.of(context).extra.darkGray,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          request.paymentAccountNumber!.length > 4
-                              ? '••••${request.paymentAccountNumber!.substring(request.paymentAccountNumber!.length - 4)}'
-                              : request.paymentAccountNumber!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).extra.darkGray,
+                      if (request.paymentAccountNumber != null)
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.credit_card_rounded,
+                                size: 14,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  request.paymentAccountNumber!.length > 4
+                                      ? '••••${request.paymentAccountNumber!.substring(request.paymentAccountNumber!.length - 4)}'
+                                      : request.paymentAccountNumber!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+              ],
+              
+              // Footer
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    request.createdOnFormatted,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).extra.darkGray,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        size: 14,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        request.createdOnFormatted,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                   if (request.closedOn != null)
                     Row(
@@ -544,8 +832,10 @@ class _PaymentRequestCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           request.closedOnFormatted,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          style: TextStyle(
+                            fontSize: 12,
                             color: Colors.green,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -557,6 +847,19 @@ class _PaymentRequestCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _getStatusIcon() {
+    switch (request.status) {
+      case 'pending':
+        return Icons.access_time_rounded;
+      case 'approved':
+        return Icons.check_circle_rounded;
+      case 'rejected':
+        return Icons.cancel_rounded;
+      default:
+        return Icons.info_rounded;
+    }
   }
 }
 
@@ -576,27 +879,29 @@ class _StatItem extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 50,
-          height: 50,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
-            color: color.withValues(alpha:  0.1),
-            shape: BoxShape.circle,
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
             child: Text(
               count.toString(),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: color,
+              style: TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
+                color: color,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).extra.darkGray,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
           ),
         ),
       ],
@@ -641,145 +946,220 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Filters',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          
-          // Status Filter
-          Text(
-            'Status',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              _FilterChip(
-                label: 'All',
-                selected: _status == 'all',
-                onSelected: (selected) => setState(() => _status = 'all'),
-              ),
-              _FilterChip(
-                label: 'Pending',
-                selected: _status == 'pending',
-                onSelected: (selected) => setState(() => _status = 'pending'),
-              ),
-              _FilterChip(
-                label: 'Approved',
-                selected: _status == 'approved',
-                onSelected: (selected) => setState(() => _status = 'approved'),
-              ),
-              _FilterChip(
-                label: 'Rejected',
-                selected: _status == 'rejected',
-                onSelected: (selected) => setState(() => _status = 'rejected'),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Payment Method Filter
-          Text(
-            'Payment Method',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              _FilterChip(
-                label: 'All',
-                selected: _paymentMethod == 'all',
-                onSelected: (selected) => setState(() => _paymentMethod = 'all'),
-              ),
-              for (final method in widget.paymentMethods)
-                _FilterChip(
-                  label: method.name,
-                  selected: _paymentMethod == method.id,
-                  onSelected: (selected) => setState(() => _paymentMethod = method.id),
-                ),
-            ],
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Bank Name Filter
-          if (widget.bankNames.isNotEmpty) ...[
-            Text(
-              'Bank Name',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                _FilterChip(
-                  label: 'All',
-                  selected: _bankName == 'all',
-                  onSelected: (selected) => setState(() => _bankName = 'all'),
-                ),
-                for (final bank in widget.bankNames)
-                  _FilterChip(
-                    label: bank.name,
-                    selected: _bankName == bank.name,
-                    onSelected: (selected) => setState(() => _bankName = bank.name),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ],
-          
-          // Apply Button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: () {
-                widget.onApply(_status, _paymentMethod, _bankName);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Apply Filters',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
       ),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Filters',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            Divider(
+              height: 1,
+              color: Colors.grey.withOpacity(0.2),
+            ),
+            
+            // Content
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Status Filter
+                    _buildFilterSection(
+                      title: 'Status',
+                      children: [
+                        _FilterChip(
+                          label: 'All',
+                          selected: _status == 'all',
+                          onSelected: (selected) => setState(() => _status = 'all'),
+                        ),
+                        _FilterChip(
+                          label: 'Pending',
+                          selected: _status == 'pending',
+                          onSelected: (selected) => setState(() => _status = 'pending'),
+                          icon: Icons.access_time_rounded,
+                          color: Colors.orange,
+                        ),
+                        _FilterChip(
+                          label: 'Approved',
+                          selected: _status == 'approved',
+                          onSelected: (selected) => setState(() => _status = 'approved'),
+                          icon: Icons.check_circle_rounded,
+                          color: Colors.green,
+                        ),
+                        _FilterChip(
+                          label: 'Rejected',
+                          selected: _status == 'rejected',
+                          onSelected: (selected) => setState(() => _status = 'rejected'),
+                          icon: Icons.cancel_rounded,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Payment Method Filter
+                    _buildFilterSection(
+                      title: 'Payment Method',
+                      children: [
+                        _FilterChip(
+                          label: 'All',
+                          selected: _paymentMethod == 'all',
+                          onSelected: (selected) => setState(() => _paymentMethod = 'all'),
+                        ),
+                        for (final method in widget.paymentMethods)
+                          _FilterChip(
+                            label: method.name,
+                            selected: _paymentMethod == method.id,
+                            onSelected: (selected) => setState(() => _paymentMethod = method.id),
+                          ),
+                      ],
+                    ),
+                    
+                    if (widget.bankNames.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      
+                      // Bank Name Filter
+                      _buildFilterSection(
+                        title: 'Bank Name',
+                        children: [
+                          _FilterChip(
+                            label: 'All',
+                            selected: _bankName == 'all',
+                            onSelected: (selected) => setState(() => _bankName = 'all'),
+                          ),
+                          for (final bank in widget.bankNames)
+                            _FilterChip(
+                              label: bank.name,
+                              selected: _bankName == bank.name,
+                              onSelected: (selected) => setState(() => _bankName = bank.name),
+                            ),
+                        ],
+                      ),
+                    ],
+                    
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.grey.withOpacity(0.2),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          _status = 'all';
+                          _paymentMethod = 'all';
+                          _bankName = 'all';
+                        });
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: BorderSide(
+                          color: Colors.grey.withOpacity(0.3),
+                        ),
+                      ),
+                      child: const Text('Reset'),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        widget.onApply(_status, _paymentMethod, _bankName);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text('Apply Filters'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterSection({required String title, required List<Widget> children}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: children,
+        ),
+      ],
     );
   }
 }
@@ -788,171 +1168,149 @@ class _FilterChip extends StatelessWidget {
   final String label;
   final bool selected;
   final Function(bool) onSelected;
+  final IconData? icon;
+  final Color? color;
 
   const _FilterChip({
     required this.label,
     required this.selected,
     required this.onSelected,
+    this.icon,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    final chipColor = color ?? Theme.of(context).colorScheme.primary;
+    
     return FilterChip(
-      label: Text(label),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 14,
+              color: selected ? chipColor : Colors.grey,
+            ),
+            const SizedBox(width: 4),
+          ],
+          Text(label),
+        ],
+      ),
       selected: selected,
       onSelected: onSelected,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
-      checkmarkColor: Theme.of(context).colorScheme.primary,
-      labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        color: selected 
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).extra.darkGray,
+      backgroundColor: Colors.grey.withOpacity(0.1),
+      selectedColor: chipColor.withOpacity(0.1),
+      checkmarkColor: chipColor,
+      labelStyle: TextStyle(
+        fontSize: 13,
         fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+        color: selected ? chipColor : Colors.grey[700],
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: selected
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.outline.withValues(alpha:  0.3),
+          color: selected ? chipColor.withOpacity(0.3) : Colors.transparent,
         ),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      showCheckmark: false,
     );
   }
 }
 
-class _ShimmerCard extends StatefulWidget {
-  @override
-  State<_ShimmerCard> createState() => _ShimmerCardState();
-}
-
-class _ShimmerCardState extends State<_ShimmerCard> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
-    
-    _animation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _ShimmerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    return Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          width: 60,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 80,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: 200,
-                height: 16,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Container(
-                    width: 80,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
                   Container(
                     width: 100,
-                    height: 14,
+                    height: 16,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).extra.darkGray.withValues(alpha:  _animation.value * 0.15),
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: 60,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ],
               ),
-            ],
+            ),
+            Container(
+              width: 80,
+              height: 24,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          width: double.infinity,
+          height: 16,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(4),
           ),
-        );
-      },
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: 200,
+          height: 16,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Container(
+              width: 80,
+              height: 14,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Container(
+              width: 100,
+              height: 14,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

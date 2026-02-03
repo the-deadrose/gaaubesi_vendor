@@ -75,7 +75,6 @@ class AppDrawer extends StatelessWidget {
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.pop(context);
                                 context.router.push(const VendorInfoRoute());
                               },
                               borderRadius: BorderRadius.circular(8),
@@ -172,7 +171,6 @@ class AppDrawer extends StatelessWidget {
                         colorScheme: colorScheme,
                         onTap: () {
                           Navigator.pop(context);
-                          context.router.push(const HomeRoute());
                         },
                       ),
                       _NavTile(
@@ -180,7 +178,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Customers',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const CustomerListRoute());
                         },
                       ),
@@ -196,7 +193,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Order List',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const OrdersRoute());
                         },
                       ),
@@ -205,7 +201,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Create Order',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const CreateOrderRoute());
                         },
                       ),
@@ -229,8 +224,7 @@ class AppDrawer extends StatelessWidget {
                         title: 'Analytics',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
-                          context.router.push(TicketRoute());
+                          context.router.push(const DeliveryReportAnalysisRoute());
                         },
                       ),
                     ],
@@ -245,7 +239,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Tickets',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(TicketRoute());
                         },
                       ),
@@ -254,7 +247,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Messages',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const VendorMessagesRoute());
                         },
                       ),
@@ -263,7 +255,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Comments',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(CommentsRoute());
                         },
                       ),
@@ -272,7 +263,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Notices',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(NoticeListRoute());
                         },
                       ),
@@ -281,7 +271,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Delivery Calculator',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(CalculateDeliveryChargeRoute());
                         },
                       ),
@@ -289,7 +278,6 @@ class AppDrawer extends StatelessWidget {
                         icon: Icons.directions_car_rounded,
                         title: "Extra Mileage",
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(ExtraMileageRoute());
                         },
                         colorScheme: colorScheme,
@@ -306,7 +294,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'COD Transfers',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const CodTransferListRoute());
                         },
                       ),
@@ -315,7 +302,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Payment Requests',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const PaymentRequestListRoute());
                         },
                       ),
@@ -324,7 +310,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Daily Transactions',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(DailyTransactionRoute());
                         },
                       ),
@@ -340,7 +325,6 @@ class AppDrawer extends StatelessWidget {
                         title: 'Change Password',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const ChangePasswordRoute());
                         },
                       ),
@@ -350,7 +334,6 @@ class AppDrawer extends StatelessWidget {
                         colorScheme: colorScheme,
                         onTap: () {
                           context.router.push(const EditProfileRoute());
-                          Navigator.pop(context);
                         },
                       ),
                     ],
@@ -364,7 +347,6 @@ class AppDrawer extends StatelessWidget {
                         icon: Icons.local_post_office,
                         title: "Service Stations",
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const ServiceStationRoute());
                         },
                         colorScheme: colorScheme,
@@ -373,7 +355,6 @@ class AppDrawer extends StatelessWidget {
                         icon: Icons.home_work,
                         title: "Head Office",
                         onTap: () {
-                          Navigator.pop(context);
                           context.router.push(const HeadOfficeContactsRoute());
                         },
                         colorScheme: colorScheme,
@@ -382,48 +363,44 @@ class AppDrawer extends StatelessWidget {
                         icon: Icons.location_on_outlined,
                         title: "Redirect Stations",
                         onTap: () {
-                          Navigator.pop(context);
-                          _showComingSoonSnackbar(context, 'Redirect Stations');
+                          context.router.push(const RedirectStationListRoute());
                         },
                         colorScheme: colorScheme,
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
 
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: colorScheme.outline.withValues(alpha: 0.1),
-                    width: 1,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: colorScheme.outline.withValues(
+                                  alpha: 0.1,
+                                ),
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _LogoutButton(
+                          colorScheme: colorScheme,
+                          onTap: () {
+                            _showLogoutDialog(context);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-              child: _LogoutButton(
-                colorScheme: colorScheme,
-                onTap: () {
-                  Navigator.pop(context);
-                  _showLogoutDialog(context);
-                },
+                ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showComingSoonSnackbar(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature page coming soon'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: const Duration(seconds: 2),
       ),
     );
   }

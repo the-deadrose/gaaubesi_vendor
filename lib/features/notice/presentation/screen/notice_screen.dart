@@ -9,8 +9,6 @@ import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_event.d
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_state.dart';
 
 @RoutePage()
-
-
 class NoticeListScreen extends StatefulWidget {
   const NoticeListScreen({super.key});
 
@@ -18,14 +16,27 @@ class NoticeListScreen extends StatefulWidget {
   State<NoticeListScreen> createState() => _NoticeListScreenState();
 }
 
-class _NoticeListScreenState extends State<NoticeListScreen> {
+class _NoticeListScreenState extends State<NoticeListScreen>
+    with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   bool _isInitialLoad = true;
   bool _isLoadingMore = false;
+  late AnimationController _shimmerController;
+  late Animation<Color?> _shimmerAnimation;
 
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _shimmerAnimation = ColorTween(
+      begin: Colors.grey.shade300,
+      end: Colors.grey.shade100,
+    ).animate(_shimmerController);
+
     _fetchInitialData();
     _scrollController.addListener(_onScroll);
   }
@@ -51,9 +62,7 @@ class _NoticeListScreenState extends State<NoticeListScreen> {
   }
 
   void _navigateToDetailScreen(BuildContext context, Notice notice) {
-    context.router.push(
-      NoticeDetailRoute(notice: notice),
-    );
+    context.router.push(NoticeDetailRoute(notice: notice));
   }
 
   @override
@@ -90,7 +99,7 @@ class _NoticeListScreenState extends State<NoticeListScreen> {
 
   Widget _buildContent(NoticeState state, BuildContext context) {
     if (_isInitialLoad && state is! NoticeListLoaded) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildShimmerLoading();
     }
 
     if (state is NoticeListError) {
@@ -123,10 +132,129 @@ class _NoticeListScreenState extends State<NoticeListScreen> {
     }
 
     if (state is NoticeListPaginating) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildShimmerLoading();
     }
 
-    return const Center(child: CircularProgressIndicator());
+    return _buildShimmerLoading();
+  }
+
+  Widget _buildShimmerLoading() {
+    return AnimatedBuilder(
+      animation: _shimmerAnimation,
+      builder: (context, child) {
+        return ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: 6, // Show 6 shimmer items
+          itemBuilder: (context, index) {
+            return _buildShimmerNoticeCard();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildShimmerNoticeCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Status dot shimmer
+          Container(
+            margin: const EdgeInsets.only(top: 6),
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _shimmerAnimation.value,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Title shimmer
+                    Expanded(
+                      child: Container(
+                        height: 18,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: _shimmerAnimation.value,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Popup badge shimmer (optional)
+                    Container(
+                      width: 50,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: _shimmerAnimation.value,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Content preview shimmer - first line
+                Container(
+                  height: 14,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: _shimmerAnimation.value,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Content preview shimmer - second line (shorter)
+                Container(
+                  height: 14,
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  decoration: BoxDecoration(
+                    color: _shimmerAnimation.value,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    // Created by shimmer
+                    Container(
+                      height: 12,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: _shimmerAnimation.value,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const Spacer(),
+                    // Date shimmer
+                    Container(
+                      height: 12,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        color: _shimmerAnimation.value,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Divider shimmer
+                Container(
+                  height: 1,
+                  color: _shimmerAnimation.value,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   bool _hasNextPage(NoticeState state) {
@@ -140,77 +268,75 @@ class _NoticeListScreenState extends State<NoticeListScreen> {
   }
 
   Widget _buildNoticeCard(Notice notice, BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: notice.isRead ? 1 : 3,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => _navigateToDetailScreen(context, notice),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildStatusDot(notice),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            notice.title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: notice.isRead
-                                  ? FontWeight.w500
-                                  : FontWeight.bold,
-                            ),
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => _navigateToDetailScreen(context, notice),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildStatusDot(notice),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notice.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                notice.isRead ? FontWeight.w500 : FontWeight.bold,
                           ),
                         ),
-                        if (notice.isPopup) _buildPopupBadge(),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    // Render HTML content preview (strip HTML tags for preview)
-                    _buildContentPreview(notice.content),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text(
-                          notice.createdByName,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                      ),
+                      if (notice.isPopup) _buildPopupBadge(),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  _buildContentPreview(notice.content),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        notice.createdByName,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
-                        const Spacer(),
-                        Text(
-                          notice.createdOnFormatted,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        notice.createdOnFormatted,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  Divider(
+                    color: Colors.grey.shade300,
+                    thickness: 1,
+                    height: 20,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildContentPreview(String htmlContent) {
-    // Create a plain text preview by removing HTML tags
     final plainText = htmlContent
-        .replaceAll(RegExp(r'<[^>]*>'), ' ') // Remove HTML tags
-        .replaceAll(RegExp(r'\s+'), ' ') // Replace multiple spaces with single space
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
 
     return Text(
@@ -338,6 +464,7 @@ class _NoticeListScreenState extends State<NoticeListScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 }

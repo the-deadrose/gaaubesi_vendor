@@ -86,6 +86,10 @@ class ApiEndpoints {
   static const String headOfficeContacts = '/head-office/';
 
   static const String serviceStations = '/services/service-station/';
+
+  static const String redirectStations = '/services/redirect-station/';
+
+  static const String deliveryReportAnalysis = '/analysis/delivery-report/';
 }
 class QueryParams {
   QueryParams._();

@@ -32,6 +32,8 @@ import 'package:gaaubesi_vendor/features/auth/presentation/pages/change_password
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/page/vendor_info_update_screen.dart';
 import 'package:gaaubesi_vendor/features/contacts/presentation/page/head_office_contacts_page.dart';
 import 'package:gaaubesi_vendor/features/contacts/presentation/page/service_station_page.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/page/redirect_station_list.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/delivery_report_analysis_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -181,11 +183,27 @@ class AppRouter extends RootStackRouter {
 
     AutoRoute(
       page: HeadOfficeContactsRoute.page,
-      path : '/head-office-contacts',
+      path: '/head-office-contacts',
       guards: [AuthGuard()],
     ),
 
-    AutoRoute(page: ServiceStationRoute.page, path: '/service-station', guards: [AuthGuard()]),
+    AutoRoute(
+      page: RedirectStationListRoute.page,
+      path: '/redirect-station-list',
+      guards: [AuthGuard()],
+    ),
+
+     AutoRoute(
+      page: ServiceStationRoute.page,
+      path: '/service-station',
+      guards: [AuthGuard()],
+    ),
+
+       AutoRoute(
+      page: DeliveryReportAnalysisRoute.page,
+      path: '/delivery-report-analysis',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -218,4 +236,6 @@ extension AppRoutesExtension on AppRouter {
   static const String vendorInfoUpdate = '/vendor-info-update';
   static const String headOfficeContacts = '/head-office-contacts';
   static const String serviceStation = '/service-station';
+  static const String redirectStationList = '/redirect-station-list';
+  static const String deliveryReportAnalysis = '/delivery-report-analysis';
 }

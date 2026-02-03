@@ -5,8 +5,8 @@ import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/core/usecase/base_usecase.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_branch_list_usecase.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_event.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
 
 @injectable
 class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {

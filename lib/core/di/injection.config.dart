@@ -16,6 +16,16 @@ import 'package:gaaubesi_vendor/core/network/dio_client.dart' as _i619;
 import 'package:gaaubesi_vendor/core/router/app_router.dart' as _i694;
 import 'package:gaaubesi_vendor/core/services/secure_storage_service.dart'
     as _i14;
+import 'package:gaaubesi_vendor/features/analysis/data/datasource/analysis_datasource.dart'
+    as _i504;
+import 'package:gaaubesi_vendor/features/analysis/data/repository/analysis_datasource_impl.dart'
+    as _i963;
+import 'package:gaaubesi_vendor/features/analysis/domain/repository/analysis_repository.dart'
+    as _i370;
+import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_delivery_report_usecase.dart'
+    as _i522;
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_bloc.dart'
+    as _i444;
 import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_local_data_source.dart'
     as _i18;
 import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_remote_data_source.dart'
@@ -44,8 +54,12 @@ import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_branch_list_u
     as _i681;
 import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_pickup_point_usecase.dart'
     as _i598;
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart'
-    as _i764;
+import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_redirect_station_usecase.dart'
+    as _i1045;
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart'
+    as _i270;
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_bloc.dart'
+    as _i128;
 import 'package:gaaubesi_vendor/features/calculate_charge/data/datasource/calculate_delivery_charge_datasource.dart'
     as _i15;
 import 'package:gaaubesi_vendor/features/calculate_charge/data/repo/calculate_delivery_charge_repo_imp.dart'
@@ -297,6 +311,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1017.CodTransferRemoteDataource>(
       () => _i1017.CodTransferDatasourceImpl(gh<_i619.DioClient>()),
     );
+    gh.lazySingleton<_i504.AnalysisDatasource>(
+      () => _i504.AnalysisDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i700.OrderRemoteDataSource>(
       () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
     );
@@ -347,10 +364,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i598.GetPickupPointUsecase>(
       () => _i598.GetPickupPointUsecase(gh<_i684.BranchListRepository>()),
     );
+    gh.lazySingleton<_i1045.GetRedirectStationUsecase>(
+      () => _i1045.GetRedirectStationUsecase(gh<_i684.BranchListRepository>()),
+    );
     gh.lazySingleton<_i629.CalculateDeliveryChargeRepo>(
       () => _i839.CalculateDeliveryChargeRepoImp(
         remoteDatasource: gh<_i15.CalculateDeliveryChargeRemoteDatasource>(),
       ),
+    );
+    gh.lazySingleton<_i370.AnalysisRepository>(
+      () => _i963.AnalysisDatasourceImpl(gh<_i504.AnalysisDatasource>()),
     );
     gh.lazySingleton<_i104.CalculateDeliveryChargeUsecase>(
       () => _i104.CalculateDeliveryChargeUsecase(
@@ -414,6 +437,10 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i103.HomeRepository>(
       () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i128.RedirectStationListBloc>(
+      () =>
+          _i128.RedirectStationListBloc(gh<_i1045.GetRedirectStationUsecase>()),
     );
     gh.lazySingleton<_i523.DailyTransectionRepo>(
       () => _i11.DailyTransectionRepoImp(
@@ -546,14 +573,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i104.CalculateDeliveryChargeUsecase>(),
       ),
     );
-    gh.factory<_i764.BranchListBloc>(
-      () => _i764.BranchListBloc(
+    gh.factory<_i270.BranchListBloc>(
+      () => _i270.BranchListBloc(
         getBranchListUsecase: gh<_i681.GetBranchListUsecase>(),
         getPickupPointUsecase: gh<_i598.GetPickupPointUsecase>(),
       ),
     );
     gh.factory<_i915.HomeBloc>(
       () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
+    );
+    gh.lazySingleton<_i522.FetchDeliveryReportUsecase>(
+      () => _i522.FetchDeliveryReportUsecase(gh<_i370.AnalysisRepository>()),
     );
     gh.lazySingleton<_i932.AllCommentsUsecase>(
       () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
@@ -662,6 +692,11 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i488.TicketBloc(
         ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
         createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
+      ),
+    );
+    gh.lazySingleton<_i444.DeliveryReportAnalysisBloc>(
+      () => _i444.DeliveryReportAnalysisBloc(
+        fetchDeliveryReportUsecase: gh<_i522.FetchDeliveryReportUsecase>(),
       ),
     );
     gh.lazySingleton<_i417.ServiceStationBloc>(

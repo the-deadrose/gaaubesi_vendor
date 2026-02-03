@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calculate_delivery_charge_bloc.dart';
 import 'package:gaaubesi_vendor/features/cod_transfer/presentation/bloc/cod_transfer_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
@@ -73,6 +75,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<ExtraMileageBloc>()),
         BlocProvider(create: (context) => getIt<HeadOfficeContactsBloc>()),
         BlocProvider(create: (context) => getIt<ServiceStationBloc>()),
+        BlocProvider(create: (context) => getIt<RedirectStationListBloc>()),
+        BlocProvider(create: (context) => getIt<DeliveryReportAnalysisBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',
