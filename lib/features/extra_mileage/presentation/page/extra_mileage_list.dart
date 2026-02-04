@@ -1090,8 +1090,7 @@ class _DatePickerChip extends StatelessWidget {
                   onPrimary: Colors.white,
                   surface: Theme.of(context).colorScheme.surface,
                   onSurface: Theme.of(context).colorScheme.onSurface,
-                ),
-                dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+                ), dialogTheme: DialogThemeData(backgroundColor: Theme.of(context).colorScheme.surface),
               ),
               child: child!,
             );

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_delivery_report_usecase.dart';
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_event.dart';
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_state.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_event.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_state.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton

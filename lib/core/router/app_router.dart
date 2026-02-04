@@ -34,6 +34,9 @@ import 'package:gaaubesi_vendor/features/contacts/presentation/page/head_office_
 import 'package:gaaubesi_vendor/features/contacts/presentation/page/service_station_page.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/page/redirect_station_list.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/delivery_report_analysis_screen.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/sales_report_page.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/branch_analysis_page.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/pickup_order_analysis_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -204,6 +207,22 @@ class AppRouter extends RootStackRouter {
       path: '/delivery-report-analysis',
       guards: [AuthGuard()],
     ),
+
+        AutoRoute(
+        page: SalesReportAnalysisRoute.page,
+        path: '/sales-report-analysis',
+        guards: [AuthGuard()],
+      ),
+
+        AutoRoute(
+        page: BranchReportAnalysisRoute.page, 
+        guards: [AuthGuard()],
+        ),
+
+          AutoRoute(
+        page: PickupOrderAnalysisRoute.page, 
+        guards: [AuthGuard()],
+        ),
   ];
 }
 
@@ -238,4 +257,7 @@ extension AppRoutesExtension on AppRouter {
   static const String serviceStation = '/service-station';
   static const String redirectStationList = '/redirect-station-list';
   static const String deliveryReportAnalysis = '/delivery-report-analysis';
+  static const String salesReportAnalysis = '/sales-report-analysis';
+  static const String branchreportAnalysis = '/branch-report-analysis';
+  static const String pickupOrderAnalysis = '/pickup-order-analysis';
 }

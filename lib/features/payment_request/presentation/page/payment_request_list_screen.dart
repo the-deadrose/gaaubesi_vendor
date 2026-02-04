@@ -177,7 +177,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha:  0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: IconButton(
@@ -233,7 +233,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
         color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha:  0.1),
           ),
         ),
       ),
@@ -310,7 +310,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -359,7 +359,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:  0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -376,7 +376,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           Container(
             width: 1,
             height: 40,
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:  0.2),
           ),
           _StatItem(
             count: approvedCount,
@@ -386,7 +386,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           Container(
             width: 1,
             height: 40,
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:  0.2),
           ),
           _StatItem(
             count: rejectedCount,
@@ -396,7 +396,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           Container(
             width: 1,
             height: 40,
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:  0.2),
           ),
           _StatItem(
             count: paymentRequestList.count,
@@ -456,7 +456,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha:  0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -514,7 +514,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -640,11 +640,11 @@ class _PaymentRequestCard extends StatelessWidget {
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha:  0.1),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha:  0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -663,7 +663,7 @@ class _PaymentRequestCard extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -697,7 +697,7 @@ class _PaymentRequestCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha:  0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -742,7 +742,7 @@ class _PaymentRequestCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.05),
+                    color: Colors.grey.withValues(alpha:  0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -882,7 +882,7 @@ class _StatItem extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha:  0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
@@ -976,7 +976,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withValues(alpha:  0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -991,7 +991,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
             
             Divider(
               height: 1,
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha:  0.2),
             ),
             
             // Content
@@ -1088,7 +1088,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha:  0.2),
                   ),
                 ),
               ),
@@ -1109,7 +1109,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         side: BorderSide(
-                          color: Colors.grey.withOpacity(0.3),
+                          color: Colors.grey.withValues(alpha:  0.3),
                         ),
                       ),
                       child: const Text('Reset'),
@@ -1200,8 +1200,8 @@ class _FilterChip extends StatelessWidget {
       ),
       selected: selected,
       onSelected: onSelected,
-      backgroundColor: Colors.grey.withOpacity(0.1),
-      selectedColor: chipColor.withOpacity(0.1),
+      backgroundColor: Colors.grey.withValues(alpha:  0.1),
+      selectedColor: chipColor.withValues(alpha:  0.1),
       checkmarkColor: chipColor,
       labelStyle: TextStyle(
         fontSize: 13,
@@ -1211,7 +1211,7 @@ class _FilterChip extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: selected ? chipColor.withOpacity(0.3) : Colors.transparent,
+          color: selected ? chipColor.withValues(alpha:  0.3) : Colors.transparent,
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

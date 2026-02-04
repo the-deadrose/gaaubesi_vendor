@@ -90,6 +90,12 @@ class ApiEndpoints {
   static const String redirectStations = '/services/redirect-station/';
 
   static const String deliveryReportAnalysis = '/analysis/delivery-report/';
+
+  static const String salesReportAnalysis = '/analysis/sales-report/';
+
+  static const String branchReportAnalysis = '/analysis/branch-analysis/';
+
+  static const String pickupOrderAnalysis = '/analysis/pickup-orders/';
 }
 class QueryParams {
   QueryParams._();

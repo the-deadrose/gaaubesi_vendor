@@ -11,6 +11,22 @@
 part of 'app_router.dart';
 
 /// generated route for
+/// [BranchReportAnalysisScreen]
+class BranchReportAnalysisRoute extends PageRouteInfo<void> {
+  const BranchReportAnalysisRoute({List<PageRouteInfo>? children})
+    : super(BranchReportAnalysisRoute.name, initialChildren: children);
+
+  static const String name = 'BranchReportAnalysisRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const BranchReportAnalysisScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [CalculateDeliveryChargeScreen]
 class CalculateDeliveryChargeRoute extends PageRouteInfo<void> {
   const CalculateDeliveryChargeRoute({List<PageRouteInfo>? children})
@@ -524,6 +540,22 @@ class PaymentRequestRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [PickupOrderAnalysisScreen]
+class PickupOrderAnalysisRoute extends PageRouteInfo<void> {
+  const PickupOrderAnalysisRoute({List<PageRouteInfo>? children})
+    : super(PickupOrderAnalysisRoute.name, initialChildren: children);
+
+  static const String name = 'PickupOrderAnalysisRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const PickupOrderAnalysisScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [RedirectStationListScreen]
 class RedirectStationListRoute extends PageRouteInfo<void> {
   const RedirectStationListRoute({List<PageRouteInfo>? children})
@@ -551,6 +583,22 @@ class RedirectedOrdersRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const RedirectedOrdersScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [SalesReportAnalysisScreen]
+class SalesReportAnalysisRoute extends PageRouteInfo<void> {
+  const SalesReportAnalysisRoute({List<PageRouteInfo>? children})
+    : super(SalesReportAnalysisRoute.name, initialChildren: children);
+
+  static const String name = 'SalesReportAnalysisRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SalesReportAnalysisScreen();
     },
   );
 }

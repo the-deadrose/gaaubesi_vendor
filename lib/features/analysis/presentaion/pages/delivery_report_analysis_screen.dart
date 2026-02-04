@@ -2,9 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/delivery_report_analysis_entity.dart';
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_bloc.dart';
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_event.dart';
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_state.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_event.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_state.dart';
 import 'package:intl/intl.dart';
 
 @RoutePage()
@@ -302,7 +302,6 @@ class _DeliveryReportAnalysisScreenState
   Widget _buildSummaryCards(DeliveryReportAnalysisEntity report) {
     return Column(
       children: [
-        // Delivered Orders Summary
         Card(
           color: Colors.green.shade50,
           child: Padding(

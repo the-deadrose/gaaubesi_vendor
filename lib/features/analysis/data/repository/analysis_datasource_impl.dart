@@ -1,7 +1,10 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/analysis/data/datasource/analysis_datasource.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/branch_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/delivery_report_analysis_entity.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/pickup_order_analysis_entity.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/sales_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/repository/analysis_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -24,6 +27,57 @@ class AnalysisDatasourceImpl implements AnalysisRepository {
       return left(
         ServerFailure('Failed to fetch delivery report analysis data.'),
       );
+    }
+  }
+
+  @override
+  Future<Either<Failure, SalesReportAnalysis>> fetchSalesReportAnalysis({
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      return await _datasource.fetchSalesReportAnalysis(
+        startDate: startDate,
+        endDate: endDate,
+      );
+    } catch (e) {
+      return left(ServerFailure('Failed to fetch sales report analysis data.'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<BranchReportAnalysisEntity>>>
+  fetchBranchReportAnalysis({
+    required String startDate,
+    required String endDate,
+    String? branch,
+  }) async {
+    try {
+      return await _datasource.fetchBranchReportAnalysis(
+        startDate: startDate,
+        endDate: endDate,
+        branch: branch,
+      );
+    } catch (e) {
+      return left(
+        ServerFailure('Failed to fetch branch report analysis data.'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PickupOrderAnalysisEntity>>>
+  fetchPickupOrderAnalysis({
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      return await _datasource.fetchPickupOrderAnalysis(
+        startDate: startDate,
+        endDate: endDate,
+      );
+    } catch (e) {
+      return left(ServerFailure('Failed to fetch pickup order analysis data.'));
     }
   }
 }

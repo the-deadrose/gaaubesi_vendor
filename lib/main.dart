@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_bloc.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_bloc.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
@@ -77,6 +80,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<ServiceStationBloc>()),
         BlocProvider(create: (context) => getIt<RedirectStationListBloc>()),
         BlocProvider(create: (context) => getIt<DeliveryReportAnalysisBloc>()),
+        BlocProvider(create: (context) => getIt<SalesReportAnalysisBloc>()),
+        BlocProvider(create: (context) => getIt<BranchReportAnalysisBloc>()),
+        BlocProvider(create: (context) => getIt<PickupOrderAnalysisBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

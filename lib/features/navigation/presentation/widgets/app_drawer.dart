@@ -219,12 +219,47 @@ class AppDrawer extends StatelessWidget {
                           Navigator.pop(context);
                         },
                       ),
+                    ],
+                  ),
+
+                  _DrawerSection(
+                    title: 'Analytics',
+                    colorScheme: colorScheme,
+                    children: [
                       _NavTile(
-                        icon: Icons.analytics_rounded,
-                        title: 'Analytics',
+                        icon: Icons.bar_chart_rounded,
+                        title: 'Delivery Report',
                         colorScheme: colorScheme,
                         onTap: () {
-                          context.router.push(const DeliveryReportAnalysisRoute());
+                          context.router.push(
+                            const DeliveryReportAnalysisRoute(),
+                          );
+                        },
+                      ),
+                      _NavTile(
+                        icon: Icons.show_chart_rounded,
+                        title: 'Sales Report',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          context.router.push(const SalesReportAnalysisRoute());
+                        },
+                      ),
+
+                      _NavTile(
+                        icon: Icons.store_mall_directory_rounded,
+                        title: 'Branch Report',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          context.router.push(BranchReportAnalysisRoute());
+                        },
+                      ),
+
+                      _NavTile(
+                        icon: Icons.local_shipping_rounded,
+                        title: 'Pickup Order Analysis',
+                        colorScheme: colorScheme,
+                        onTap: () {
+                          context.router.push(PickupOrderAnalysisRoute());
                         },
                       ),
                     ],

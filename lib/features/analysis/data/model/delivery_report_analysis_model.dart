@@ -1,76 +1,68 @@
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/delivery_report_analysis_entity.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'delivery_report_analysis_model.g.dart';
-
-@JsonSerializable(createToJson: true, explicitToJson: true)
 class DeliveryReportAnalysisModel extends DeliveryReportAnalysisEntity {
-  @JsonKey(name: 'from_date')
-  @override
-  final String fromDate;
-
-  @JsonKey(name: 'to_date')
-  @override
-  final String toDate;
-
-  @JsonKey(name: 'total_delivered_orders')
-  @override
-  final int totalDeliveredOrders;
-
-  @JsonKey(name: 'total_delivered_value')
-  @override
-  final String totalDeliveredValue;
-
-  @JsonKey(name: 'total_delivered_charge')
-  @override
-  final String totalDeliveredCharge;
-
-  @JsonKey(name: 'total_returned_orders')
-  @override
-  final int totalReturnedOrders;
-
-  @JsonKey(name: 'total_returned_value')
-  @override
-  final String totalReturnedValue;
-
-  @JsonKey(name: 'total_returned_charge')
-  @override
-  final String totalReturnedCharge;
-
-  @JsonKey(name: 'daily_reports')
-  @override
-  final List<DailyReportModel> dailyReports;
-
-  const DeliveryReportAnalysisModel({
-    required this.fromDate,
-    required this.toDate,
-    required this.totalDeliveredOrders,
-    required this.totalDeliveredValue,
-    required this.totalDeliveredCharge,
-    required this.totalReturnedOrders,
-    required this.totalReturnedValue,
-    required this.totalReturnedCharge,
-    required this.dailyReports,
+  DeliveryReportAnalysisModel({
+    String? fromDate,
+    String? toDate,
+    int? totalDeliveredOrders,
+    String? totalDeliveredValue,
+    String? totalDeliveredCharge,
+    int? totalReturnedOrders,
+    String? totalReturnedValue,
+    String? totalReturnedCharge,
+    List<DailyReportModel>? dailyReports,
   }) : super(
-          fromDate: fromDate,
-          toDate: toDate,
-          totalDeliveredOrders: totalDeliveredOrders,
-          totalDeliveredValue: totalDeliveredValue,
-          totalDeliveredCharge: totalDeliveredCharge,
-          totalReturnedOrders: totalReturnedOrders,
-          totalReturnedValue: totalReturnedValue,
-          totalReturnedCharge: totalReturnedCharge,
-          dailyReports: dailyReports,
-        );
+         fromDate: fromDate ?? '',
+         toDate: toDate ?? '',
+         totalDeliveredOrders: totalDeliveredOrders ?? 0,
+         totalDeliveredValue: totalDeliveredValue ?? '0',
+         totalDeliveredCharge: totalDeliveredCharge ?? '0',
+         totalReturnedOrders: totalReturnedOrders ?? 0,
+         totalReturnedValue: totalReturnedValue ?? '0',
+         totalReturnedCharge: totalReturnedCharge ?? '0',
+         dailyReports: dailyReports ?? [],
+       );
 
-  // Factory constructor for JSON deserialization
-  factory DeliveryReportAnalysisModel.fromJson(Map<String, dynamic> json) =>
-      _$DeliveryReportAnalysisModelFromJson(json);
+  factory DeliveryReportAnalysisModel.fromJson(Map<String, dynamic> json) {
+    return DeliveryReportAnalysisModel(
+      fromDate: json['from_date'] as String?,
+      toDate: json['to_date'] as String?,
+      totalDeliveredOrders: (json['total_delivered_orders'] as num?)?.toInt(),
+      totalDeliveredValue: json['total_delivered_value'] as String?,
+      totalDeliveredCharge: json['total_delivered_charge'] as String?,
+      totalReturnedOrders: (json['total_returned_orders'] as num?)?.toInt(),
+      totalReturnedValue: json['total_returned_value'] as String?,
+      totalReturnedCharge: json['total_returned_charge'] as String?,
+      dailyReports: (json['daily_reports'] as List<dynamic>?)
+          ?.map((e) => DailyReportModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 
-  // JSON serialization method
-  Map<String, dynamic> toJson() => _$DeliveryReportAnalysisModelToJson(this);
+  Map<String, dynamic> toJson() => {
+    'from_date': fromDate.isEmpty ? null : fromDate,
+    'to_date': toDate.isEmpty ? null : toDate,
+    'total_delivered_orders': totalDeliveredOrders == 0
+        ? null
+        : totalDeliveredOrders,
+    'total_delivered_value': totalDeliveredValue == '0'
+        ? null
+        : totalDeliveredValue,
+    'total_delivered_charge': totalDeliveredCharge == '0'
+        ? null
+        : totalDeliveredCharge,
+    'total_returned_orders': totalReturnedOrders == 0
+        ? null
+        : totalReturnedOrders,
+    'total_returned_value': totalReturnedValue == '0'
+        ? null
+        : totalReturnedValue,
+    'total_returned_charge': totalReturnedCharge == '0'
+        ? null
+        : totalReturnedCharge,
+    'daily_reports': dailyReports.isEmpty ? null : dailyReports,
+  };
 
-  // Copy with method for immutability
   DeliveryReportAnalysisModel copyWith({
     String? fromDate,
     String? toDate,
@@ -91,67 +83,65 @@ class DeliveryReportAnalysisModel extends DeliveryReportAnalysisEntity {
       totalReturnedOrders: totalReturnedOrders ?? this.totalReturnedOrders,
       totalReturnedValue: totalReturnedValue ?? this.totalReturnedValue,
       totalReturnedCharge: totalReturnedCharge ?? this.totalReturnedCharge,
-      dailyReports: dailyReports ?? this.dailyReports,
+      dailyReports:
+          dailyReports ?? List<DailyReportModel>.from(this.dailyReports),
     );
   }
 }
 
-@JsonSerializable(createToJson: true)
 class DailyReportModel extends DailyReportEntity {
-  @JsonKey(name: 'delivered_date')
-  @override
-  final String deliveredDate;
-
-  @JsonKey(name: 'delivered_orders')
-  @override
-  final int deliveredOrders;
-
-  @JsonKey(name: 'delivered_orders_package_value')
-  @override
-  final String deliveredOrdersPackageValue;
-
-  @JsonKey(name: 'delivered_orders_delivery_charge')
-  @override
-  final String deliveredOrdersDeliveryCharge;
-
-  @JsonKey(name: 'returned_orders')
-  @override
-  final int returnedOrders;
-
-  @JsonKey(name: 'returned_orders_package_value')
-  @override
-  final String returnedOrdersPackageValue;
-
-  @JsonKey(name: 'returned_orders_delivery_charge')
-  @override
-  final String returnedOrdersDeliveryCharge;
-
   const DailyReportModel({
-    required this.deliveredDate,
-    required this.deliveredOrders,
-    required this.deliveredOrdersPackageValue,
-    required this.deliveredOrdersDeliveryCharge,
-    required this.returnedOrders,
-    required this.returnedOrdersPackageValue,
-    required this.returnedOrdersDeliveryCharge,
+    String? deliveredDate,
+    int? deliveredOrders,
+    String? deliveredOrdersPackageValue,
+    String? deliveredOrdersDeliveryCharge,
+    int? returnedOrders,
+    String? returnedOrdersPackageValue,
+    String? returnedOrdersDeliveryCharge,
   }) : super(
-          deliveredDate: deliveredDate,
-          deliveredOrders: deliveredOrders,
-          deliveredOrdersPackageValue: deliveredOrdersPackageValue,
-          deliveredOrdersDeliveryCharge: deliveredOrdersDeliveryCharge,
-          returnedOrders: returnedOrders,
-          returnedOrdersPackageValue: returnedOrdersPackageValue,
-          returnedOrdersDeliveryCharge: returnedOrdersDeliveryCharge,
-        );
+         deliveredDate: deliveredDate ?? '',
+         deliveredOrders: deliveredOrders ?? 0,
+         deliveredOrdersPackageValue: deliveredOrdersPackageValue ?? '0',
+         deliveredOrdersDeliveryCharge: deliveredOrdersDeliveryCharge ?? '0',
+         returnedOrders: returnedOrders ?? 0,
+         returnedOrdersPackageValue: returnedOrdersPackageValue ?? '0',
+         returnedOrdersDeliveryCharge: returnedOrdersDeliveryCharge ?? '0',
+       );
 
-  // Factory constructor for JSON deserialization
-  factory DailyReportModel.fromJson(Map<String, dynamic> json) =>
-      _$DailyReportModelFromJson(json);
+  factory DailyReportModel.fromJson(Map<String, dynamic> json) {
+    return DailyReportModel(
+      deliveredDate: json['delivered_date'] as String?,
+      deliveredOrders: (json['delivered_orders'] as num?)?.toInt(),
+      deliveredOrdersPackageValue:
+          json['delivered_orders_package_value'] as String?,
+      deliveredOrdersDeliveryCharge:
+          json['delivered_orders_delivery_charge'] as String?,
+      returnedOrders: (json['returned_orders'] as num?)?.toInt(),
+      returnedOrdersPackageValue:
+          json['returned_orders_package_value'] as String?,
+      returnedOrdersDeliveryCharge:
+          json['returned_orders_delivery_charge'] as String?,
+    );
+  }
 
-  // JSON serialization method
-  Map<String, dynamic> toJson() => _$DailyReportModelToJson(this);
+  Map<String, dynamic> toJson() => {
+    'delivered_date': deliveredDate.isEmpty ? null : deliveredDate,
+    'delivered_orders': deliveredOrders == 0 ? null : deliveredOrders,
+    'delivered_orders_package_value': deliveredOrdersPackageValue == '0'
+        ? null
+        : deliveredOrdersPackageValue,
+    'delivered_orders_delivery_charge': deliveredOrdersDeliveryCharge == '0'
+        ? null
+        : deliveredOrdersDeliveryCharge,
+    'returned_orders': returnedOrders == 0 ? null : returnedOrders,
+    'returned_orders_package_value': returnedOrdersPackageValue == '0'
+        ? null
+        : returnedOrdersPackageValue,
+    'returned_orders_delivery_charge': returnedOrdersDeliveryCharge == '0'
+        ? null
+        : returnedOrdersDeliveryCharge,
+  };
 
-  // Copy with method for immutability
   DailyReportModel copyWith({
     String? deliveredDate,
     int? deliveredOrders,

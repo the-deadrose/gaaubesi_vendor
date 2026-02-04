@@ -750,7 +750,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             DropdownButtonFormField<String>(
-              value: _selectedPickupPoint,
+              initialValue: _selectedPickupPoint,
               decoration: InputDecoration(
                 hintText: 'Select pickup point',
                 hintStyle: TextStyle(color: Colors.grey[500]),
@@ -1074,6 +1074,7 @@ class _MapSelectionScreenState extends State<MapSelectionScreen> {
                 icon: BitmapDescriptor.defaultMarkerWithHue(
                   BitmapDescriptor.hueRed,
                 ),
+                // ignore: deprecated_member_use
                 zIndex: 2,
               ),
             },

@@ -76,7 +76,6 @@ class BranchListBloc extends Bloc<BranchListEvent, BranchListState> {
           return;
         }
 
-        // If we were refreshing, keep the old data but stop the refresh indicator
         if (state is BranchListLoaded) {
           final currentState = state as BranchListLoaded;
           emit(currentState.copyWith(isRefreshing: false));

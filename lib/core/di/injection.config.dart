@@ -22,10 +22,22 @@ import 'package:gaaubesi_vendor/features/analysis/data/repository/analysis_datas
     as _i963;
 import 'package:gaaubesi_vendor/features/analysis/domain/repository/analysis_repository.dart'
     as _i370;
+import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_branch_report_analysis_usecase.dart'
+    as _i117;
 import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_delivery_report_usecase.dart'
     as _i522;
-import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/daily/delivery_report_analysis_bloc.dart'
-    as _i444;
+import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_pickup_order_analysis_usecase.dart'
+    as _i409;
+import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_sales_report_analysis_usecase.dart'
+    as _i877;
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_bloc.dart'
+    as _i842;
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart'
+    as _i300;
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart'
+    as _i944;
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_bloc.dart'
+    as _i913;
 import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_local_data_source.dart'
     as _i18;
 import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_remote_data_source.dart'
@@ -582,8 +594,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i915.HomeBloc>(
       () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
     );
+    gh.lazySingleton<_i117.FetchBranchReportAnalysisUsecase>(
+      () => _i117.FetchBranchReportAnalysisUsecase(
+        gh<_i370.AnalysisRepository>(),
+      ),
+    );
     gh.lazySingleton<_i522.FetchDeliveryReportUsecase>(
       () => _i522.FetchDeliveryReportUsecase(gh<_i370.AnalysisRepository>()),
+    );
+    gh.lazySingleton<_i409.FetchPickupOrderAnalysisUsecase>(
+      () =>
+          _i409.FetchPickupOrderAnalysisUsecase(gh<_i370.AnalysisRepository>()),
+    );
+    gh.lazySingleton<_i877.FetchSalesReportAnalysisUsecase>(
+      () =>
+          _i877.FetchSalesReportAnalysisUsecase(gh<_i370.AnalysisRepository>()),
     );
     gh.lazySingleton<_i932.AllCommentsUsecase>(
       () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
@@ -624,6 +649,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i617.FetchServiceStationUsecase>(
       () => _i617.FetchServiceStationUsecase(
         contactsRepository: gh<_i793.ContactsRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i944.PickupOrderAnalysisBloc>(
+      () => _i944.PickupOrderAnalysisBloc(
+        fetchPickupOrderAnalysisUsecase:
+            gh<_i409.FetchPickupOrderAnalysisUsecase>(),
       ),
     );
     gh.factory<_i626.OrderBloc>(
@@ -688,20 +719,31 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i409.VendorMessageBloc>(
       () => _i409.VendorMessageBloc(gh<_i780.FetchVendorMessageListUsecase>()),
     );
+    gh.lazySingleton<_i913.SalesReportAnalysisBloc>(
+      () => _i913.SalesReportAnalysisBloc(
+        gh<_i877.FetchSalesReportAnalysisUsecase>(),
+      ),
+    );
     gh.factory<_i488.TicketBloc>(
       () => _i488.TicketBloc(
         ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
         createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
       ),
     );
-    gh.lazySingleton<_i444.DeliveryReportAnalysisBloc>(
-      () => _i444.DeliveryReportAnalysisBloc(
+    gh.lazySingleton<_i300.DeliveryReportAnalysisBloc>(
+      () => _i300.DeliveryReportAnalysisBloc(
         fetchDeliveryReportUsecase: gh<_i522.FetchDeliveryReportUsecase>(),
       ),
     );
     gh.lazySingleton<_i417.ServiceStationBloc>(
       () => _i417.ServiceStationBloc(
         fetchServiceStationUsecase: gh<_i617.FetchServiceStationUsecase>(),
+      ),
+    );
+    gh.lazySingleton<_i842.BranchReportAnalysisBloc>(
+      () => _i842.BranchReportAnalysisBloc(
+        fetchBranchReportAnalysisUsecase:
+            gh<_i117.FetchBranchReportAnalysisUsecase>(),
       ),
     );
     gh.factory<_i246.CustomerListBloc>(
