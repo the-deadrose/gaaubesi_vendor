@@ -96,6 +96,10 @@ class ApiEndpoints {
   static const String branchReportAnalysis = '/analysis/branch-analysis/';
 
   static const String pickupOrderAnalysis = '/analysis/pickup-orders/';
+
+  static const String staffList = '/staff/vendor-staff-list/';
+
+  static const String vendorStaffInfoAPI = '/staff/vendor-staff/';
 }
 class QueryParams {
   QueryParams._();

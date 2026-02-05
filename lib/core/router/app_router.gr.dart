@@ -620,6 +620,69 @@ class ServiceStationRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [StaffInfoEditPage]
+class StaffInfoEditRoute extends PageRouteInfo<StaffInfoEditRouteArgs> {
+  StaffInfoEditRoute({
+    Key? key,
+    required StaffEntity staff,
+    List<PageRouteInfo>? children,
+  }) : super(
+         StaffInfoEditRoute.name,
+         args: StaffInfoEditRouteArgs(key: key, staff: staff),
+         initialChildren: children,
+       );
+
+  static const String name = 'StaffInfoEditRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<StaffInfoEditRouteArgs>();
+      return StaffInfoEditPage(key: args.key, staff: args.staff);
+    },
+  );
+}
+
+class StaffInfoEditRouteArgs {
+  const StaffInfoEditRouteArgs({this.key, required this.staff});
+
+  final Key? key;
+
+  final StaffEntity staff;
+
+  @override
+  String toString() {
+    return 'StaffInfoEditRouteArgs{key: $key, staff: $staff}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! StaffInfoEditRouteArgs) return false;
+    return key == other.key && staff == other.staff;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ staff.hashCode;
+}
+
+/// generated route for
+/// [StaffListScreen]
+class StaffListRoute extends PageRouteInfo<void> {
+  const StaffListRoute({List<PageRouteInfo>? children})
+    : super(StaffListRoute.name, initialChildren: children);
+
+  static const String name = 'StaffListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const StaffListScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [TicketDetailScreen]
 class TicketDetailRoute extends PageRouteInfo<TicketDetailRouteArgs> {
   TicketDetailRoute({

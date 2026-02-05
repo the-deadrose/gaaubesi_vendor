@@ -29,6 +29,9 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_ord
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_list/staff_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/edit_info/edit_staff_info_bloc.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart';
 
@@ -83,6 +86,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<SalesReportAnalysisBloc>()),
         BlocProvider(create: (context) => getIt<BranchReportAnalysisBloc>()),
         BlocProvider(create: (context) => getIt<PickupOrderAnalysisBloc>()),
+        BlocProvider(create: (context) => getIt<StaffListBloc>()),
+        BlocProvider(create: (context) => getIt<EditStaffInfoBloc>()),
+        BlocProvider(create: (context) => getIt<ChangeStaffPasswordBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

@@ -256,6 +256,22 @@ import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequ
     as _i218;
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart'
     as _i724;
+import 'package:gaaubesi_vendor/features/staff/data/datasource/staff_datasource.dart'
+    as _i848;
+import 'package:gaaubesi_vendor/features/staff/data/repository/staff_reposiroy_impl.dart'
+    as _i297;
+import 'package:gaaubesi_vendor/features/staff/domain/repository/staff_repository.dart'
+    as _i23;
+import 'package:gaaubesi_vendor/features/staff/domain/usecase/change_password_staff_usecase.dart'
+    as _i544;
+import 'package:gaaubesi_vendor/features/staff/domain/usecase/edit_staff_info_usecase.dart'
+    as _i469;
+import 'package:gaaubesi_vendor/features/staff/domain/usecase/fetch_staff_list_usecase.dart'
+    as _i104;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart'
+    as _i501;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_list/staff_list_bloc.dart'
+    as _i910;
 import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart'
     as _i576;
 import 'package:gaaubesi_vendor/features/ticket/data/repository/ticket_imp_repository.dart'
@@ -365,6 +381,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i838.VendorInfoRemoteDatasource>(
       () => _i838.VendorInfoDatasourceImpl(gh<_i619.DioClient>()),
     );
+    gh.lazySingleton<_i848.StaffDatasource>(
+      () => _i848.StaffDatasourceImpl(gh<_i619.DioClient>()),
+    );
     gh.lazySingleton<_i684.BranchListRepository>(
       () => _i218.BranchListRepoImp(
         remoteDatasource: gh<_i433.BranchListRemoteDatasource>(),
@@ -441,6 +460,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i163.ContactsRepositoryImpl(
         remoteDatasources: gh<_i556.ContactsRemoteDatasources>(),
       ),
+    );
+    gh.lazySingleton<_i23.StaffRepository>(
+      () => _i297.StaffReposiroyImpl(gh<_i848.StaffDatasource>()),
     );
     gh.lazySingleton<_i92.CommentsRepository>(
       () => _i944.CommentsRepoImp(
@@ -541,6 +563,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i357.LogoutUseCase>(
       () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
     );
+    gh.lazySingleton<_i544.ChangePasswordStaffUsecase>(
+      () => _i544.ChangePasswordStaffUsecase(gh<_i23.StaffRepository>()),
+    );
+    gh.lazySingleton<_i469.EditStaffInfoUsecase>(
+      () => _i469.EditStaffInfoUsecase(gh<_i23.StaffRepository>()),
+    );
+    gh.lazySingleton<_i104.FetchStaffListUsecase>(
+      () => _i104.FetchStaffListUsecase(gh<_i23.StaffRepository>()),
+    );
     gh.factory<_i587.NoticeBloc>(
       () => _i587.NoticeBloc(gh<_i83.NoticeListUsecase>()),
     );
@@ -557,6 +588,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i894.CustomerRepo>(
       () => _i362.CustomerRepoImp(
         remoteDataSource: gh<_i88.CustomerRemoteDatasource>(),
+      ),
+    );
+    gh.lazySingleton<_i910.StaffListBloc>(
+      () => _i910.StaffListBloc(
+        fetchStaffListUsecase: gh<_i104.FetchStaffListUsecase>(),
       ),
     );
     gh.factory<_i124.OrderDetailBloc>(
@@ -635,6 +671,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i457.TicketsListUseCase>(
       () => _i457.TicketsListUseCase(repository: gh<_i567.TicketRepository>()),
+    );
+    gh.lazySingleton<_i501.ChangeStaffPasswordBloc>(
+      () => _i501.ChangeStaffPasswordBloc(
+        changePasswordStaffUsecase: gh<_i544.ChangePasswordStaffUsecase>(),
+      ),
     );
     gh.factory<_i337.ReturnedOrderBloc>(
       () => _i337.ReturnedOrderBloc(

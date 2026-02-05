@@ -6,6 +6,7 @@ import 'package:gaaubesi_vendor/features/customer/presentation/screen/customer_l
 import 'package:gaaubesi_vendor/features/notice/domain/entity/notice_list_entity.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/screen/notice_detail_screen.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/screen/notice_screen.dart';
+import 'package:gaaubesi_vendor/features/staff/domain/entity/staff_list_entity.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/pages/create_ticket_page.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_detail_page.dart';
@@ -37,6 +38,8 @@ import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/delivery_rep
 import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/sales_report_page.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/branch_analysis_page.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/pickup_order_analysis_page.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/pages/staff_list_page.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/pages/staff_info_edit_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -196,33 +199,39 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
 
-     AutoRoute(
+    AutoRoute(
       page: ServiceStationRoute.page,
       path: '/service-station',
       guards: [AuthGuard()],
     ),
 
-       AutoRoute(
+    AutoRoute(
       page: DeliveryReportAnalysisRoute.page,
       path: '/delivery-report-analysis',
       guards: [AuthGuard()],
     ),
 
-        AutoRoute(
-        page: SalesReportAnalysisRoute.page,
-        path: '/sales-report-analysis',
-        guards: [AuthGuard()],
-      ),
+    AutoRoute(
+      page: SalesReportAnalysisRoute.page,
+      path: '/sales-report-analysis',
+      guards: [AuthGuard()],
+    ),
 
-        AutoRoute(
-        page: BranchReportAnalysisRoute.page, 
-        guards: [AuthGuard()],
-        ),
+    AutoRoute(page: BranchReportAnalysisRoute.page, guards: [AuthGuard()]),
 
-          AutoRoute(
-        page: PickupOrderAnalysisRoute.page, 
-        guards: [AuthGuard()],
-        ),
+    AutoRoute(page: PickupOrderAnalysisRoute.page, guards: [AuthGuard()]),
+
+    AutoRoute(
+      page: StaffListRoute.page,
+      path: '/staff-list',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: StaffInfoEditRoute.page,
+      path: '/staff-info-edit',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -260,4 +269,5 @@ extension AppRoutesExtension on AppRouter {
   static const String salesReportAnalysis = '/sales-report-analysis';
   static const String branchreportAnalysis = '/branch-report-analysis';
   static const String pickupOrderAnalysis = '/pickup-order-analysis';
+  static const String staffList = '/staff-list';
 }

@@ -216,7 +216,7 @@ class AppDrawer extends StatelessWidget {
                         title: 'Staff & Permissions',
                         colorScheme: colorScheme,
                         onTap: () {
-                          Navigator.pop(context);
+                          context.router.push(const StaffListRoute());
                         },
                       ),
                     ],
