@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_event.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_state.dart';
@@ -15,13 +16,14 @@ class CreateStaffScreen extends StatefulWidget {
 
 class _CreateStaffScreenState extends State<CreateStaffScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -36,6 +38,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
 
   void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
 
     context.read<CreateStaffBloc>().add(
       CreateStaff(
@@ -49,58 +52,174 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
     );
   }
 
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    _fullNameController.clear();
+    _emailController.clear();
+    _phoneController.clear();
+    _usernameController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
+    context.read<CreateStaffBloc>().add(ResetCreateStaffState());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Staff')),
+      backgroundColor: AppTheme.whiteSmoke,
+      appBar: AppBar(
+        backgroundColor: AppTheme.marianBlue,
+        foregroundColor: Colors.white,
+        title: const Text('Create Staff'),
+        centerTitle: true,
+      ),
       body: BlocConsumer<CreateStaffBloc, CreateStaffState>(
         listener: (context, state) {
           if (state is CreateStaffSuccess) {
-            _fullNameController.clear();
-            _emailController.clear();
-            _phoneController.clear();
-            _usernameController.clear();
-            _passwordController.clear();
-            _confirmPasswordController.clear();
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-
-            context.read<CreateStaffBloc>().add(ResetCreateStaffState());
-
-            _formKey.currentState!.reset();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Future.delayed(const Duration(milliseconds: 300), _resetForm);
           }
 
           if (state is CreateStaffFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.error)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+            );
           }
         },
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Form(
               key: _formKey,
               child: ListView(
                 children: [
-                  _input(_fullNameController, 'Full Name'),
-                  _input(_emailController, 'Email'),
-                  _input(_phoneController, 'Phone Number'),
-                  _input(_usernameController, 'Username'),
-                  _input(_passwordController, 'Password', obscure: true),
-                  _input(
-                    _confirmPasswordController,
-                    'Confirm Password',
-                    obscure: true,
+                  // Header
+                  const SizedBox(height: 10),
+                  Text(
+                    'Add New Staff Member',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.marianBlue,
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  state is CreateStaffLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ElevatedButton(
-                          onPressed: () => _submit(context),
-                          child: const Text('Create Staff'),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Fill in the required details',
+                    style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Form Fields
+                  _buildTextField(
+                    controller: _fullNameController,
+                    label: 'Full Name',
+                    icon: Icons.person,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Full name is required' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildTextField(
+                    controller: _emailController,
+                    label: 'Email',
+                    icon: Icons.email,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Email is required';
+                      if (!value.contains('@')) return 'Enter a valid email';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildTextField(
+                    controller: _phoneController,
+                    label: 'Phone Number',
+                    icon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Phone number is required' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildTextField(
+                    controller: _usernameController,
+                    label: 'Username',
+                    icon: Icons.person_outline,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Username is required' : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildPasswordField(
+                    controller: _passwordController,
+                    label: 'Password',
+                    obscureText: _obscurePassword,
+                    onToggleVisibility: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                  const SizedBox(height: 16),
+
+                  _buildPasswordField(
+                    controller: _confirmPasswordController,
+                    label: 'Confirm Password',
+                    obscureText: _obscureConfirmPassword,
+                    onToggleVisibility: () => setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    ),
+                    validator: (value) {
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Submit Button
+                  if (state is CreateStaffLoading)
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.marianBlue,
+                      ),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: () => _submit(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.marianBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
+                      ),
+                      child: const Text(
+                        'Create Staff',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+
+                  // Reset Button
+                  OutlinedButton(
+                    onPressed: _resetForm,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.marianBlue,
+                      side: BorderSide(color: AppTheme.marianBlue),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Reset Form'),
+                  ),
                 ],
               ),
             ),
@@ -110,27 +229,65 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
     );
   }
 
-  Widget _input(
-    TextEditingController controller,
-    String label, {
-    bool obscure = false,
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscure,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppTheme.marianBlue),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppTheme.powerBlue),
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return '$label is required';
-          }
-          return null;
-        },
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppTheme.powerBlue),
+        ),
       ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required bool obscureText,
+    required VoidCallback onToggleVisibility,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      style: const TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(Icons.lock, color: AppTheme.marianBlue),
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscureText ? Icons.visibility_off : Icons.visibility,
+            color: AppTheme.darkGray,
+          ),
+          onPressed: onToggleVisibility,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppTheme.powerBlue),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppTheme.powerBlue),
+        ),
+      ),
+      validator:
+          validator ?? (value) => value!.isEmpty ? '$label is required' : null,
     );
   }
 }

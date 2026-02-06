@@ -9,4 +9,7 @@ abstract class ExtraMileageRepo {
     String startDate,
     String endDate,
   );
+
+  Future<Either<Failure, void>> approveExtraMileage(String mileageId);
+  Future<Either<Failure, void>> rejectExtraMileage(String mileageId);
 }

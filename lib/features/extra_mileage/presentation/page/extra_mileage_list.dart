@@ -5,6 +5,9 @@ import 'package:gaaubesi_vendor/features/extra_mileage/domain/entity/extra_milea
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_milage_list_event.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_mileage_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_mileage_list_state.dart';
+import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_bloc.dart';
+import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_event.dart';
+import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_state.dart';
 import 'package:intl/intl.dart';
 
 @RoutePage()
@@ -18,6 +21,7 @@ class ExtraMileageScreen extends StatefulWidget {
 class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
   final ScrollController _scrollController = ScrollController();
   late ExtraMileageBloc _extraMileageBloc;
+  late ExtraMileageApprovalBloc _approvalBloc;
 
   String _selectedStatus = '';
   DateTime? _selectedStartDate;
@@ -27,6 +31,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
   void initState() {
     super.initState();
     _extraMileageBloc = context.read<ExtraMileageBloc>();
+    _approvalBloc = context.read<ExtraMileageApprovalBloc>();
 
     _fetchInitialData();
     _scrollController.addListener(_onScroll);
@@ -92,6 +97,37 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
 
   void _applyFilters() {
     _fetchInitialData();
+  }
+
+  void _showConfirmationDialog({
+    required String title,
+    required String message,
+    required String confirmText,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: onConfirm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(confirmText),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showFilterDialog() {
@@ -511,19 +547,41 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
       children: [
         OutlinedButton(
           onPressed: () {
+            _showConfirmationDialog(
+              title: 'Decline Extra Mileage',
+              message: 'Are you sure you want to decline this extra mileage request for Order #${item.order}?',
+              confirmText: 'Decline',
+              onConfirm: () {
+                _approvalBloc.add(
+                  DeclineExtraMileageRequestEvent(mileageId: item.pk.toString()),
+                );
+                Navigator.pop(context);
+              },
+            );
           },
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            side: BorderSide(color: Colors.grey.withValues(alpha:  0.3)),
+            side: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
           ),
           child: const Text('Reject'),
         ),
         const SizedBox(width: 12),
         ElevatedButton(
           onPressed: () {
+            _showConfirmationDialog(
+              title: 'Approve Extra Mileage',
+              message: 'Are you sure you want to approve this extra mileage request for Order #${item.order}?',
+              confirmText: 'Approve',
+              onConfirm: () {
+                _approvalBloc.add(
+                  ApproveExtraMileageRequestEvent(mileageId: item.pk.toString()),
+                );
+                Navigator.pop(context);
+              },
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -607,62 +665,100 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[50],
-      appBar: AppBar(
-        title: const Text('Extra Mileage'),
-        centerTitle: true,
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-       
-        actions: [
-          _buildAppBarActionButton(
-            icon: Icons.filter_list_rounded,
-            onPressed: _showFilterDialog,
-            tooltip: 'Filters',
-          ),
-          const SizedBox(width: 8),
-          _buildAppBarActionButton(
-            icon: Icons.refresh_rounded,
-            onPressed: _refreshData,
-            tooltip: 'Refresh',
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: BlocConsumer<ExtraMileageBloc, ExtraMileageListState>(
-        listener: (context, state) {
-          if (state is ExtraMileageListErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+    return BlocListener<ExtraMileageApprovalBloc, ExtraMileageApprovalState>(
+      listener: (context, state) {
+        if (state is ExtraMileageApprovedSuccessState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            );
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              _buildFilterChips(),
-             
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    _refreshData();
-                    return Future.delayed(const Duration(milliseconds: 300));
-                  },
-                  color: theme.colorScheme.primary,
-                  child: _buildContent(state),
-                ),
-              ),
-            ],
+            ),
           );
-        },
+          _refreshData();
+        } else if (state is ExtraMileageDeclinedSuccessState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+          _refreshData();
+        } else if (state is ExtraMileageApprovalErrorState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[50],
+        appBar: AppBar(
+          title: const Text('Extra Mileage'),
+          centerTitle: true,
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+          actions: [
+            _buildAppBarActionButton(
+              icon: Icons.filter_list_rounded,
+              onPressed: _showFilterDialog,
+              tooltip: 'Filters',
+            ),
+            const SizedBox(width: 8),
+            _buildAppBarActionButton(
+              icon: Icons.refresh_rounded,
+              onPressed: _refreshData,
+              tooltip: 'Refresh',
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: BlocConsumer<ExtraMileageBloc, ExtraMileageListState>(
+          listener: (context, state) {
+            if (state is ExtraMileageListErrorState) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              children: [
+                _buildFilterChips(),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      _refreshData();
+                      return Future.delayed(const Duration(milliseconds: 300));
+                    },
+                    color: theme.colorScheme.primary,
+                    child: _buildContent(state),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -30,4 +30,24 @@ class ExtraMileageRepoImpl implements ExtraMileageRepo {
       return Left(ServerFailure('Failed to fetch extra mileage list'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> approveExtraMileage(String mileageId) async {
+    try {
+      final result = await _remoteDatasource.approveExtraMileage(mileageId);
+      return result.fold((failure) => Left(failure), (_) => const Right(null));
+    } catch (e) {
+      return Left(ServerFailure('Failed to approve extra mileage'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> rejectExtraMileage(String mileageId) async {
+    try {
+      final result = await _remoteDatasource.rejectExtraMileage(mileageId);
+      return result.fold((failure) => Left(failure), (_) => const Right(null));
+    } catch (e) {
+      return Left(ServerFailure('Failed to reject extra mileage'));
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_event.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_state.dart';
@@ -33,101 +34,143 @@ class _ChangeStaffPasswordScreenState extends State<ChangeStaffPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.whiteSmoke,
       appBar: AppBar(
+        backgroundColor: AppTheme.marianBlue,
+        foregroundColor: Colors.white,
         title: const Text('Change Password'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        centerTitle: true,
       ),
       body: BlocConsumer<ChangeStaffPasswordBloc, ChangeStaffPasswordState>(
         listener: (context, state) {
           if (state is ChangeStaffPasswordSuccess) {
-            _newPasswordController.clear();
-            _confirmPasswordController.clear();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: Colors.green,
               ),
             );
-
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) {
-                // ignore: use_build_context_synchronously
-                context.read<ChangeStaffPasswordBloc>().add(
-                  ChangePasswordReset(),
-                );
-                _resetForm();
-                // ignore: use_build_context_synchronously
-                Navigator.of(context).pop(true);
-              }
+            Future.delayed(const Duration(seconds: 1), () {
+              // ignore: use_build_context_synchronously
+              if (mounted) Navigator.of(context).pop(true);
             });
-          } else if (state is ChangeStaffPasswordFailure) {
+          }
+          
+          if (state is ChangeStaffPasswordFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.error),
+                backgroundColor: Colors.red,
+              ),
             );
-          } else if (state is ChangeStaffPasswordResetState) {
-            _resetForm();
           }
         },
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20),
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Set New Password',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.marianBlue,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'Enter and confirm the new password',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.darkGray,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Password Fields
                   _buildPasswordField(
                     controller: _newPasswordController,
                     label: 'New Password',
-                    hintText: 'Enter new password',
                     obscureText: _obscureNewPassword,
-                    onToggleVisibility: () {
-                      setState(() {
-                        _obscureNewPassword = !_obscureNewPassword;
-                      });
-                    },
+                    onToggleVisibility: () =>
+                        setState(() => _obscureNewPassword = !_obscureNewPassword),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter new password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
+                      if (value!.isEmpty) return 'Password is required';
+                      if (value.length < 6) return 'Minimum 6 characters';
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+
                   _buildPasswordField(
                     controller: _confirmPasswordController,
                     label: 'Confirm Password',
-                    hintText: 'Confirm new password',
                     obscureText: _obscureConfirmPassword,
-                    onToggleVisibility: () {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    },
+                    onToggleVisibility: () => setState(
+                        () => _obscureConfirmPassword = !_obscureConfirmPassword),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm password';
-                      }
                       if (value != _newPasswordController.text) {
                         return 'Passwords do not match';
                       }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 32),
-                  _buildChangePasswordButton(state),
+                  const SizedBox(height: 40),
+
+                  // Action Buttons
                   if (state is ChangeStaffPasswordLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: Center(child: CircularProgressIndicator()),
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.marianBlue,
+                      ),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          context.read<ChangeStaffPasswordBloc>().add(
+                            ChangePasswordSubmitted(
+                              userId: widget.userId,
+                              newPassword: _newPasswordController.text,
+                              confirmPassword: _confirmPasswordController.text,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.marianBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Update Password',
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
+                  const SizedBox(height: 15),
+
+                  OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.marianBlue,
+                      side: BorderSide(color: AppTheme.marianBlue),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
                 ],
               ),
             ),
@@ -140,7 +183,6 @@ class _ChangeStaffPasswordScreenState extends State<ChangeStaffPasswordScreen> {
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String label,
-    required String hintText,
     required bool obscureText,
     required VoidCallback onToggleVisibility,
     required String? Function(String?) validator,
@@ -150,81 +192,34 @@ class _ChangeStaffPasswordScreenState extends State<ChangeStaffPasswordScreen> {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: obscureText,
+          style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(
-            hintText: hintText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+            prefixIcon: Icon(Icons.lock, color: AppTheme.marianBlue),
             suffixIcon: IconButton(
-              icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(
+                obscureText ? Icons.visibility_off : Icons.visibility,
+                color: AppTheme.darkGray,
+              ),
               onPressed: onToggleVisibility,
             ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppTheme.powerBlue),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: AppTheme.powerBlue),
             ),
           ),
           validator: validator,
         ),
       ],
     );
-  }
-
-  Widget _buildChangePasswordButton(ChangeStaffPasswordState state) {
-    return ElevatedButton(
-      onPressed: state is ChangeStaffPasswordLoading
-          ? null
-          : () {
-              if (_formKey.currentState?.validate() ?? false) {
-                context.read<ChangeStaffPasswordBloc>().add(
-                  ChangePasswordSubmitted(
-                    userId: widget.userId,
-                    newPassword: _newPasswordController.text,
-                    confirmPassword: _confirmPasswordController.text,
-                  ),
-                );
-              }
-            },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-      ),
-      child: state is ChangeStaffPasswordLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
-            )
-          : const Text(
-              'Change Password',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-    );
-  }
-
-  void _resetForm() {
-    _newPasswordController.clear();
-    _confirmPasswordController.clear();
-    _formKey.currentState?.reset();
-    setState(() {
-      _obscureNewPassword = true;
-      _obscureConfirmPassword = true;
-    });
   }
 }

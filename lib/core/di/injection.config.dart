@@ -156,8 +156,14 @@ import 'package:gaaubesi_vendor/features/extra_mileage/data/repo/extra_mileage_r
     as _i302;
 import 'package:gaaubesi_vendor/features/extra_mileage/domain/repo/extra_mileage_repo.dart'
     as _i347;
+import 'package:gaaubesi_vendor/features/extra_mileage/domain/usecase/approve_extra_mileage_usecase.dart'
+    as _i715;
+import 'package:gaaubesi_vendor/features/extra_mileage/domain/usecase/decline_extra_mileage_usecase.dart'
+    as _i835;
 import 'package:gaaubesi_vendor/features/extra_mileage/domain/usecase/extra_mileage_usecase.dart'
     as _i966;
+import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_bloc.dart'
+    as _i783;
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_mileage_list_bloc.dart'
     as _i219;
 import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart'
@@ -619,6 +625,12 @@ extension GetItInjectableX on _i174.GetIt {
         remoteDataSource: gh<_i88.CustomerRemoteDatasource>(),
       ),
     );
+    gh.lazySingleton<_i715.ApproveExtraMileageUsecase>(
+      () => _i715.ApproveExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
+    );
+    gh.lazySingleton<_i835.DeclineExtraMileageUsecase>(
+      () => _i835.DeclineExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
+    );
     gh.lazySingleton<_i910.StaffListBloc>(
       () => _i910.StaffListBloc(
         fetchStaffListUsecase: gh<_i104.FetchStaffListUsecase>(),
@@ -823,6 +835,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i982.EditStaffInfoBloc>(
       () => _i982.EditStaffInfoBloc(
         editStaffInfoUsecase: gh<_i469.EditStaffInfoUsecase>(),
+      ),
+    );
+    gh.lazySingleton<_i783.ExtraMileageApprovalBloc>(
+      () => _i783.ExtraMileageApprovalBloc(
+        gh<_i715.ApproveExtraMileageUsecase>(),
+        gh<_i835.DeclineExtraMileageUsecase>(),
       ),
     );
     gh.lazySingleton<_i913.SalesReportAnalysisBloc>(

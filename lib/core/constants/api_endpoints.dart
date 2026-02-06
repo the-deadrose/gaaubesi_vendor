@@ -104,6 +104,10 @@ class ApiEndpoints {
   static const String staffPermissionsAPI = '/staff/vendor-staff/';
 
   static const String createStaff = '/staff/vendor-staff-create/';
+
+  static const String declineExtraMileage = '/extra-mileage/decline/';
+
+  static const String approveExtraMileage = '/extra-mileage/update/';
 }
 class QueryParams {
   QueryParams._();

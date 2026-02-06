@@ -1,11 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/sales_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_event.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_state.dart';
-import 'package:gaaubesi_vendor/features/analysis/domain/entity/sales_report_analysis_entity.dart';
+import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 @RoutePage()
 class SalesReportAnalysisScreen extends StatefulWidget {
@@ -16,664 +18,1134 @@ class SalesReportAnalysisScreen extends StatefulWidget {
       _SalesReportAnalysisScreenState();
 }
 
-class _SalesReportAnalysisScreenState extends State<SalesReportAnalysisScreen> {
-  late DateTime _selectedFromDate;
-  late DateTime _selectedToDate;
-  final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
+class _SalesReportAnalysisScreenState
+    extends State<SalesReportAnalysisScreen> {
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
+  static const int maxDaysRange = 180;
+  String? _dateRangeError;
 
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _selectedFromDate = DateTime(now.year, now.month, 1);
-    _selectedToDate = now;
-    _fetchData();
+    _selectedStartDate = DateTime(now.year, now.month, 1);
+    _selectedEndDate = now;
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchAnalysis();
+    });
   }
 
-  void _fetchData() {
-    BlocProvider.of<SalesReportAnalysisBloc>(context).add(
-      FetchSalesReportAnalysisEvent(
-        startDate: _dateFormat.format(_selectedFromDate),
-        endDate: _dateFormat.format(_selectedToDate),
-      ),
-    );
+  @override
+  void dispose() {
+    _startDateController.dispose();
+    _endDateController.dispose();
+    super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context, bool isFromDate) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isFromDate ? _selectedFromDate : _selectedToDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-    );
-
-    if (picked != null) {
+  bool _validateDateRange(DateTime startDate, DateTime endDate) {
+    final difference = endDate.difference(startDate).inDays;
+    if (difference > maxDaysRange) {
       setState(() {
-        if (isFromDate) {
-          _selectedFromDate = picked;
-          // Check if the date range exceeds 180 days
-          if (_selectedFromDate.isAfter(_selectedToDate)) {
-            _selectedToDate = _selectedFromDate;
-          } else if (_selectedToDate.difference(_selectedFromDate).inDays > 180) {
-            // If range exceeds 180 days, limit to date 180 days after from date
-            _selectedToDate = _selectedFromDate.add(const Duration(days: 180));
-          }
-        } else {
-          _selectedToDate = picked;
-          // Check if the date range exceeds 180 days
-          if (_selectedToDate.isBefore(_selectedFromDate)) {
-            _selectedFromDate = _selectedToDate;
-          } else if (_selectedToDate.difference(_selectedFromDate).inDays > 180) {
-            // If range exceeds 180 days, limit to date 180 days before to date
-            _selectedFromDate = _selectedToDate.subtract(const Duration(days: 180));
+        _dateRangeError =
+            'Date range cannot exceed $maxDaysRange days (6 months). Current range: ${difference + 1} days';
+      });
+      return false;
+    } else {
+      setState(() {
+        _dateRangeError = null;
+      });
+      return true;
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final initialDate = isStartDate ? _selectedStartDate : _selectedEndDate;
+    final now = DateTime.now();
+
+    late DateTime firstDate;
+    late DateTime lastDate;
+
+    if (isStartDate) {
+      firstDate = now.subtract(const Duration(days: 365));
+      lastDate = _selectedEndDate ?? now;
+    } else {
+      firstDate = _selectedStartDate ?? now.subtract(const Duration(days: 365));
+      lastDate = now;
+    }
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (pickedDate != null) {
+      if (isStartDate) {
+        if (_selectedEndDate != null) {
+          if (!_validateDateRange(pickedDate, _selectedEndDate!)) {
+            return;
           }
         }
-      });
-      
-      if (_selectedToDate.difference(_selectedFromDate).inDays > 180) {
-        // ignore: use_build_context_synchronously
+        _selectedStartDate = pickedDate;
+        _startDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      } else {
+        if (_selectedStartDate != null) {
+          if (!_validateDateRange(_selectedStartDate!, pickedDate)) {
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_dateRangeError ?? 'Invalid date range'),
+                backgroundColor: AppTheme.rojo,
+              ),
+            );
+            return;
+          }
+        }
+        _selectedEndDate = pickedDate;
+        _endDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      }
+      _fetchAnalysis();
+    }
+  }
+
+  void _fetchAnalysis() {
+    if (_selectedStartDate != null && _selectedEndDate != null) {
+      if (!_validateDateRange(_selectedStartDate!, _selectedEndDate!)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Date range cannot exceed 180 days (6 months)'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
+          SnackBar(
+            content: Text(_dateRangeError ?? 'Invalid date range'),
+            backgroundColor: AppTheme.rojo,
           ),
         );
+        return;
       }
-      
-      _fetchData();
+      context.read<SalesReportAnalysisBloc>().add(
+            FetchSalesReportAnalysisEvent(
+              startDate: _startDateController.text,
+              endDate: _endDateController.text,
+            ),
+          );
     }
+  }
+
+  void _resetFilters() {
+    final now = DateTime.now();
+    _selectedStartDate = DateTime(now.year, now.month, 1);
+    _selectedEndDate = now;
+
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
+
+    setState(() {
+      _dateRangeError = null;
+    });
+
+    _fetchAnalysis();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.whiteSmoke,
       appBar: AppBar(
+        backgroundColor: AppTheme.marianBlue,
+        foregroundColor: AppTheme.whiteSmoke,
         title: const Text('Sales Report Analysis'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        elevation: 2,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _resetFilters,
+            tooltip: 'Reset to current month',
+          ),
+        ],
       ),
-      body: Column(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildDateFilterSection(),
+            const SizedBox(height: 8),
+
+            BlocBuilder<SalesReportAnalysisBloc, SalesReportAnalysisState>(
+              builder: (context, state) {
+                if (state is SalesReportAnalysisLoaded) {
+                  return _buildStatsCards(state.salesReportAnalysis);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
+            BlocBuilder<SalesReportAnalysisBloc, SalesReportAnalysisState>(
+              builder: (context, state) {
+                return _buildContentBasedOnState(state);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateFilterSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Date Filter Section
-          _buildDateFilterSection(),
-          const SizedBox(height: 16),
-          Expanded(
-            child:
-                BlocBuilder<SalesReportAnalysisBloc, SalesReportAnalysisState>(
-                  builder: (context, state) {
-                    if (state is SalesReportAnalysisLoading) {
-                      return _buildShimmerLoading();
-                    } else if (state is SalesReportAnalysisError) {
-                      return _buildErrorWidget(state.message);
-                    } else if (state is SalesReportAnalysisEmpty) {
-                      return _buildEmptyWidget();
-                    } else if (state is SalesReportAnalysisLoaded) {
-                      return _buildSalesReportContent(
-                        state.salesReportAnalysis,
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
+          Row(
+            children: [
+              const Icon(
+                Icons.calendar_today,
+                size: 20,
+                color: AppTheme.marianBlue,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Select Date Range',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
                 ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.powerBlue, width: 1),
+                ),
+                child: Text(
+                  'Max: 6 months',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          if (_dateRangeError != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.rojo.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.rojo.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline, color: AppTheme.rojo, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _dateRangeError!,
+                      style: TextStyle(color: AppTheme.rojo, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          Row(
+            children: [
+              Expanded(
+                child: _buildDateField(
+                  controller: _startDateController,
+                  label: 'Start Date',
+                  onTap: () => _selectDate(context, true),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildDateField(
+                  controller: _endDateController,
+                  label: 'End Date',
+                  onTap: () => _selectDate(context, false),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          ElevatedButton.icon(
+            onPressed: _fetchAnalysis,
+            icon: const Icon(Icons.analytics, size: 20),
+            label: const Text('Analyze Data'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.marianBlue,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
           ),
         ],
       ),
     );
   }
 
-  // Loading shimmer without using shimmer package
-  Widget _buildShimmerLoading() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Shimmer for summary cards
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 1.5,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              children: List.generate(6, (index) => _buildShimmerCard()),
+  Widget _buildDateField({
+    required TextEditingController controller,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.darkGray,
+          ),
+        ),
+        const SizedBox(height: 4),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppTheme.powerBlue.withValues(alpha: 0.3),
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
             ),
-            const SizedBox(height: 24),
-            // Shimmer for charts
-            _buildShimmerChart('Daily Sales Trend'),
-            const SizedBox(height: 24),
-            _buildShimmerChart('Daily Orders'),
-            const SizedBox(height: 24),
-            // Shimmer for table
-            _buildShimmerTable(),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  size: 18,
+                  color: AppTheme.marianBlue,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    controller.text,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                Icon(Icons.arrow_drop_down, color: AppTheme.darkGray),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsCards(SalesReportAnalysis analysis) {
+    final deliveryRate = analysis.totalOrders > 0
+        ? (analysis.totalDeliveredOrders / analysis.totalOrders * 100)
+            .toStringAsFixed(1)
+        : '0.0';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  value: 'Rs.${analysis.totalSales.toStringAsFixed(2)}',
+                  label: 'Total Sales',
+                  icon: Icons.attach_money,
+                  color: AppTheme.successGreen,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  value: 'Rs.${analysis.totalPackageValue.toStringAsFixed(2)}',
+                  label: 'Package Value',
+                  icon: Icons.inventory,
+                  color: AppTheme.infoBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  value: '${analysis.totalOrders}',
+                  label: 'Total Orders',
+                  icon: Icons.shopping_cart,
+                  color: AppTheme.marianBlue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  value: '${analysis.totalDeliveredOrders}',
+                  label: 'Delivered',
+                  icon: Icons.check_circle,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  value: '${analysis.totalReturnedOrders}',
+                  label: 'Returned',
+                  icon: Icons.undo,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildStatCard(
+            value: '$deliveryRate%',
+            label: 'Delivery Rate',
+            icon: Icons.trending_up,
+            color: Colors.purple,
+            fullWidth: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String value,
+    required String label,
+    required IconData icon,
+    required Color color,
+    bool fullWidth = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: fullWidth ? 24 : 18,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContentBasedOnState(SalesReportAnalysisState state) {
+    if (state is SalesReportAnalysisInitial) {
+      return _buildInitialView();
+    } else if (state is SalesReportAnalysisLoading) {
+      return _buildShimmerLoading();
+    } else if (state is SalesReportAnalysisLoaded) {
+      return _buildAnalysisView(state.salesReportAnalysis);
+    } else if (state is SalesReportAnalysisEmpty) {
+      return _buildEmptyView();
+    } else if (state is SalesReportAnalysisError) {
+      return _buildErrorView(state.message);
+    }
+    return Container();
+  }
+
+  Widget _buildInitialView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bar_chart,
+              size: 80,
+              color: AppTheme.powerBlue.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Select dates and click "Analyze Data"',
+              style: TextStyle(fontSize: 16, color: AppTheme.darkGray),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Shimmer for stats cards
+          Row(
+            children: [
+              Expanded(child: _buildShimmerCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildShimmerCard()),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _buildShimmerCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildShimmerCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildShimmerCard()),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Shimmer for charts
+          _buildShimmerChart('Sales Trend'),
+          const SizedBox(height: 24),
+          _buildShimmerChart('Order Trends'),
+          const SizedBox(height: 24),
+
+          // Shimmer for table
+          _buildShimmerTable(),
+        ],
       ),
     );
   }
 
   Widget _buildShimmerCard() {
-    return Card(
-      elevation: 2,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                shape: BoxShape.circle,
-              ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: 60,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
             ),
-            const SizedBox(height: 8),
-            Container(
-              width: 60,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(4),
-              ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 16,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
             ),
-            const SizedBox(height: 4),
-            Container(
-              width: 80,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(4),
-              ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 12,
+            width: 80,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildShimmerChart(String title) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 150,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(4),
-              ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: 150,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
             ),
-            const SizedBox(height: 16),
-            Container(
-              height: 300,
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildShimmerTable() {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 200,
-              height: 20,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(4),
-              ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: 200,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
             ),
-            const SizedBox(height: 16),
-            ...List.generate(
-              5,
-              (index) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: List.generate(
-                    6,
-                    (colIndex) => Expanded(
-                      child: Container(
-                        height: 12,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+          ),
+          const SizedBox(height: 16),
+          ...List.generate(
+            5,
+            (index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: List.generate(
+                  6,
+                  (colIndex) => Expanded(
+                    child: Container(
+                      height: 12,
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightGray,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorWidget(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            'Error',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(color: Colors.red),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _fetchData,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Retry'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyWidget() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            'No Data Available',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'No sales data found for the selected period',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
+  Widget _buildAnalysisView(SalesReportAnalysis analysis) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Sales Chart Section
+        _buildSalesChart(analysis),
+        const SizedBox(height: 24),
+
+        // Orders Chart Section
+        _buildOrdersChart(analysis),
+        const SizedBox(height: 24),
+
+        // Daily Details Section
+        _buildDailyDetailsSection(analysis),
+      ],
     );
   }
 
-  Widget _buildDateFilterSection() {
-    return Card(
+  Widget _buildSalesChart(SalesReportAnalysis analysis) {
+    final dailyReports = analysis.dailyReports;
+    if (dailyReports.isEmpty) return const SizedBox();
+
+    return Container(
       margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Select Date Range',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDatePickerButton(
-                    'From: ${DateFormat('MMM dd, yyyy').format(_selectedFromDate)}',
-                    () => _selectDate(context, true),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.trending_up, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Daily Sales Trend',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Rs.${analysis.totalSales.toStringAsFixed(2)} total',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 12),
-                const Icon(Icons.arrow_forward),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildDatePickerButton(
-                    'To: ${DateFormat('MMM dd, yyyy').format(_selectedToDate)}',
-                    () => _selectDate(context, false),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${_startDateController.text} to ${_endDateController.text}',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 280,
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                labelStyle: const TextStyle(fontSize: 11),
+                majorGridLines: const MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                title: AxisTitle(
+                  text: 'Sales (Rs.)',
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: Color(0xffeeeeee),
+                  width: 1,
+                ),
+                axisLine: const AxisLine(width: 0),
+                numberFormat: NumberFormat.currency(symbol: 'Rs.'),
+              ),
+              series: <LineSeries<DailySalesReport, String>>[
+                LineSeries<DailySalesReport, String>(
+                  dataSource: dailyReports,
+                  xValueMapper: (data, _) =>
+                      DateFormat('MMM dd').format(data.createdDate),
+                  yValueMapper: (data, _) => data.sales,
+                  name: 'Sales',
+                  color: AppTheme.marianBlue,
+                  width: 3,
+                  markerSettings: const MarkerSettings(
+                    isVisible: true,
+                    height: 6,
+                    width: 6,
+                    shape: DataMarkerType.circle,
                   ),
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDatePickerButton(String text, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today, size: 20, color: Colors.blue),
-            const SizedBox(width: 8),
-            Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSalesReportContent(SalesReportAnalysis report) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Summary Cards
-            _buildSummaryCards(report),
-            const SizedBox(height: 24),
-            // Sales Chart
-            _buildSalesChart(report.dailyReports),
-            const SizedBox(height: 24),
-            // Orders Chart
-            _buildOrdersChart(report.dailyReports),
-            const SizedBox(height: 24),
-            // Daily Report Table
-            _buildDailyReportTable(report.dailyReports),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCards(SalesReportAnalysis report) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 1.5,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      children: [
-        _buildSummaryCard(
-          'Total Orders',
-          '${report.totalOrders}',
-          Icons.shopping_cart,
-          Colors.blue,
-        ),
-        _buildSummaryCard(
-          'Delivered',
-          '${report.totalDeliveredOrders}',
-          Icons.check_circle,
-          Colors.green,
-        ),
-        _buildSummaryCard(
-          'Returned',
-          '${report.totalReturnedOrders}',
-          Icons.undo,
-          Colors.orange,
-        ),
-        _buildSummaryCard(
-          'Total Sales',
-          '\$${report.totalSales.toStringAsFixed(2)}',
-          Icons.attach_money,
-          Colors.purple,
-        ),
-        _buildSummaryCard(
-          'Package Value',
-          '\$${report.totalPackageValue.toStringAsFixed(2)}',
-          Icons.check_box_outline_blank,
-          Colors.teal,
-        ),
-        _buildSummaryCard(
-          'Delivery Rate',
-          '${_calculateDeliveryRate(report.totalOrders, report.totalDeliveredOrders)}%',
-          Icons.trending_up,
-          Colors.green,
-        ),
-      ],
-    );
-  }
-
-  String _calculateDeliveryRate(int totalOrders, int deliveredOrders) {
-    if (totalOrders == 0) return '0.0';
-    return ((deliveredOrders / totalOrders) * 100).toStringAsFixed(1);
-  }
-
-  Widget _buildSummaryCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 24, color: color),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSalesChart(List<DailySalesReport> dailyReports) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Daily Sales Trend',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 300,
-              child: _buildCustomChart(dailyReports, isSalesChart: true),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrdersChart(List<DailySalesReport> dailyReports) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Daily Orders',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 300,
-              child: _buildCustomChart(dailyReports, isSalesChart: false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCustomChart(
-    List<DailySalesReport> reports, {
-    required bool isSalesChart,
-  }) {
-    double maxValue = isSalesChart
-        ? reports.map((r) => r.sales).reduce((a, b) => a > b ? a : b)
-        : (reports.map((r) => r.totalOrders.toDouble()).reduce((a, b) => a > b ? a : b));
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildLegendItem('Total Orders', Colors.blue),
-            const SizedBox(width: 16),
-            _buildLegendItem('Delivered', Colors.green),
-          ],
-        ),
-        const SizedBox(height: 8),
-        // Chart area
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: CustomPaint(
-              painter: _ChartPainter(
-                reports: reports,
-                maxValue: maxValue,
-                isSalesChart: isSalesChart,
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                header: '',
+                canShowMarker: true,
+                color: Colors.white,
+                textStyle: const TextStyle(color: Colors.black, fontSize: 12),
+                borderColor: AppTheme.marianBlue,
+                borderWidth: 1,
+                builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+                  final salesPoint = data as DailySalesReport;
+                  return Text('Rs.${salesPoint.sales.toStringAsFixed(2)}');
+                },
               ),
             ),
           ),
-        ),
-        // X-axis labels
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: reports
-                .map(
-                  (r) => Text(
-                    DateFormat('MMM dd').format(r.createdDate),
-                    style: const TextStyle(fontSize: 10),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrdersChart(SalesReportAnalysis analysis) {
+    final dailyReports = analysis.dailyReports;
+    if (dailyReports.isEmpty) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.shopping_cart, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Daily Order Trends',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${analysis.totalOrders} total orders',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-                )
-                .toList(),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            '${_startDateController.text} to ${_endDateController.text}',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 280,
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                labelStyle: const TextStyle(fontSize: 11),
+                majorGridLines: const MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                title: AxisTitle(
+                  text: 'Number of Orders',
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: Color(0xffeeeeee),
+                  width: 1,
+                ),
+                axisLine: const AxisLine(width: 0),
+              ),
+              series: <ColumnSeries<DailySalesReport, String>>[
+                ColumnSeries<DailySalesReport, String>(
+                  dataSource: dailyReports,
+                  xValueMapper: (data, _) =>
+                      DateFormat('MMM dd').format(data.createdDate),
+                  yValueMapper: (data, _) => data.totalOrders.toDouble(),
+                  name: 'Total Orders',
+                  color: AppTheme.marianBlue,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                  ),
+                  width: 0.6,
+                ),
+                ColumnSeries<DailySalesReport, String>(
+                  dataSource: dailyReports,
+                  xValueMapper: (data, _) =>
+                      DateFormat('MMM dd').format(data.createdDate),
+                  yValueMapper: (data, _) => data.deliveredOrders.toDouble(),
+                  name: 'Delivered',
+                  color: Colors.green,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                  ),
+                  width: 0.6,
+                ),
+              ],
+              legend: Legend(
+                isVisible: true,
+                position: LegendPosition.top,
+                overflowMode: LegendItemOverflowMode.wrap,
+              ),
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                header: '',
+                canShowMarker: false,
+                color: Colors.white,
+                textStyle: const TextStyle(color: Colors.black, fontSize: 12),
+                borderColor: AppTheme.marianBlue,
+                borderWidth: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildDailyDetailsSection(SalesReportAnalysis analysis) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.list_alt, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Daily Breakdown',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${analysis.dailyReports.length} days',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...analysis.dailyReports.map((daily) {
+            return _buildDailyItem(daily);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDailyItem(DailySalesReport daily) {
+    final deliveryRate = daily.totalOrders > 0
+        ? (daily.deliveredOrders / daily.totalOrders * 100).toStringAsFixed(1)
+        : '0.0';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: AppTheme.powerBlue.withValues(alpha: 0.1)),
+        ),
+        child: ExpansionTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.marianBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.calendar_today,
+              size: 20,
+              color: AppTheme.marianBlue,
+            ),
+          ),
+          title: Text(
+            DateFormat('MMM dd, yyyy').format(daily.createdDate),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(
+            'Rs.${daily.sales.toStringAsFixed(2)} sales',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: daily.sales > 0
+                  ? AppTheme.successGreen.withValues(alpha: 0.1)
+                  : AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: daily.sales > 0
+                    ? AppTheme.successGreen.withValues(alpha: 0.3)
+                    : AppTheme.darkGray.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              'Rs.${daily.sales.toStringAsFixed(0)}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: daily.sales > 0 ? AppTheme.successGreen : AppTheme.darkGray,
+              ),
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  _buildDailyStatRow(
+                    'Total Orders',
+                    '${daily.totalOrders}',
+                    Colors.blue,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDailyStatRow(
+                    'Delivered',
+                    '${daily.deliveredOrders}',
+                    Colors.green,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDailyStatRow(
+                    'Returned',
+                    '${daily.returnedOrders}',
+                    Colors.orange,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDailyStatRow(
+                    'Package Value',
+                    'Rs.${daily.packageValue.toStringAsFixed(2)}',
+                    Colors.purple,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDailyStatRow(
+                    'Delivery Rate',
+                    '$deliveryRate%',
+                    AppTheme.successGreen,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyStatRow(String label, String value, Color color) {
     return Row(
       children: [
-        Container(width: 12, height: 12, color: color),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: AppTheme.darkGray,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildDailyReportTable(List<DailySalesReport> dailyReports) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  Widget _buildEmptyView() {
+    return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(32),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Daily Report Details',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Icon(
+              Icons.bar_chart_outlined,
+              size: 80,
+              color: AppTheme.powerBlue.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.resolveWith<Color?>((
-                  Set<WidgetState> states,
-                ) {
-                  return Colors.blue.withValues(alpha: 0.1);
-                }),
-                columns: const [
-                  DataColumn(label: Text('Date')),
-                  DataColumn(label: Text('Total Orders'), numeric: true),
-                  DataColumn(label: Text('Delivered'), numeric: true),
-                  DataColumn(label: Text('Returned'), numeric: true),
-                  DataColumn(label: Text('Package Value'), numeric: true),
-                  DataColumn(label: Text('Sales'), numeric: true),
-                ],
-                rows: dailyReports.map((report) {
-                  return DataRow(
-                    cells: [
-                      DataCell(
-                        Text(
-                          DateFormat('MMM dd, yyyy').format(report.createdDate),
-                        ),
-                      ),
-                      DataCell(Text('${report.totalOrders}')),
-                      DataCell(Text('${report.deliveredOrders}')),
-                      DataCell(Text('${report.returnedOrders}')),
-                      DataCell(
-                        Text('\$${report.packageValue.toStringAsFixed(2)}'),
-                      ),
-                      DataCell(Text('\$${report.sales.toStringAsFixed(2)}')),
-                    ],
-                  );
-                }).toList(),
+            Text(
+              'No Sales Data Available',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.blackBean,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No sales data found for the selected date range',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _resetFilters,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reset to Current Month'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -681,66 +1153,50 @@ class _SalesReportAnalysisScreenState extends State<SalesReportAnalysisScreen> {
       ),
     );
   }
-}
 
-class _ChartPainter extends CustomPainter {
-  final List<DailySalesReport> reports;
-  final double maxValue;
-  final bool isSalesChart;
-
-  _ChartPainter({
-    required this.reports,
-    required this.maxValue,
-    required this.isSalesChart,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final fillPaint = Paint()
-      ..color = Colors.blue.withValues(alpha: 0.1)
-      ..style = PaintingStyle.fill;
-
-    if (reports.isEmpty) return;
-
-    final double stepX = size.width / (reports.length - 1);
-    final double scaleY = size.height / maxValue;
-
-    final List<Offset> points = [];
-    for (int i = 0; i < reports.length; i++) {
-      double value = isSalesChart
-          ? reports[i].sales
-          : reports[i].totalOrders.toDouble();
-      double x = i * stepX;
-      double y = size.height - (value * scaleY);
-      points.add(Offset(x, y));
-    }
-
-    // Draw filled area
-    final path = Path();
-    path.moveTo(0, size.height);
-    for (final point in points) {
-      path.lineTo(point.dx, point.dy);
-    }
-    path.lineTo(size.width, size.height);
-    path.close();
-    canvas.drawPath(path, fillPaint);
-
-    // Draw line
-    for (int i = 0; i < points.length - 1; i++) {
-      canvas.drawLine(points[i], points[i + 1], paint);
-    }
-
-    // Draw points
-    for (final point in points) {
-      canvas.drawCircle(point, 3, Paint()..color = Colors.blue);
-    }
+  Widget _buildErrorView(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: AppTheme.rojo),
+            const SizedBox(height: 16),
+            Text(
+              'Analysis Failed',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.rojo,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _fetchAnalysis,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try Again'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

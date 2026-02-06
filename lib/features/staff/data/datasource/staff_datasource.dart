@@ -159,7 +159,7 @@ class StaffDatasourceImpl implements StaffDatasource {
   }) async {
     try {
       final endpoint =
-          '${ApiEndpoints.vendorStaffInfoAPI}$userId/change-permission/';
+          '${ApiEndpoints.vendorStaffInfoAPI}$userId/add-permission/';
       final body = {
         'permission_type': permissionType,
         'permission_ids': permissionIds,

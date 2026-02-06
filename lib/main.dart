@@ -21,6 +21,7 @@ import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/custome
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/detail/customer_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_mileage_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_bloc.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/bloc/home_bloc.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_bloc.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.dart';
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<CustomerDetailBloc>()),
         BlocProvider(create: (context) => getIt<VendorInfoBloc>()),
         BlocProvider(create: (context) => getIt<ExtraMileageBloc>()),
+        BlocProvider(create: (context) => getIt<ExtraMileageApprovalBloc>()),
         BlocProvider(create: (context) => getIt<HeadOfficeContactsBloc>()),
         BlocProvider(create: (context) => getIt<ServiceStationBloc>()),
         BlocProvider(create: (context) => getIt<RedirectStationListBloc>()),
