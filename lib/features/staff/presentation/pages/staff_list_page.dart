@@ -27,7 +27,9 @@ class _StaffListScreenState extends State<StaffListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Staff Management'),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.add))],
+        actions: [IconButton(onPressed: () {
+          context.router.push(const CreateStaffRoute());
+        }, icon: const Icon(Icons.add))],
       ),
       body: BlocBuilder<StaffListBloc, StaffListState>(
         builder: (context, state) {
@@ -118,16 +120,22 @@ class _StaffListScreenState extends State<StaffListScreen> {
                 ActionChip(
                   label: const Text('Edit Info'),
                   onPressed: () {
-                    context.router.push(StaffInfoEditRoute(staff: staff));
+                     context.router.push(StaffInfoEditRoute(staff: staff));
                   },
                 ),
                 ActionChip(
                   label: const Text('Change Password'),
-                  onPressed: () {},
+                  onPressed: () {
+                      context.router.push(ChangeStaffPasswordRoute(userId: staff.id.toString()));
+                  },
                 ),
                 ActionChip(
                   label: const Text('Change Permission'),
-                  onPressed: () {},
+                  onPressed: () {
+                    context.router.push(StaffEditPermissionRoute(
+                      staffId: staff.id.toString(),
+                    ));
+                  },
                 ),
               ],
             ),

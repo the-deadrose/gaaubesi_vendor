@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/domain/usecase/edit_staff_info_usecase.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/edit_info/edit_staff_info_event.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/edit_info/edit_staff_info_state.dart';
+import 'package:injectable/injectable.dart';
+@lazySingleton
 
 class EditStaffInfoBloc extends Bloc<EditStaffInfoEvent, EditStaffInfoState> {
   final EditStaffInfoUsecase _editStaffInfoUsecase;

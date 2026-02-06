@@ -59,6 +59,54 @@ class ChangePasswordRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [ChangeStaffPasswordScreen]
+class ChangeStaffPasswordRoute
+    extends PageRouteInfo<ChangeStaffPasswordRouteArgs> {
+  ChangeStaffPasswordRoute({
+    Key? key,
+    required String userId,
+    List<PageRouteInfo>? children,
+  }) : super(
+         ChangeStaffPasswordRoute.name,
+         args: ChangeStaffPasswordRouteArgs(key: key, userId: userId),
+         initialChildren: children,
+       );
+
+  static const String name = 'ChangeStaffPasswordRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<ChangeStaffPasswordRouteArgs>();
+      return ChangeStaffPasswordScreen(key: args.key, userId: args.userId);
+    },
+  );
+}
+
+class ChangeStaffPasswordRouteArgs {
+  const ChangeStaffPasswordRouteArgs({this.key, required this.userId});
+
+  final Key? key;
+
+  final String userId;
+
+  @override
+  String toString() {
+    return 'ChangeStaffPasswordRouteArgs{key: $key, userId: $userId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ChangeStaffPasswordRouteArgs) return false;
+    return key == other.key && userId == other.userId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ userId.hashCode;
+}
+
+/// generated route for
 /// [CodTransferListScreen]
 class CodTransferListRoute extends PageRouteInfo<void> {
   const CodTransferListRoute({List<PageRouteInfo>? children})
@@ -132,6 +180,22 @@ class CreateOrderRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const CreateOrderPage();
+    },
+  );
+}
+
+/// generated route for
+/// [CreateStaffScreen]
+class CreateStaffRoute extends PageRouteInfo<void> {
+  const CreateStaffRoute({List<PageRouteInfo>? children})
+    : super(CreateStaffRoute.name, initialChildren: children);
+
+  static const String name = 'CreateStaffRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const CreateStaffScreen();
     },
   );
 }
@@ -617,6 +681,54 @@ class ServiceStationRoute extends PageRouteInfo<void> {
       return const ServiceStationScreen();
     },
   );
+}
+
+/// generated route for
+/// [StaffEditPermissionPage]
+class StaffEditPermissionRoute
+    extends PageRouteInfo<StaffEditPermissionRouteArgs> {
+  StaffEditPermissionRoute({
+    Key? key,
+    required String staffId,
+    List<PageRouteInfo>? children,
+  }) : super(
+         StaffEditPermissionRoute.name,
+         args: StaffEditPermissionRouteArgs(key: key, staffId: staffId),
+         initialChildren: children,
+       );
+
+  static const String name = 'StaffEditPermissionRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<StaffEditPermissionRouteArgs>();
+      return StaffEditPermissionPage(key: args.key, staffId: args.staffId);
+    },
+  );
+}
+
+class StaffEditPermissionRouteArgs {
+  const StaffEditPermissionRouteArgs({this.key, required this.staffId});
+
+  final Key? key;
+
+  final String staffId;
+
+  @override
+  String toString() {
+    return 'StaffEditPermissionRouteArgs{key: $key, staffId: $staffId}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! StaffEditPermissionRouteArgs) return false;
+    return key == other.key && staffId == other.staffId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ staffId.hashCode;
 }
 
 /// generated route for

@@ -100,6 +100,10 @@ class ApiEndpoints {
   static const String staffList = '/staff/vendor-staff-list/';
 
   static const String vendorStaffInfoAPI = '/staff/vendor-staff/';
+
+  static const String staffPermissionsAPI = '/staff/vendor-staff/';
+
+  static const String createStaff = '/staff/vendor-staff-create/';
 }
 class QueryParams {
   QueryParams._();

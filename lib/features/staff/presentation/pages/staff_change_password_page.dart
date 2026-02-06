@@ -1,9 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_event.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_state.dart';
 
+@RoutePage()
 class ChangeStaffPasswordScreen extends StatefulWidget {
   final String userId;
 
@@ -41,6 +43,8 @@ class _ChangeStaffPasswordScreenState extends State<ChangeStaffPasswordScreen> {
       body: BlocConsumer<ChangeStaffPasswordBloc, ChangeStaffPasswordState>(
         listener: (context, state) {
           if (state is ChangeStaffPasswordSuccess) {
+            _newPasswordController.clear();
+            _confirmPasswordController.clear();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),

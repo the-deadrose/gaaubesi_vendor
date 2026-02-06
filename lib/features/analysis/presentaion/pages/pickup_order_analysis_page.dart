@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/pickup_order_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_event.dart';
@@ -97,7 +98,6 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
       if (isStartDate) {
         if (_selectedEndDate != null) {
           if (!_validateDateRange(pickedDate, _selectedEndDate!)) {
-            if (mounted) {}
             return;
           }
         }
@@ -106,22 +106,19 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
       } else {
         if (_selectedStartDate != null) {
           if (!_validateDateRange(_selectedStartDate!, pickedDate)) {
-            if (mounted) {
-              // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(_dateRangeError ?? 'Invalid date range'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_dateRangeError ?? 'Invalid date range'),
+                backgroundColor: AppTheme.rojo,
+              ),
+            );
             return;
           }
         }
         _selectedEndDate = pickedDate;
         _endDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       }
-
       _fetchAnalysis();
     }
   }
@@ -132,7 +129,7 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_dateRangeError ?? 'Invalid date range'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.rojo,
           ),
         );
         return;
@@ -162,140 +159,282 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
       _dateRangeError = null;
     });
 
-    context.read<PickupOrderAnalysisBloc>().add(
-      ResetPickupOrderAnalysisEvent(),
-    );
     _fetchAnalysis();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.whiteSmoke,
       appBar: AppBar(
+        backgroundColor: AppTheme.marianBlue,
+        foregroundColor: AppTheme.whiteSmoke,
         title: const Text('Pickup Order Analysis'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: _resetFilters,
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Reset to last 7 days',
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          _buildDateFilterSection(),
-          const SizedBox(height: 8),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildDateFilterSection(),
+            const SizedBox(height: 8),
 
-          Expanded(
-            child:
-                BlocBuilder<PickupOrderAnalysisBloc, PickupOrderAnalysisState>(
-                  builder: (context, state) {
-                    return _buildContentBasedOnState(state);
-                  },
+            BlocBuilder<PickupOrderAnalysisBloc, PickupOrderAnalysisState>(
+              builder: (context, state) {
+                if (state is PickupOrderAnalysisLoaded) {
+                  return _buildStatsCards(state.analysis);
+                } else if (state is PickupOrderAnalysisFiltered) {
+                  return _buildStatsCards(state.analysis);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
+            BlocBuilder<PickupOrderAnalysisBloc, PickupOrderAnalysisState>(
+              builder: (context, state) {
+                return _buildContentBasedOnState(state);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateFilterSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.calendar_today,
+                size: 20,
+                color: AppTheme.marianBlue,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Select Date Range',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
                 ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.powerBlue, width: 1),
+                ),
+                child: Text(
+                  'Max: $maxDaysRange days',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          if (_dateRangeError != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.rojo.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.rojo.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline, color: AppTheme.rojo, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _dateRangeError!,
+                      style: TextStyle(color: AppTheme.rojo, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          Row(
+            children: [
+              Expanded(
+                child: _buildDateField(
+                  controller: _startDateController,
+                  label: 'Start Date',
+                  onTap: () => _selectDate(context, true),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildDateField(
+                  controller: _endDateController,
+                  label: 'End Date',
+                  onTap: () => _selectDate(context, false),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          ElevatedButton.icon(
+            onPressed: _fetchAnalysis,
+            icon: const Icon(Icons.analytics, size: 20),
+            label: const Text('Analyze Data'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.marianBlue,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDateFilterSection() {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Select Date Range',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Maximum range: $maxDaysRange days',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 12),
-            if (_dateRangeError != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    border: Border.all(color: Colors.red[300]!),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        color: Colors.red[700],
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _dateRangeError!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.red[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+  Widget _buildDateField({
+    required TextEditingController controller,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.darkGray,
+          ),
+        ),
+        const SizedBox(height: 4),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppTheme.powerBlue.withValues(alpha: 0.3),
               ),
-            Row(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Row(
               children: [
+                Icon(
+                  Icons.calendar_today,
+                  size: 18,
+                  color: AppTheme.marianBlue,
+                ),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: TextField(
-                    controller: _startDateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'From Date',
-                      suffixIcon: IconButton(
-                        onPressed: () => _selectDate(context, true),
-                        icon: const Icon(Icons.calendar_today),
-                      ),
-                      border: const OutlineInputBorder(),
-                    ),
-                    onTap: () => _selectDate(context, true),
+                  child: Text(
+                    controller.text,
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextField(
-                    controller: _endDateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'To Date',
-                      suffixIcon: IconButton(
-                        onPressed: () => _selectDate(context, false),
-                        icon: const Icon(Icons.calendar_today),
-                      ),
-                      border: const OutlineInputBorder(),
-                    ),
-                    onTap: () => _selectDate(context, false),
+                Icon(Icons.arrow_drop_down, color: AppTheme.darkGray),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsCards(PickupOrderAnalysisEntity analysis) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildStatCard(
+              value: analysis.totalOrders.toString(),
+              label: 'Total Orders',
+              icon: Icons.shopping_bag,
+              color: AppTheme.infoBlue,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              value: analysis.dailyCounts.length.toString(),
+              label: 'Active Days',
+              icon: Icons.calendar_month,
+              color: AppTheme.successGreen,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String value,
+    required String label,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 24, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: color,
                   ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: _fetchAnalysis,
-              icon: const Icon(Icons.analytics),
-              label: const Text('Analyze'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -304,7 +443,7 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
     if (state is PickupOrderAnalysisInitial) {
       return _buildInitialView();
     } else if (state is PickupOrderAnalysisLoading) {
-      return _buildLoadingView();
+      return _buildShimmerLoading();
     } else if (state is PickupOrderAnalysisIsFiltering) {
       return _buildFilteringView();
     } else if (state is PickupOrderAnalysisLoaded) {
@@ -320,267 +459,530 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
   }
 
   Widget _buildInitialView() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.analytics_outlined, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
+          Icon(
+            Icons.analytics_outlined,
+            size: 80,
+            color: AppTheme.powerBlue.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
           Text(
-            'Select dates and click Analyze',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            'Select dates and click "Analyze Data"',
+            style: TextStyle(fontSize: 16, color: AppTheme.darkGray),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLoadingView() {
-    return const Center(child: CircularProgressIndicator());
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return _buildShimmerCard();
+      },
+    );
+  }
+
+  Widget _buildShimmerCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 16,
+            width: 200,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 12,
+            width: 150,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildFilteringView() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const CircularProgressIndicator(),
-        const SizedBox(height: 16),
-        Text(
-          'Filtering data...',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ],
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(color: AppTheme.marianBlue),
+          const SizedBox(height: 16),
+          Text(
+            'Analyzing data...',
+            style: TextStyle(fontSize: 16, color: AppTheme.blackBean),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildAnalysisView(PickupOrderAnalysisEntity analysis) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryCards(analysis),
-          const SizedBox(height: 24),
-          _buildDailyChart(analysis),
-          const SizedBox(height: 24),
-          _buildDailyDetails(analysis),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCards(PickupOrderAnalysisEntity analysis) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Card(
-            color: Colors.blue[50],
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text(
-                    analysis.totalOrders.toString(),
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Total Orders',
-                    style: TextStyle(fontSize: 14, color: Colors.blue),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Card(
-            color: Colors.green[50],
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text(
-                    analysis.dailyCounts.length.toString(),
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Days with Orders',
-                    style: TextStyle(fontSize: 14, color: Colors.green),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        _buildDailyChart(analysis),
+        const SizedBox(height: 24),
+
+        _buildDailyDetailsSection(analysis),
       ],
     );
   }
 
   Widget _buildDailyChart(PickupOrderAnalysisEntity analysis) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Daily Order Count',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${analysis.fromDate} to ${analysis.toDate}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 300,
-              child: SfCartesianChart(
-                primaryXAxis: CategoryAxis(labelRotation: -45),
-                primaryYAxis: NumericAxis(
-                  title: AxisTitle(text: 'Number of Orders'),
-                ),
-                series: <ColumnSeries<DailyOrderCountEntity, String>>[
-                  ColumnSeries<DailyOrderCountEntity, String>(
-                    dataSource: analysis.dailyCounts,
-                    xValueMapper: (data, _) => data.date,
-                    yValueMapper: (data, _) => data.count,
-                    name: 'Orders',
-                    color: Colors.blue,
-                  ),
-                ],
-                tooltipBehavior: TooltipBehavior(
-                  enable: true,
-                  format: 'point.x: point.y orders',
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bar_chart, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Daily Order Trends',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${analysis.fromDate} to ${analysis.toDate}',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 280,
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                labelStyle: const TextStyle(fontSize: 11),
+                majorGridLines: const MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                title: AxisTitle(
+                  text: 'Number of Orders',
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: Color(0xffeeeeee),
+                  width: 1,
+                ),
+                axisLine: const AxisLine(width: 0),
+              ),
+              series: <ColumnSeries<DailyOrderCountEntity, String>>[
+                ColumnSeries<DailyOrderCountEntity, String>(
+                  dataSource: analysis.dailyCounts,
+                  xValueMapper: (data, _) => data.date,
+                  yValueMapper: (data, _) => data.count,
+                  name: 'Orders',
+                  color: AppTheme.marianBlue,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                  ),
+                  width: 0.6,
+                ),
+              ],
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                format: 'point.x\npoint.y orders',
+                header: '',
+                canShowMarker: false,
+                color: Colors.white,
+                textStyle: const TextStyle(color: Colors.black, fontSize: 12),
+                borderColor: AppTheme.marianBlue,
+                borderWidth: 1,
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDailyDetails(PickupOrderAnalysisEntity analysis) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Daily Order Details',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            ...analysis.dailyCounts.map((daily) {
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(
-                    daily.date,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('${daily.count} orders'),
-                  trailing: Chip(
-                    label: Text('${daily.count}'),
-                    backgroundColor: daily.count > 0
-                        ? Colors.blue
-                        : Colors.grey,
-                    labelStyle: const TextStyle(color: Colors.white),
-                  ),
-                  onTap: () {
-                    _showOrderIdsDialog(daily.date, daily.orderIds);
-                  },
+  Widget _buildDailyDetailsSection(PickupOrderAnalysisEntity analysis) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.list_alt, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Daily Breakdown',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
                 ),
-              );
-            }),
-          ],
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${analysis.dailyCounts.length} days',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...analysis.dailyCounts.map((daily) {
+            return _buildDailyItem(daily);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDailyItem(DailyOrderCountEntity daily) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: AppTheme.powerBlue.withValues(alpha: 0.1)),
+        ),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.marianBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.calendar_today,
+              size: 20,
+              color: AppTheme.marianBlue,
+            ),
+          ),
+          title: Text(
+            daily.date,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(
+            '${daily.count} orders',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: daily.count > 0
+                  ? AppTheme.successGreen.withValues(alpha: 0.1)
+                  : AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: daily.count > 0
+                    ? AppTheme.successGreen.withValues(alpha: 0.3)
+                    : AppTheme.darkGray.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              '${daily.count}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: daily.count > 0
+                    ? AppTheme.successGreen
+                    : AppTheme.darkGray,
+              ),
+            ),
+          ),
+          onTap: () => _showOrderIdsDialog(daily.date, daily.orderIds),
         ),
       ),
     );
   }
 
   void _showOrderIdsDialog(String date, List<String> orderIds) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Orders on $date'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: orderIds.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue[100],
-                  child: Text('${index + 1}'),
-                ),
-                title: Text('Order #${orderIds[index]}'),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.7,
+          maxChildSize: 0.9,
+          minChildSize: 0.5,
+          builder: (context, scrollController) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightGray,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.shopping_bag,
+                        color: AppTheme.marianBlue,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Orders on $date',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${orderIds.length} orders',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: orderIds.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: AppTheme.powerBlue.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ),
+                            ),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: AppTheme.marianBlue.withValues(
+                                  alpha: 0.1,
+                                ),
+                                child: Text(
+                                  '${index + 1}',
+                                  style: TextStyle(
+                                    color: AppTheme.marianBlue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              title: Text(
+                                'Order #${orderIds[index]}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: AppTheme.darkGray,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.marianBlue,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Close'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildEmptyView() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          const Text(
-            'No orders found for selected dates',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: _resetFilters,
-            child: const Text('Reset to last 7 days'),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.analytics_outlined,
+              size: 80,
+              color: AppTheme.powerBlue.withValues(alpha: 0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Data Available',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.blackBean,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No pickup orders found for the selected date range',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _resetFilters,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reset to Last 7 Days'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildErrorView(String message) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: const TextStyle(fontSize: 16, color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: _fetchAnalysis, child: const Text('Retry')),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: AppTheme.rojo),
+            const SizedBox(height: 16),
+            Text(
+              'Analysis Failed',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.rojo,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _fetchAnalysis,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try Again'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

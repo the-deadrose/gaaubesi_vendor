@@ -264,14 +264,32 @@ import 'package:gaaubesi_vendor/features/staff/domain/repository/staff_repositor
     as _i23;
 import 'package:gaaubesi_vendor/features/staff/domain/usecase/change_password_staff_usecase.dart'
     as _i544;
+import 'package:gaaubesi_vendor/features/staff/domain/usecase/create_staff_usecase.dart'
+    as _i472;
 import 'package:gaaubesi_vendor/features/staff/domain/usecase/edit_staff_info_usecase.dart'
     as _i469;
+import 'package:gaaubesi_vendor/features/staff/domain/usecase/edit_staff_permission_usecase.dart'
+    as _i430;
+import 'package:gaaubesi_vendor/features/staff/domain/usecase/fetch_staff_available_permission_usecase.dart'
+    as _i335;
 import 'package:gaaubesi_vendor/features/staff/domain/usecase/fetch_staff_list_usecase.dart'
     as _i104;
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart'
     as _i501;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_bloc.dart'
+    as _i327;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/edit_info/edit_staff_info_bloc.dart'
+    as _i982;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_extra_mileage_permission/staff_extra_mileage_permission_bloc.dart'
+    as _i406;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_general_permission/staff_general_permission_bloc.dart'
+    as _i209;
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_list/staff_list_bloc.dart'
     as _i910;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_order_permission/staff_order_permission_bloc.dart'
+    as _i218;
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_permissions_list/staff_available_permisson_bloc.dart'
+    as _i889;
 import 'package:gaaubesi_vendor/features/ticket/data/datasource/tickect_datasorce.dart'
     as _i576;
 import 'package:gaaubesi_vendor/features/ticket/data/repository/ticket_imp_repository.dart'
@@ -566,8 +584,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i544.ChangePasswordStaffUsecase>(
       () => _i544.ChangePasswordStaffUsecase(gh<_i23.StaffRepository>()),
     );
+    gh.lazySingleton<_i472.CreateStaffUsecase>(
+      () => _i472.CreateStaffUsecase(gh<_i23.StaffRepository>()),
+    );
     gh.lazySingleton<_i469.EditStaffInfoUsecase>(
       () => _i469.EditStaffInfoUsecase(gh<_i23.StaffRepository>()),
+    );
+    gh.lazySingleton<_i430.EditStaffPermissionUsecase>(
+      () => _i430.EditStaffPermissionUsecase(gh<_i23.StaffRepository>()),
+    );
+    gh.lazySingleton<_i335.FetchStaffAvailablePermissionUsecase>(
+      () => _i335.FetchStaffAvailablePermissionUsecase(
+        gh<_i23.StaffRepository>(),
+      ),
     );
     gh.lazySingleton<_i104.FetchStaffListUsecase>(
       () => _i104.FetchStaffListUsecase(gh<_i23.StaffRepository>()),
@@ -599,6 +628,34 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i124.OrderDetailBloc(
         fetchOrderDetailUseCase: gh<_i170.FetchOrderDetailUseCase>(),
         editOrderUseCase: gh<_i1054.EditOrderUseCase>(),
+      ),
+    );
+    gh.lazySingleton<_i406.StaffExtraMileagePermissionBloc>(
+      () => _i406.StaffExtraMileagePermissionBloc(
+        fetchStaffAvailablePermissionUsecase:
+            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+      ),
+    );
+    gh.lazySingleton<_i209.StaffGeneralPermissionBloc>(
+      () => _i209.StaffGeneralPermissionBloc(
+        fetchStaffAvailablePermissionUsecase:
+            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+      ),
+    );
+    gh.lazySingleton<_i218.StaffOrderPermissionBloc>(
+      () => _i218.StaffOrderPermissionBloc(
+        fetchStaffAvailablePermissionUsecase:
+            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+      ),
+    );
+    gh.lazySingleton<_i889.StaffAvailablePermissionBloc>(
+      () => _i889.StaffAvailablePermissionBloc(
+        fetchStaffAvailablePermissionUsecase:
+            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
       ),
     );
     gh.lazySingleton<_i7.FetchDailyTransactionUsecase>(
@@ -707,6 +764,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i117.DailyTransactionBloc>(
       () => _i117.DailyTransactionBloc(gh<_i7.FetchDailyTransactionUsecase>()),
     );
+    gh.lazySingleton<_i327.CreateStaffBloc>(
+      () => _i327.CreateStaffBloc(gh<_i472.CreateStaffUsecase>()),
+    );
     gh.factory<_i11.CommentsBloc>(
       () => _i11.CommentsBloc(
         todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
@@ -759,6 +819,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i409.VendorMessageBloc>(
       () => _i409.VendorMessageBloc(gh<_i780.FetchVendorMessageListUsecase>()),
+    );
+    gh.lazySingleton<_i982.EditStaffInfoBloc>(
+      () => _i982.EditStaffInfoBloc(
+        editStaffInfoUsecase: gh<_i469.EditStaffInfoUsecase>(),
+      ),
     );
     gh.lazySingleton<_i913.SalesReportAnalysisBloc>(
       () => _i913.SalesReportAnalysisBloc(

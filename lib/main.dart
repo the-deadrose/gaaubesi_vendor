@@ -30,8 +30,13 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/ware
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_extra_mileage_permission/staff_extra_mileage_permission_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_general_permission/staff_general_permission_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_list/staff_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/edit_info/edit_staff_info_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_order_permission/staff_order_permission_bloc.dart';
+import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_permissions_list/staff_available_permisson_bloc.dart';
 import 'package:gaaubesi_vendor/features/ticket/presentation/bloc/ticket_bloc.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart';
 
@@ -89,6 +94,13 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<StaffListBloc>()),
         BlocProvider(create: (context) => getIt<EditStaffInfoBloc>()),
         BlocProvider(create: (context) => getIt<ChangeStaffPasswordBloc>()),
+        BlocProvider(
+          create: (context) => getIt<StaffAvailablePermissionBloc>(),
+        ),
+        BlocProvider(create: (context) => getIt<CreateStaffBloc>()),
+        BlocProvider(create: (context) => getIt<StaffOrderPermissionBloc>()),
+        BlocProvider(create: (context) => getIt<StaffGeneralPermissionBloc>()),
+        BlocProvider(create: (context) => getIt<StaffExtraMileagePermissionBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

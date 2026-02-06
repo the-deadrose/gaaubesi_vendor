@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/branch_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_event.dart';
@@ -23,772 +24,208 @@ class BranchReportAnalysisScreen extends StatefulWidget {
 
 class _BranchReportAnalysisScreenState
     extends State<BranchReportAnalysisScreen> {
-  late BranchReportAnalysisBloc _bloc;
-  late BranchListBloc _branchListBloc;
-  DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
-  DateTime _endDate = DateTime.now();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _branchSearchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
-  bool _isSearching = false;
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
   OrderStatusEntity? _selectedBranch;
+  static const int maxDaysRange = 180;
+  String? _dateRangeError;
+  bool _isSearching = false;
+  final FocusNode _searchFocusNode = FocusNode();
   List<OrderStatusEntity> _filteredBranches = [];
 
   @override
   void initState() {
     super.initState();
-    _bloc = BlocProvider.of<BranchReportAnalysisBloc>(context);
-    _branchListBloc = BlocProvider.of<BranchListBloc>(context);
-    _branchListBloc.add(const FetchBranchListEvent(''));
-    _fetchData();
+    final now = DateTime.now();
+    _selectedEndDate = now;
+    _selectedStartDate = now.subtract(const Duration(days: 30));
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
+
+    context.read<BranchListBloc>().add(const FetchBranchListEvent(''));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchAnalysis();
+    });
   }
 
-  void _fetchData() {
-    final startDate = _formatDate(_startDate);
-    final endDate = _formatDate(_endDate);
-    final branchName = _selectedBranch != null
-        ? _selectedBranch!.label
-        : (_searchController.text.trim().isEmpty
-            ? null
-            : _searchController.text.trim());
-    
-    debugPrint('\n🔄 ========== PAGE: _fetchData() Called ==========');
-    debugPrint('📅 Start: $startDate');
-    debugPrint('📅 End: $endDate');
-    debugPrint('🏢 Branch: ${branchName ?? "All"}');
-    debugPrint('🔍 Selected Branch: ${_selectedBranch?.label ?? "None"}');
-    debugPrint('🔍 Search Text: ${_searchController.text}');
-    debugPrint('================================================\n');
-    
-    _bloc.add(
-      FetchBranchReportAnalysisEvent(
-        startDate: startDate,
-        endDate: endDate,
-        branchName: branchName,
-      ),
+  @override
+  void dispose() {
+    _startDateController.dispose();
+    _endDateController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  bool _validateDateRange(DateTime startDate, DateTime endDate) {
+    final difference = endDate.difference(startDate).inDays;
+    if (difference > maxDaysRange) {
+      setState(() {
+        _dateRangeError =
+            'Date range cannot exceed $maxDaysRange days (6 months). Current range: ${difference + 1} days';
+      });
+      return false;
+    } else {
+      setState(() {
+        _dateRangeError = null;
+      });
+      return true;
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final initialDate = isStartDate ? _selectedStartDate : _selectedEndDate;
+    final now = DateTime.now();
+
+    late DateTime firstDate;
+    late DateTime lastDate;
+
+    if (isStartDate) {
+      firstDate = now.subtract(const Duration(days: 365));
+      lastDate = _selectedEndDate ?? now;
+    } else {
+      firstDate = _selectedStartDate ?? now.subtract(const Duration(days: 365));
+      lastDate = now;
+    }
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? now,
+      firstDate: firstDate,
+      lastDate: lastDate,
     );
+
+    if (pickedDate != null) {
+      if (isStartDate) {
+        if (_selectedEndDate != null) {
+          if (!_validateDateRange(pickedDate, _selectedEndDate!)) {
+            return;
+          }
+        }
+        _selectedStartDate = pickedDate;
+        _startDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      } else {
+        if (_selectedStartDate != null) {
+          if (!_validateDateRange(_selectedStartDate!, pickedDate)) {
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_dateRangeError ?? 'Invalid date range'),
+                backgroundColor: AppTheme.rojo,
+              ),
+            );
+            return;
+          }
+        }
+        _selectedEndDate = pickedDate;
+        _endDateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      }
+      _fetchAnalysis();
+    }
+  }
+
+  void _fetchAnalysis() {
+    if (_selectedStartDate != null && _selectedEndDate != null) {
+      if (!_validateDateRange(_selectedStartDate!, _selectedEndDate!)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_dateRangeError ?? 'Invalid date range'),
+            backgroundColor: AppTheme.rojo,
+          ),
+        );
+        return;
+      }
+
+      final branchName = _selectedBranch != null
+          ? _selectedBranch!.label
+          : (_searchController.text.trim().isEmpty
+              ? null
+              : _searchController.text.trim());
+
+      context.read<BranchReportAnalysisBloc>().add(
+            FetchBranchReportAnalysisEvent(
+              startDate: _startDateController.text,
+              endDate: _endDateController.text,
+              branchName: branchName,
+            ),
+          );
+    }
+  }
+
+  void _resetFilters() {
+    final now = DateTime.now();
+    _selectedStartDate = now.subtract(const Duration(days: 30));
+    _selectedEndDate = now;
+    _selectedBranch = null;
+    _searchController.clear();
+
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
+
+    setState(() {
+      _dateRangeError = null;
+      _isSearching = false;
+    });
+
+    _fetchAnalysis();
   }
 
   void _selectBranch(OrderStatusEntity branch) {
     setState(() {
       _selectedBranch = branch;
-      _branchSearchController.clear();
-      _filteredBranches = [];
+      _searchController.text = branch.label;
     });
-    _fetchData();
+    _fetchAnalysis();
   }
 
   void _clearBranchSelection() {
     setState(() {
       _selectedBranch = null;
-      _branchSearchController.clear();
-      _filteredBranches = [];
+      _searchController.clear();
     });
-    _fetchData();
-  }
-
-  void _searchBranch(String query) {
-    _bloc.add(
-      SearchBranchAnalysisEvent(
-        searchQuery: query,
-        allData: (_bloc.state is BranchReportAnalysisLoadedState)
-            ? (_bloc.state as BranchReportAnalysisLoadedState).branchReports
-            : [],
-      ),
-    );
+    _fetchAnalysis();
   }
 
   void _clearSearch() {
-    _searchController.clear();
-    _bloc.add(ClearSearchEvent());
     setState(() {
+      _selectedBranch = null;
+      _searchController.clear();
       _isSearching = false;
+    });
+    _fetchAnalysis();
+  }
+
+  void _searchBranches(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredBranches = [];
+      } else {
+        final state = context.read<BranchListBloc>().state;
+        if (state is BranchListLoaded) {
+          _filteredBranches = state.branchList
+              .where((branch) =>
+                  branch.label.toLowerCase().contains(query.toLowerCase()) ||
+                  branch.code.toLowerCase().contains(query.toLowerCase()) ||
+                  branch.value.contains(query))
+              .toList();
+        }
+      }
     });
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
-  }
-
-  Future<void> _selectStartDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _startDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _startDate) {
-      setState(() {
-        _startDate = picked;
-        if (_endDate.difference(_startDate).inDays > 180) {
-          _endDate = _startDate.add(const Duration(days: 180));
-        }
-      });
-
-      if (_endDate.difference(_startDate).inDays > 180) {
-        if (mounted) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Date range cannot exceed 180 days (6 months)'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-
-      _fetchData();
-    }
-  }
-
-  Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _endDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != _endDate) {
-      setState(() {
-        _endDate = picked;
-        if (_endDate.difference(_startDate).inDays > 180) {
-          _startDate = _endDate.subtract(const Duration(days: 180));
-        }
-      });
-
-      if (_endDate.difference(_startDate).inDays > 180) {
-        if (mounted) {
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Date range cannot exceed 180 days (6 months)'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-
-      _fetchData();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _isSearching
-            ? _buildSearchField()
-            : const Text('Branch Report Analysis'),
-        actions: _buildAppBarActions(),
-      ),
-      body: BlocProvider.value(
-        value: _bloc,
-        child:
-            BlocConsumer<BranchReportAnalysisBloc, BranchReportAnalysisState>(
-              listener: (context, state) {
-                if (state is BranchReportAnalysisErrorState) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              builder: (context, state) {
-                debugPrint('\n🎨 PAGE BUILD: State = ${state.runtimeType}');
-                
-                if (state is BranchReportAnalysisLoadingState) {
-                  debugPrint('⏳ Showing: Loading State');
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (state is BranchReportAnalysisEmptyState) {
-                  debugPrint('📭 Showing: Empty State');
-                  return _buildEmptyState();
-                }
-
-                if (state is BranchReportAnalysisLoadedState) {
-                  debugPrint('✅ Showing: Loaded State (${state.filteredReports.length} items)');
-                  if (state.filteredReports.isNotEmpty) {
-                    for (var i = 0; i < (state.filteredReports.length > 3 ? 3 : state.filteredReports.length); i++) {
-                      debugPrint('   ${i + 1}. ${state.filteredReports[i].name}');
-                    }
-                  }
-                  return _buildLoadedState(context, state.filteredReports);
-                }
-
-                if (state is BranchReportAnalysisSearchResultState) {
-                  debugPrint('🔍 Showing: Search Results (${state.searchResults.length} items)');
-                  return _buildSearchResults(state.searchResults);
-                }
-
-                if (state is BranchReportAnalysisErrorState) {
-                  debugPrint('❌ Showing: Error State - ${state.message}');
-                }
-                
-                debugPrint('📍 Showing: Initial State');
-                return _buildInitialState();
-              },
-            ),
-      ),
-    );
-  }
-
-  List<Widget> _buildAppBarActions() {
-    if (_isSearching) {
-      return [
-        IconButton(icon: const Icon(Icons.clear), onPressed: _clearSearch),
-      ];
-    } else {
-      return [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            setState(() {
-              _isSearching = true;
-            });
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _searchFocusNode.requestFocus();
-            });
-          },
-        ),
-        IconButton(icon: const Icon(Icons.refresh), onPressed: _fetchData),
-      ];
-    }
-  }
-
-  Widget _buildSearchField() {
-    return TextField(
-      controller: _searchController,
-      focusNode: _searchFocusNode,
-      autofocus: true,
-      decoration: InputDecoration(
-        hintText: 'Search by branch name or ID...',
-        border: InputBorder.none,
-        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-      ),
-      style: const TextStyle(color: Colors.white, fontSize: 16),
-      onChanged: _searchBranch,
-      onSubmitted: (_) {
-        setState(() {
-          _isSearching = false;
-        });
-      },
-    );
-  }
-
-  Widget _buildInitialState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.analytics, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text(
-            'Enter branch name to search analysis',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 32),
-          _buildDateFilters(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Column(
-      children: [
-        _buildDateFilters(),
-        Expanded(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.data_exploration,
-                  size: 64,
-                  color: Colors.grey,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  _searchController.text.isEmpty
-                      ? 'No branch reports found for the selected period'
-                      : 'No results found for "${_searchController.text}"',
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_formatDate(_startDate)} to ${_formatDate(_endDate)}',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLoadedState(
-    BuildContext context,
-    List<BranchReportAnalysisEntity> reports,
-  ) {
-    return Column(
-      children: [
-        _buildDateFilters(),
-        const SizedBox(height: 8),
-        _buildSummaryStats(reports),
-        const SizedBox(height: 8),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: reports.length,
-            itemBuilder: (context, index) {
-              return _buildBranchCard(reports[index]);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSearchResults(List<BranchReportAnalysisEntity> results) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Found ${results.length} result${results.length != 1 ? 's' : ''}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: results.length,
-            itemBuilder: (context, index) {
-              return _buildBranchCard(results[index]);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBranchCard(BranchReportAnalysisEntity analysis) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    analysis.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Chip(
-                  label: Text('ID: ${analysis.destinationBranch}'),
-                  backgroundColor: Colors.blue[50],
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildMiniCharts(analysis),
-            const SizedBox(height: 12),
-            _buildProgressBars(analysis),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMiniCharts(BranchReportAnalysisEntity analysis) {
-    return SizedBox(
-      height: 150,
-      child: Row(
-        children: [
-          Expanded(child: _buildMiniPieChart(analysis)),
-          const SizedBox(width: 16),
-          Expanded(child: _buildMiniBarChart(analysis)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMiniPieChart(BranchReportAnalysisEntity analysis) {
-    final List<PieData> pieData = [
-      PieData('Processing', analysis.processingOrders, Colors.orange),
-      PieData('Delivered', analysis.delivered, Colors.green),
-      PieData('Returned', analysis.returned, Colors.red),
-    ];
-
-    final nonZeroData = pieData.where((data) => data.value > 0).toList();
-
-    return Column(
-      children: [
-        const Text(
-          'Status Breakdown',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: nonZeroData.isEmpty
-              ? const Center(
-                  child: Text('No data', style: TextStyle(fontSize: 10)),
-                )
-              : SfCircularChart(
-                  margin: EdgeInsets.zero,
-                  series: <CircularSeries>[
-                    PieSeries<PieData, String>(
-                      dataSource: nonZeroData,
-                      xValueMapper: (PieData data, _) => data.category,
-                      yValueMapper: (PieData data, _) => data.value,
-                      pointColorMapper: (PieData data, _) => data.color,
-                      dataLabelMapper: (PieData data, _) =>
-                          '${data.value}\n${data.category}',
-                      dataLabelSettings: const DataLabelSettings(
-                        isVisible: true,
-                        labelPosition: ChartDataLabelPosition.inside,
-                        textStyle: TextStyle(fontSize: 10, color: Colors.white),
-                      ),
-                      radius: '80%',
-                    ),
-                  ],
-                ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMiniBarChart(BranchReportAnalysisEntity analysis) {
-    final List<ChartData> chartData = [
-      ChartData('Total', analysis.total, Colors.blue),
-      ChartData('Proc', analysis.processingOrders, Colors.orange),
-      ChartData('Del', analysis.delivered, Colors.green),
-      ChartData('Ret', analysis.returned, Colors.red),
-    ];
-
-    return Column(
-      children: [
-        const Text(
-          'Comparison',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: SfCartesianChart(
-            margin: EdgeInsets.zero,
-            primaryXAxis: CategoryAxis(
-              labelStyle: const TextStyle(fontSize: 8),
-            ),
-            primaryYAxis: NumericAxis(
-              labelStyle: const TextStyle(fontSize: 8),
-              isVisible: false,
-            ),
-            series: <CartesianSeries<ChartData, String>>[
-              ColumnSeries<ChartData, String>(
-                dataSource: chartData,
-                xValueMapper: (ChartData data, _) => data.category,
-                yValueMapper: (ChartData data, _) => data.value,
-                color: const Color.fromRGBO(8, 142, 255, 1),
-                dataLabelSettings: const DataLabelSettings(
-                  isVisible: true,
-                  textStyle: TextStyle(fontSize: 8),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProgressBars(BranchReportAnalysisEntity analysis) {
-    final total = analysis.total;
-    if (total == 0) return const SizedBox();
-
-    return Column(
-      children: [
-        _buildProgressBar(
-          'Processing',
-          analysis.processingOrders,
-          total,
-          Colors.orange,
-        ),
-        const SizedBox(height: 4),
-        _buildProgressBar('Delivered', analysis.delivered, total, Colors.green),
-        const SizedBox(height: 4),
-        _buildProgressBar('Returned', analysis.returned, total, Colors.red),
-      ],
-    );
-  }
-
-  Widget _buildProgressBar(String label, int value, int total, Color color) {
-    final percentage = total > 0 ? (value / total * 100) : 0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: const TextStyle(fontSize: 12)),
-            Text(
-              '$value (${percentage.toStringAsFixed(1)}%)',
-              style: TextStyle(fontSize: 12, color: color),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: total > 0 ? value / total : 0,
-          backgroundColor: color.withValues(alpha: 0.2),
-          color: color,
-          minHeight: 6,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateFilters() {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Filter Period & Branch',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            // Branch Selection Dropdown
-            BlocBuilder<BranchListBloc, BranchListState>(
-              builder: (context, state) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Select Branch', style: TextStyle(fontSize: 12)),
-                    const SizedBox(height: 4),
-                    if (state is BranchListLoaded) ...[
-                      _buildBranchDropdown(state.branchList),
-                    ] else if (state is BranchListLoading) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                    ] else if (state is BranchListError) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.red),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Error: ${state.message}',
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                  ],
-                );
-              },
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Start Date', style: TextStyle(fontSize: 12)),
-                      const SizedBox(height: 4),
-                      InkWell(
-                        onTap: () => _selectStartDate(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(_formatDate(_startDate)),
-                              const Icon(Icons.calendar_today, size: 16),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('End Date', style: TextStyle(fontSize: 12)),
-                      const SizedBox(height: 4),
-                      InkWell(
-                        onTap: () => _selectEndDate(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(_formatDate(_endDate)),
-                              const Icon(Icons.calendar_today, size: 16),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _fetchData,
-                icon: const Icon(Icons.filter_alt, size: 16),
-                label: const Text('Apply Filter'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBranchDropdown(List<OrderStatusEntity> branches) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Selected Branch Display
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: _selectedBranch != null ? Colors.blue : Colors.grey,
-            ),
-            borderRadius: BorderRadius.circular(8),
-            color: _selectedBranch != null
-                ? Colors.blue.withValues(alpha: 0.05)
-                : Colors.transparent,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_selectedBranch != null) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _selectedBranch!.label,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Code: ${_selectedBranch!.code} | ID: ${_selectedBranch!.value}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: _clearBranchSelection,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                GestureDetector(
-                  onTap: () => _showBranchSearchDialog(branches),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Choose a branch...',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
-                      ),
-                      const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        // Dropdown Button
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => _showBranchSearchDialog(branches),
-            icon: const Icon(Icons.location_on, size: 16),
-            label: const Text('Select Branch'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   void _showBranchSearchDialog(List<OrderStatusEntity> branches) {
-    _filteredBranches = branches;
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -799,20 +236,7 @@ class _BranchReportAnalysisScreenState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Search field
                 TextField(
-                  controller: _branchSearchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search by name, code or ID...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
                   onChanged: (query) {
                     setState(() {
                       if (query.isEmpty) {
@@ -833,23 +257,45 @@ class _BranchReportAnalysisScreenState
                       }
                     });
                   },
+                  decoration: InputDecoration(
+                    hintText: 'Search by name, code or ID...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                // Branch list
                 Expanded(
-                  child: _filteredBranches.isEmpty
-                      ? const Center(child: Text('No branches found'))
+                  child: (branches.isEmpty && _filteredBranches.isEmpty)
+                      ? const Center(child: Text('No branches available'))
                       : ListView.builder(
                           shrinkWrap: true,
-                          itemCount: _filteredBranches.length,
+                          itemCount: _filteredBranches.isNotEmpty
+                              ? _filteredBranches.length
+                              : branches.length,
                           itemBuilder: (context, index) {
-                            final branch = _filteredBranches[index];
+                            final branch = _filteredBranches.isNotEmpty
+                                ? _filteredBranches[index]
+                                : branches[index];
                             final isSelected =
                                 _selectedBranch?.value == branch.value;
                             return ListTile(
                               selected: isSelected,
-                              selectedTileColor: Colors.blue.withValues(
-                                alpha: 0.1,
+                              selectedTileColor:
+                                  AppTheme.marianBlue.withValues(alpha: 0.1),
+                              leading: CircleAvatar(
+                                backgroundColor:
+                                    AppTheme.marianBlue.withValues(alpha: 0.1),
+                                child: Icon(
+                                  Icons.store,
+                                  size: 20,
+                                  color: AppTheme.marianBlue,
+                                ),
                               ),
                               title: Text(
                                 branch.label,
@@ -861,16 +307,20 @@ class _BranchReportAnalysisScreenState
                               ),
                               subtitle: Text(
                                 '${branch.code} (ID: ${branch.value})',
-                                style: const TextStyle(fontSize: 12),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.darkGray,
+                                ),
                               ),
                               trailing: isSelected
-                                  ? const Icon(Icons.check, color: Colors.blue)
+                                  ? Icon(
+                                      Icons.check,
+                                      color: AppTheme.marianBlue,
+                                    )
                                   : null,
                               onTap: () {
-                                this.setState(() {
-                                  _selectBranch(branch);
-                                });
                                 Navigator.pop(context);
+                                _selectBranch(branch);
                               },
                             );
                           },
@@ -882,7 +332,10 @@ class _BranchReportAnalysisScreenState
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: AppTheme.marianBlue),
+              ),
             ),
           ],
         ),
@@ -890,7 +343,431 @@ class _BranchReportAnalysisScreenState
     );
   }
 
-  Widget _buildSummaryStats(List<BranchReportAnalysisEntity> reports) {
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      focusNode: _searchFocusNode,
+      autofocus: true,
+      decoration: InputDecoration(
+        hintText: 'Search by branch name or ID...',
+        border: InputBorder.none,
+        hintStyle:
+            TextStyle(color: AppTheme.whiteSmoke.withValues(alpha: 0.7)),
+      ),
+      style: TextStyle(color: AppTheme.whiteSmoke, fontSize: 16),
+      onChanged: _searchBranches,
+      onSubmitted: (_) {
+        setState(() {
+          _isSearching = false;
+        });
+        _fetchAnalysis();
+      },
+    );
+  }
+
+  List<Widget> _buildAppBarActions() {
+    if (_isSearching) {
+      return [
+        IconButton(
+          icon: Icon(Icons.clear, color: AppTheme.whiteSmoke),
+          onPressed: _clearSearch,
+        ),
+      ];
+    } else {
+      return [
+        IconButton(
+          icon: Icon(Icons.search, color: AppTheme.whiteSmoke),
+          onPressed: () {
+            setState(() {
+              _isSearching = true;
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _searchFocusNode.requestFocus();
+            });
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.refresh, color: AppTheme.whiteSmoke),
+          onPressed: _resetFilters,
+        ),
+      ];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.whiteSmoke,
+      appBar: AppBar(
+        backgroundColor: AppTheme.marianBlue,
+        foregroundColor: AppTheme.whiteSmoke,
+        title: _isSearching
+            ? _buildSearchField()
+            : const Text('Branch Report Analysis'),
+        centerTitle: !_isSearching,
+        actions: _buildAppBarActions(),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildDateFilterSection(),
+            const SizedBox(height: 8),
+
+            BlocBuilder<BranchReportAnalysisBloc, BranchReportAnalysisState>(
+              builder: (context, state) {
+                if (state is BranchReportAnalysisLoadedState) {
+                  return _buildStatsCards(state.branchReports);
+                } else if (state is BranchReportAnalysisSearchResultState) {
+                  return _buildStatsCards(state.searchResults);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
+            BlocBuilder<BranchReportAnalysisBloc, BranchReportAnalysisState>(
+              builder: (context, state) {
+                return _buildContentBasedOnState(state);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateFilterSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.filter_alt,
+                size: 20,
+                color: AppTheme.marianBlue,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Filter Analysis',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.powerBlue, width: 1),
+                ),
+                child: Text(
+                  'Max: 6 months',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          if (_dateRangeError != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.rojo.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.rojo.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline, color: AppTheme.rojo, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _dateRangeError!,
+                      style: TextStyle(color: AppTheme.rojo, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          BlocBuilder<BranchListBloc, BranchListState>(
+            builder: (context, state) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Branch (Optional)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.darkGray,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  if (state is BranchListLoaded) ...[
+                    _buildBranchSelectionField(state.branchList),
+                  ] else if (state is BranchListLoading) ...[
+                    Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppTheme.powerBlue.withValues(alpha: 0.3),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.marianBlue,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ] else if (state is BranchListError) ...[
+                    Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: AppTheme.rojo.withValues(alpha: 0.3),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        color: AppTheme.rojo.withValues(alpha: 0.05),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Error loading branches',
+                          style: TextStyle(
+                            color: AppTheme.rojo,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                ],
+              );
+            },
+          ),
+
+          Row(
+            children: [
+              Expanded(
+                child: _buildDateField(
+                  controller: _startDateController,
+                  label: 'Start Date',
+                  onTap: () => _selectDate(context, true),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildDateField(
+                  controller: _endDateController,
+                  label: 'End Date',
+                  onTap: () => _selectDate(context, false),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          ElevatedButton.icon(
+            onPressed: _fetchAnalysis,
+            icon: const Icon(Icons.analytics, size: 20),
+            label: const Text('Analyze Data'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.marianBlue,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBranchSelectionField(List<OrderStatusEntity> branches) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppTheme.powerBlue.withValues(alpha: 0.3),
+            ),
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.store,
+                size: 18,
+                color: _selectedBranch != null
+                    ? AppTheme.successGreen
+                    : AppTheme.darkGray,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _selectedBranch != null
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _selectedBranch!.label,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  '${_selectedBranch!.code} • ID: ${_selectedBranch!.value}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppTheme.darkGray,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.close,
+                              size: 18,
+                              color: AppTheme.darkGray,
+                            ),
+                            onPressed: _clearBranchSelection,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      )
+                    : InkWell(
+                        onTap: () => _showBranchSearchDialog(branches),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'All branches',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppTheme.darkGray,
+                                ),
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: AppTheme.darkGray,
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+        if (branches.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${branches.length} branches available',
+              style: TextStyle(
+                fontSize: 11,
+                color: AppTheme.darkGray,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildDateField({
+    required TextEditingController controller,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppTheme.darkGray,
+          ),
+        ),
+        const SizedBox(height: 4),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppTheme.powerBlue.withValues(alpha: 0.3),
+              ),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  size: 18,
+                  color: AppTheme.marianBlue,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    controller.text,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                Icon(Icons.arrow_drop_down, color: AppTheme.darkGray),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsCards(List<BranchReportAnalysisEntity> reports) {
     if (reports.isEmpty) return const SizedBox();
 
     final totalOrders = reports.fold(0, (sum, report) => sum + report.total);
@@ -911,71 +788,677 @@ class _BranchReportAnalysisScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          _buildStatItem('Total', totalOrders.toString(), Colors.blue),
-          const SizedBox(width: 8),
-          _buildStatItem(
-            'Processing',
-            totalProcessing.toString(),
-            Colors.orange,
+          Expanded(
+            child: _buildStatCard(
+              value: totalOrders.toString(),
+              label: 'Total Orders',
+              icon: Icons.shopping_bag,
+              color: AppTheme.infoBlue,
+            ),
           ),
-          const SizedBox(width: 8),
-          _buildStatItem('Delivered', totalDelivered.toString(), Colors.green),
-          const SizedBox(width: 8),
-          _buildStatItem('Returned', totalReturned.toString(), Colors.red),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              value: totalProcessing.toString(),
+              label: 'Processing',
+              icon: Icons.sync,
+              color: Colors.orange,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              value: totalDelivered.toString(),
+              label: 'Delivered',
+              icon: Icons.check_circle,
+              color: AppTheme.successGreen,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildStatCard(
+              value: totalReturned.toString(),
+              label: 'Returned',
+              icon: Icons.reply,
+              color: AppTheme.rojo,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+  Widget _buildStatCard({
+    required String value,
+    required String label,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 10, color: color)),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(fontSize: 10, color: AppTheme.darkGray),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContentBasedOnState(BranchReportAnalysisState state) {
+    if (state is BranchReportAnalysisInitialState) {
+      return _buildInitialView();
+    } else if (state is BranchReportAnalysisLoadingState) {
+      return _buildShimmerLoading();
+    } else if (state is BranchReportAnalysisLoadedState) {
+      return _buildAnalysisView(state.branchReports);
+    } else if (state is BranchReportAnalysisSearchResultState) {
+      return _buildAnalysisView(state.searchResults);
+    } else if (state is BranchReportAnalysisEmptyState) {
+      return _buildEmptyView();
+    } else if (state is BranchReportAnalysisErrorState) {
+      return _buildErrorView(state.message);
+    }
+    return Container();
+  }
+
+  Widget _buildInitialView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.analytics_outlined,
+              size: 80,
+              color: AppTheme.powerBlue.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Select filters and click "Analyze Data"',
+              style: TextStyle(fontSize: 16, color: AppTheme.darkGray),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _branchSearchController.dispose();
-    _searchFocusNode.dispose();
-    super.dispose();
+  Widget _buildShimmerLoading() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return _buildShimmerCard();
+      },
+    );
   }
-}
 
-// Helper classes for charts
-class ChartData {
-  final String category;
-  final int value;
-  final Color color;
+  Widget _buildShimmerCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 16,
+            width: 200,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            height: 12,
+            width: 150,
+            decoration: BoxDecoration(
+              color: AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  ChartData(this.category, this.value, this.color);
-}
+  Widget _buildAnalysisView(List<BranchReportAnalysisEntity> reports) {
+    if (reports.isEmpty) return _buildEmptyView();
 
-class PieData {
-  final String category;
-  final int value;
-  final Color color;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSummaryChart(reports),
+        const SizedBox(height: 24),
 
-  PieData(this.category, this.value, this.color);
+        _buildBranchDetailsSection(reports),
+      ],
+    );
+  }
+
+  Widget _buildSummaryChart(List<BranchReportAnalysisEntity> reports) {
+    if (reports.length > 10) {
+      return _buildTopBranchesChart(reports);
+    }
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bar_chart, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Branch Performance Comparison',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Chip(
+                label: Text('${reports.length} branches'),
+                backgroundColor: AppTheme.lightGray,
+                labelStyle: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${_startDateController.text} to ${_endDateController.text}',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 300,
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                labelStyle: const TextStyle(fontSize: 10),
+                majorGridLines: const MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                title: AxisTitle(
+                  text: 'Number of Orders',
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: Color(0xffeeeeee),
+                  width: 1,
+                ),
+                axisLine: const AxisLine(width: 0),
+              ),
+              series: <ColumnSeries<BranchReportAnalysisEntity, String>>[
+                ColumnSeries<BranchReportAnalysisEntity, String>(
+                  dataSource: reports,
+                  xValueMapper: (data, _) => data.name.length > 10
+                      ? '${data.name.substring(0, 10)}...'
+                      : data.name,
+                  yValueMapper: (data, _) => data.total,
+                  name: 'Total Orders',
+                  color: AppTheme.marianBlue,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                  ),
+                  width: 0.6,
+                ),
+              ],
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                format: 'point.x\nOrders: point.y',
+                header: '',
+                canShowMarker: false,
+                color: Colors.white,
+                textStyle: const TextStyle(color: Colors.black, fontSize: 12),
+                borderColor: AppTheme.marianBlue,
+                borderWidth: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBranchesChart(List<BranchReportAnalysisEntity> reports) {
+    final topBranches = reports
+      ..sort((a, b) => b.total.compareTo(a.total))
+      ..take(10);
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.leaderboard, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Top 10 Branches by Order Volume',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Chip(
+                label: Text('Top 10 of ${reports.length}'),
+                backgroundColor: AppTheme.lightGray,
+                labelStyle: const TextStyle(fontSize: 11),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${_startDateController.text} to ${_endDateController.text}',
+            style: TextStyle(fontSize: 12, color: AppTheme.darkGray),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 300,
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                labelStyle: const TextStyle(fontSize: 10),
+                majorGridLines: const MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                title: AxisTitle(
+                  text: 'Number of Orders',
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+                majorGridLines: const MajorGridLines(
+                  color: Color(0xffeeeeee),
+                  width: 1,
+                ),
+                axisLine: const AxisLine(width: 0),
+              ),
+              series: <ColumnSeries<BranchReportAnalysisEntity, String>>[
+                ColumnSeries<BranchReportAnalysisEntity, String>(
+                  dataSource: topBranches.toList(),
+                  xValueMapper: (data, _) => data.name.length > 8
+                      ? '${data.name.substring(0, 8)}...'
+                      : data.name,
+                  yValueMapper: (data, _) => data.total,
+                  name: 'Total Orders',
+                  color: AppTheme.marianBlue,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(4),
+                  ),
+                  width: 0.6,
+                ),
+              ],
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                format: 'point.x\nOrders: point.y',
+                header: '',
+                canShowMarker: false,
+                color: Colors.white,
+                textStyle: const TextStyle(color: Colors.black, fontSize: 12),
+                borderColor: AppTheme.marianBlue,
+                borderWidth: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBranchDetailsSection(List<BranchReportAnalysisEntity> reports) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.list_alt, size: 20, color: AppTheme.marianBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Branch Performance Details',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.blackBean,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${reports.length} branches',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...reports.map((branch) {
+            return _buildBranchItem(branch);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBranchItem(BranchReportAnalysisEntity branch) {
+    final total = branch.total;
+    final processingPercent = total > 0
+        ? (branch.processingOrders / total * 100).toStringAsFixed(1)
+        : '0.0';
+    final deliveredPercent = total > 0
+        ? (branch.delivered / total * 100).toStringAsFixed(1)
+        : '0.0';
+    final returnedPercent = total > 0
+        ? (branch.returned / total * 100).toStringAsFixed(1)
+        : '0.0';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: AppTheme.powerBlue.withValues(alpha: 0.1)),
+        ),
+        child: ExpansionTile(
+          leading: CircleAvatar(
+            backgroundColor: AppTheme.marianBlue.withValues(alpha: 0.1),
+            child: Text(
+              branch.name.substring(0, 1).toUpperCase(),
+              style: TextStyle(
+                color: AppTheme.marianBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          title: Text(
+            branch.name,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            'ID: ${branch.destinationBranch}',
+            style: TextStyle(fontSize: 11, color: AppTheme.darkGray),
+          ),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: total > 0
+                  ? AppTheme.successGreen.withValues(alpha: 0.1)
+                  : AppTheme.lightGray,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: total > 0
+                    ? AppTheme.successGreen.withValues(alpha: 0.3)
+                    : AppTheme.darkGray.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              '$total',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: total > 0 ? AppTheme.successGreen : AppTheme.darkGray,
+              ),
+            ),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  _buildBranchStatRow(
+                    'Processing',
+                    branch.processingOrders,
+                    '$processingPercent%',
+                    Colors.orange,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildBranchStatRow(
+                    'Delivered',
+                    branch.delivered,
+                    '$deliveredPercent%',
+                    AppTheme.successGreen,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildBranchStatRow(
+                    'Returned',
+                    branch.returned,
+                    '$returnedPercent%',
+                    AppTheme.rojo,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBranchStatRow(
+    String label,
+    int value,
+    String percentage,
+    Color color,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: AppTheme.darkGray,
+            ),
+          ),
+        ),
+        Text(
+          value.toString(),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            percentage,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyView() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.store_mall_directory_outlined,
+              size: 80,
+              color: AppTheme.powerBlue.withValues(alpha: 0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Branch Data Available',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.blackBean,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _selectedBranch != null
+                  ? 'No data found for ${_selectedBranch!.label} in the selected date range'
+                  : 'No branch reports found for the selected date range',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _resetFilters,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reset Filters'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorView(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: AppTheme.rojo),
+            const SizedBox(height: 16),
+            Text(
+              'Analysis Failed',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.rojo,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppTheme.darkGray),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _fetchAnalysis,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try Again'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.marianBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
