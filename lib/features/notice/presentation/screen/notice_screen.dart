@@ -23,6 +23,7 @@ class _NoticeListScreenState extends State<NoticeListScreen>
   bool _isLoadingMore = false;
   late AnimationController _shimmerController;
   late Animation<Color?> _shimmerAnimation;
+  NoticeListResponse? _lastLoadedResponse; // Cache the last loaded response
 
   @override
   void initState() {
@@ -62,6 +63,11 @@ class _NoticeListScreenState extends State<NoticeListScreen>
   }
 
   void _navigateToDetailScreen(BuildContext context, Notice notice) {
+    if (!notice.isRead) {
+      context.read<NoticeBloc>().add(
+        MarkNoticeAsReadEvent(noticeId: notice.id.toString()),
+      );
+    }
     context.router.push(NoticeDetailRoute(notice: notice));
   }
 
@@ -84,10 +90,38 @@ class _NoticeListScreenState extends State<NoticeListScreen>
               state is NoticeListSearchLoaded) {
             _isInitialLoad = false;
             _isLoadingMore = false;
+            // Cache the response for mark as read states
+            if (state is NoticeListLoaded) {
+              _lastLoadedResponse = state.noticeListResponse;
+            } else if (state is NoticeListPaginated) {
+              _lastLoadedResponse = state.noticeListResponse;
+            } else if (state is NoticeListSearchLoaded) {
+              _lastLoadedResponse = state.noticeListResponse;
+            }
           }
 
           if (state is NoticeListError || state is NoticeListPaginationError) {
             _isLoadingMore = false;
+          }
+
+          // Handle mark as read success
+          if (state is NoticeMarkAsReadSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Notice marked as read'),
+                duration: Duration(milliseconds: 800),
+              ),
+            );
+          }
+
+          // Handle mark as read error
+          if (state is NoticeMarkAsReadError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to mark as read: ${state.message}'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -106,6 +140,15 @@ class _NoticeListScreenState extends State<NoticeListScreen>
       return _buildErrorState(state.message);
     }
 
+    // Handle mark as read loading/success/error - show last loaded list
+    if (state is NoticeMarkAsReadLoading ||
+        state is NoticeMarkAsReadSuccess ||
+        state is NoticeMarkAsReadError) {
+      if (_lastLoadedResponse != null) {
+        return _buildNoticeList(_lastLoadedResponse!);
+      }
+    }
+
     if (state is NoticeListLoaded || state is NoticeListPaginated) {
       final notices = (state is NoticeListLoaded)
           ? state.noticeListResponse.notices
@@ -115,19 +158,10 @@ class _NoticeListScreenState extends State<NoticeListScreen>
         return _buildEmptyState();
       }
 
-      return RefreshIndicator(
-        onRefresh: _refreshData,
-        child: ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.only(bottom: 16),
-          itemCount: notices.length + (_hasNextPage(state) ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == notices.length && _hasNextPage(state)) {
-              return _buildLoadMoreIndicator();
-            }
-            return _buildNoticeCard(notices[index], context);
-          },
-        ),
+      return _buildNoticeList(
+        state is NoticeListLoaded
+            ? state.noticeListResponse
+            : (state as NoticeListPaginated).noticeListResponse,
       );
     }
 
@@ -136,6 +170,31 @@ class _NoticeListScreenState extends State<NoticeListScreen>
     }
 
     return _buildShimmerLoading();
+  }
+
+  Widget _buildNoticeList(NoticeListResponse response) {
+    if (response.notices.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.only(bottom: 16),
+        itemCount: response.notices.length + (_hasNextPage() ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == response.notices.length && _hasNextPage()) {
+            return _buildLoadMoreIndicator();
+          }
+          return _buildNoticeCard(response.notices[index], context);
+        },
+      ),
+    );
+  }
+
+  bool _hasNextPage() {
+    return _lastLoadedResponse?.next != null;
   }
 
   Widget _buildShimmerLoading() {
@@ -245,26 +304,13 @@ class _NoticeListScreenState extends State<NoticeListScreen>
                 ),
                 const SizedBox(height: 16),
                 // Divider shimmer
-                Container(
-                  height: 1,
-                  color: _shimmerAnimation.value,
-                ),
+                Container(height: 1, color: _shimmerAnimation.value),
               ],
             ),
           ),
         ],
       ),
     );
-  }
-
-  bool _hasNextPage(NoticeState state) {
-    if (state is NoticeListLoaded) {
-      return state.noticeListResponse.next != null;
-    }
-    if (state is NoticeListPaginated) {
-      return state.noticeListResponse.next != null;
-    }
-    return false;
   }
 
   Widget _buildNoticeCard(Notice notice, BuildContext context) {
@@ -289,8 +335,9 @@ class _NoticeListScreenState extends State<NoticeListScreen>
                           notice.title,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight:
-                                notice.isRead ? FontWeight.w500 : FontWeight.bold,
+                            fontWeight: notice.isRead
+                                ? FontWeight.w500
+                                : FontWeight.bold,
                           ),
                         ),
                       ),

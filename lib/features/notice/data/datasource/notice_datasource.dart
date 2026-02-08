@@ -10,6 +10,8 @@ abstract class NoticeRemoteDatasource {
     String startDate,
     String endDate,
   );
+
+  Future<void> markNoticeAsRead(String noticeId);
 }
 
 @LazySingleton(as: NoticeRemoteDatasource)
@@ -35,6 +37,19 @@ class NoticeRemoteDatasourceImpl implements NoticeRemoteDatasource {
       );
 
       return NoticeListResponseModel.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> markNoticeAsRead(String noticeId) async {
+    try {
+      final response =
+          await _dioClient.post('${ApiEndpoints.markNoticeAsRead}$noticeId');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to mark notice as read');
+      }
     } catch (e) {
       rethrow;
     }

@@ -19,7 +19,7 @@ class MainScaffoldPage extends StatelessWidget {
         }
       },
       child: AutoTabsRouter(
-        routes: const [HomeRoute(), OrdersRoute()],
+        routes:  [const HomeRoute(), OrdersRoute()],
         builder: (context, child) {
           AutoTabsRouter.of(context);
 

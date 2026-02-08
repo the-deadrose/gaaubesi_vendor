@@ -28,4 +28,14 @@ class NoticeListRepoImp implements NoticeRepository {
       return Left(ServerFailure('Failed to fetch notice list'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> markNoticeAsRead(String noticeId) async {
+    try {
+      final result = await remoteDatasource.markNoticeAsRead(noticeId);
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure('Failed to mark notice as read'));
+    }
+  }
 }

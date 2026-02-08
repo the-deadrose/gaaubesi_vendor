@@ -34,19 +34,23 @@ import 'package:gaaubesi_vendor/features/orders/presentation/widgets/tabs/today_
 
 @RoutePage()
 class OrdersPage extends StatelessWidget {
-  const OrdersPage({super.key});
+  final int initialTab;
+
+  const OrdersPage({super.key, this.initialTab = 0});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<OrderBloc>()..add(const OrderLoadRequested()),
-      child: const _OrdersView(),
+      child: _OrdersView(initialTab: initialTab),
     );
   }
 }
 
 class _OrdersView extends StatefulWidget {
-  const _OrdersView();
+  final int initialTab;
+
+  const _OrdersView({this.initialTab = 0});
 
   @override
   State<_OrdersView> createState() => _OrdersViewState();
@@ -59,7 +63,7 @@ class _OrdersViewState extends State<_OrdersView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 9, vsync: this);
+    _tabController = TabController(length: 9, vsync: this, initialIndex: widget.initialTab);
   }
 
   @override
@@ -151,13 +155,10 @@ class _OrdersViewState extends State<_OrdersView>
   PreferredSizeWidget _buildAppBar(BuildContext context, ThemeData theme) {
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.white),
         onPressed: () {
-          final scaffoldState = Scaffold.of(context);
-          if (scaffoldState.hasDrawer) {
-            scaffoldState.openDrawer();
-          }
+          Navigator.pop(context);
         },
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
       ),
       title: Text(
         'My Orders',

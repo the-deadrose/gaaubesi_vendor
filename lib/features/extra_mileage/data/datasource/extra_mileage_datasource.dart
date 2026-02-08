@@ -63,7 +63,7 @@ class ExtraMileageRemoteDatasourceImpl implements ExtraMileageRemoteDatasource {
   @override
   Future<Either<Failure, void>> approveExtraMileage(String mileageId) async {
     try {
-      await _dioClient.post('${ApiEndpoints.approveExtraMileage}/$mileageId');
+      await _dioClient.patch('${ApiEndpoints.approveExtraMileage}$mileageId');
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
@@ -73,7 +73,7 @@ class ExtraMileageRemoteDatasourceImpl implements ExtraMileageRemoteDatasource {
   @override
   Future<Either<Failure, void>> rejectExtraMileage(String mileageId) async {
     try {
-      await _dioClient.post('${ApiEndpoints.declineExtraMileage}/$mileageId');
+      await _dioClient.patch('${ApiEndpoints.declineExtraMileage}$mileageId');
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

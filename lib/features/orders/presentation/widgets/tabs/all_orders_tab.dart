@@ -28,7 +28,6 @@ class _AllOrdersTabState extends BaseOrderTabViewState<AllOrdersTab> {
   @override
   List<Widget> buildSlivers(BuildContext context) {
     return [
-      // Filter Button
       SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),

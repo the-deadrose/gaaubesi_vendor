@@ -63,4 +63,24 @@ class NoticeListSearchError extends NoticeState {
 
   @override
   List<Object?> get props => [message];
-} 
+}
+
+class NoticeMarkAsReadSuccess extends NoticeState {
+  final String noticeId;
+
+  NoticeMarkAsReadSuccess({required this.noticeId});
+
+  @override
+  List<Object?> get props => [noticeId];
+}
+
+class NoticeMarkAsReadError extends NoticeState {
+  final String message;
+
+  NoticeMarkAsReadError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class NoticeMarkAsReadLoading extends NoticeState {}

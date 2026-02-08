@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/notice/domain/usecase/notice_list_usecase.dart';
+import 'package:gaaubesi_vendor/features/notice/domain/usecase/mark_read_notice_usecase.dart';
 import 'package:gaaubesi_vendor/features/notice/domain/entity/notice_list_entity.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_event.dart';
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_state.dart';
@@ -10,13 +11,15 @@ import 'package:injectable/injectable.dart';
 
 class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
   final NoticeListUsecase _noticeListUsecase;
+  final MarkReadNoticeUsecase _markReadNoticeUsecase;
 
   int _currentPage = 1;
   bool _isPaginating = false;
   NoticeListResponse? _cachedResponse;
 
-  NoticeBloc(this._noticeListUsecase) : super(NoticeListInitial()) {
+  NoticeBloc(this._noticeListUsecase, this._markReadNoticeUsecase) : super(NoticeListInitial()) {
     on<FetchNoticeList>(_onFetchNoticeList);
+    on<MarkNoticeAsReadEvent>(_onMarkNoticeAsRead);
   }
 
   Future<void> _onFetchNoticeList(
@@ -91,6 +94,34 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
         emit(
           NoticeListLoaded(
             noticeListResponse: response,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onMarkNoticeAsRead(
+    MarkNoticeAsReadEvent event,
+    Emitter<NoticeState> emit,
+  ) async {
+    emit(NoticeMarkAsReadLoading());
+
+    final result = await _markReadNoticeUsecase(
+      MarkReadNoticeUsecaseParams(noticeId: event.noticeId),
+    );
+
+    result.fold(
+      (failure) {
+        emit(
+          NoticeMarkAsReadError(
+            message: failure.message,
+          ),
+        );
+      },
+      (success) {
+        emit(
+          NoticeMarkAsReadSuccess(
+            noticeId: event.noticeId,
           ),
         );
       },

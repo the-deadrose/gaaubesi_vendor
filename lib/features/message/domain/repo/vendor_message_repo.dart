@@ -6,4 +6,8 @@ abstract class VendorMessageRepository {
   Future<Either<Failure, VendorMessageListEntity>> sendVendorMessage(
     String page,
   );
+
+  Future<Either<Failure, void>> markMessageAsRead(
+    String messageId,
+  );
 }

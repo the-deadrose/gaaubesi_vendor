@@ -1,7 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:gaaubesi_vendor/features/notice/domain/entity/notice_list_entity.dart';
+import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.dart';
+import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_event.dart';
+import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_state.dart';
 
 @RoutePage()
 class NoticeDetailScreen extends StatefulWidget {
@@ -15,6 +19,17 @@ class NoticeDetailScreen extends StatefulWidget {
 
 class _NoticeDetailScreenState extends State<NoticeDetailScreen> {
   @override
+  void initState() {
+    super.initState();
+    // Mark as read when opening detail screen
+    if (!widget.notice.isRead) {
+      context
+          .read<NoticeBloc>()
+          .add(MarkNoticeAsReadEvent(noticeId: widget.notice.id.toString()));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
@@ -24,10 +39,22 @@ class _NoticeDetailScreenState extends State<NoticeDetailScreen> {
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildHeader(), _buildContent(), _buildFooter()],
+      body: BlocListener<NoticeBloc, NoticeState>(
+        listener: (context, state) {
+          if (state is NoticeMarkAsReadError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to mark as read: ${state.message}'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [_buildHeader(), _buildContent(), _buildFooter()],
+          ),
         ),
       ),
     );

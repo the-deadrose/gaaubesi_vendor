@@ -557,18 +557,48 @@ class OrderDetailRouteArgs {
 
 /// generated route for
 /// [OrdersPage]
-class OrdersRoute extends PageRouteInfo<void> {
-  const OrdersRoute({List<PageRouteInfo>? children})
-    : super(OrdersRoute.name, initialChildren: children);
+class OrdersRoute extends PageRouteInfo<OrdersRouteArgs> {
+  OrdersRoute({Key? key, int initialTab = 0, List<PageRouteInfo>? children})
+    : super(
+        OrdersRoute.name,
+        args: OrdersRouteArgs(key: key, initialTab: initialTab),
+        initialChildren: children,
+      );
 
   static const String name = 'OrdersRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const OrdersPage();
+      final args = data.argsAs<OrdersRouteArgs>(
+        orElse: () => const OrdersRouteArgs(),
+      );
+      return OrdersPage(key: args.key, initialTab: args.initialTab);
     },
   );
+}
+
+class OrdersRouteArgs {
+  const OrdersRouteArgs({this.key, this.initialTab = 0});
+
+  final Key? key;
+
+  final int initialTab;
+
+  @override
+  String toString() {
+    return 'OrdersRouteArgs{key: $key, initialTab: $initialTab}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! OrdersRouteArgs) return false;
+    return key == other.key && initialTab == other.initialTab;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ initialTab.hashCode;
 }
 
 /// generated route for

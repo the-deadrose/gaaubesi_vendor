@@ -184,6 +184,8 @@ import 'package:gaaubesi_vendor/features/message/domain/repo/vendor_message_repo
     as _i962;
 import 'package:gaaubesi_vendor/features/message/domain/usecase/fetch_vendor_message_list_usecase.dart'
     as _i780;
+import 'package:gaaubesi_vendor/features/message/domain/usecase/mark_as_read_message_usecase.dart'
+    as _i527;
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_bloc.dart'
     as _i409;
 import 'package:gaaubesi_vendor/features/notice/data/datasource/notice_datasource.dart'
@@ -192,6 +194,8 @@ import 'package:gaaubesi_vendor/features/notice/data/repo/notice_list_repo_imp.d
     as _i1054;
 import 'package:gaaubesi_vendor/features/notice/domain/repo/notice_repository.dart'
     as _i795;
+import 'package:gaaubesi_vendor/features/notice/domain/usecase/mark_read_notice_usecase.dart'
+    as _i109;
 import 'package:gaaubesi_vendor/features/notice/domain/usecase/notice_list_usecase.dart'
     as _i83;
 import 'package:gaaubesi_vendor/features/notice/presentation/bloc/notice_bloc.dart'
@@ -532,6 +536,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i84.GetVendorStatsUseCase>(
       () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
     );
+    gh.lazySingleton<_i109.MarkReadNoticeUsecase>(
+      () =>
+          _i109.MarkReadNoticeUsecase(repository: gh<_i795.NoticeRepository>()),
+    );
     gh.lazySingleton<_i83.NoticeListUsecase>(
       () => _i83.NoticeListUsecase(gh<_i795.NoticeRepository>()),
     );
@@ -606,9 +614,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i104.FetchStaffListUsecase>(
       () => _i104.FetchStaffListUsecase(gh<_i23.StaffRepository>()),
-    );
-    gh.factory<_i587.NoticeBloc>(
-      () => _i587.NoticeBloc(gh<_i83.NoticeListUsecase>()),
     );
     gh.factory<_i691.RtvOrderBloc>(
       () => _i691.RtvOrderBloc(
@@ -767,6 +772,12 @@ extension GetItInjectableX on _i174.GetIt {
             gh<_i409.FetchPickupOrderAnalysisUsecase>(),
       ),
     );
+    gh.factory<_i587.NoticeBloc>(
+      () => _i587.NoticeBloc(
+        gh<_i83.NoticeListUsecase>(),
+        gh<_i109.MarkReadNoticeUsecase>(),
+      ),
+    );
     gh.factory<_i626.OrderBloc>(
       () => _i626.OrderBloc(
         fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
@@ -807,6 +818,11 @@ extension GetItInjectableX on _i174.GetIt {
         repository: gh<_i962.VendorMessageRepository>(),
       ),
     );
+    gh.lazySingleton<_i527.MarkAsReadMessageUsecase>(
+      () => _i527.MarkAsReadMessageUsecase(
+        repository: gh<_i962.VendorMessageRepository>(),
+      ),
+    );
     gh.lazySingleton<_i365.VendorInfoUsecase>(
       () => _i365.VendorInfoUsecase(gh<_i749.VendorInfoRepo>()),
     );
@@ -830,7 +846,10 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i409.VendorMessageBloc>(
-      () => _i409.VendorMessageBloc(gh<_i780.FetchVendorMessageListUsecase>()),
+      () => _i409.VendorMessageBloc(
+        gh<_i780.FetchVendorMessageListUsecase>(),
+        gh<_i527.MarkAsReadMessageUsecase>(),
+      ),
     );
     gh.lazySingleton<_i982.EditStaffInfoBloc>(
       () => _i982.EditStaffInfoBloc(

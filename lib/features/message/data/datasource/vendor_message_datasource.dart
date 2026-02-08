@@ -6,6 +6,7 @@ import 'package:injectable/injectable.dart';
 
 abstract class VendorMessageRemoteDatasource {
   Future<VendorMessageListEntity> getVendorMessageList(String page);
+  Future<void> markMessageAsRead(String messageId);
 }
 
 @LazySingleton(as: VendorMessageRemoteDatasource)
@@ -16,7 +17,7 @@ class VendorMessageDatasourceImpl implements VendorMessageRemoteDatasource {
 
   @override
   Future<VendorMessageListEntity> getVendorMessageList(String page) async {
-    // try {
+    try {
       final queryParameters = <String, dynamic>{'page': page};
 
       final response = await _dioClient.get(
@@ -25,8 +26,18 @@ class VendorMessageDatasourceImpl implements VendorMessageRemoteDatasource {
       );
 
       return VendorMessageListModel.fromJson(response.data);
-    // } catch (e) {
-    //   rethrow;
-    // }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> markMessageAsRead(String messageId) async {
+    try {
+      await _dioClient.post('${ApiEndpoints.markMessageAsRead}$messageId');
+    } catch (e) {
+      rethrow;
+    }
   }
 }
+    

@@ -8,4 +8,5 @@ abstract class NoticeRepository {
     String? fromDate,
     String? toDate,
   );
+  Future<Either<Failure, void>> markNoticeAsRead(String noticeId);
 }

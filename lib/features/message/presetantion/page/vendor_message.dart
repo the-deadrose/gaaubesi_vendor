@@ -61,145 +61,179 @@ class VendorMessagesScreenState extends State<VendorMessagesScreen> {
   Widget _buildMessageDialog(VendorMessageEntity message) {
     Theme.of(context);
 
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 8,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.9,
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.marianBlue,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
+    return BlocListener<VendorMessageBloc, VendorMessageState>(
+      listener: (context, state) {
+        if (state is VendorMessageMarkAsReadSuccess &&
+            state.messageId == message.id.toString()) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Message marked as read',
+                style: TextStyle(color: Colors.white),
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      color: AppTheme.marianBlue,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          message.createdByName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatDateTime(message.createdOn),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!message.isRead) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.rojo,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'UNREAD',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+              backgroundColor: AppTheme.successGreen,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          );
+        }
+        if (state is VendorMessageMarkAsReadError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: AppTheme.rojo,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }
+      },
+      child: Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 8,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.9,
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.marianBlue,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                ),
+                child: Row(
                   children: [
-                    Text(
-                      'Message',
-                      style: TextStyle(
-                        color: AppTheme.blackBean,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.person,
+                        color: AppTheme.marianBlue,
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(height: 8),
-
-                    Text(
-                      message.message,
-                      style: TextStyle(
-                        color: AppTheme.blackBean,
-                        fontSize: 15,
-                        height: 1.5,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message.createdByName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _formatDateTime(message.createdOn),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    // Divider
-                    const SizedBox(height: 24),
-                    Divider(color: AppTheme.powerBlue, height: 1),
-                    const SizedBox(height: 16),
-
-                    // Additional info
-                    _buildInfoRow(
-                      icon: Icons.calendar_today,
-                      label: 'Date Sent',
-                      value: DateFormat(
-                        'MMM dd, yyyy - hh:mm a',
-                      ).format(message.createdOn),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      icon: Icons.person,
-                      label: 'Sender',
-                      value: message.createdByName,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      icon: Icons.email,
-                      label: 'Status',
-                      value: message.isRead ? 'Read' : 'Unread',
-                      valueColor: message.isRead
-                          ? AppTheme.successGreen
-                          : AppTheme.rojo,
-                    ),
+                    if (!message.isRead) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.rojo,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'UNREAD',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-            ),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Message',
+                        style: TextStyle(
+                          color: AppTheme.blackBean,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      Text(
+                        message.message,
+                        style: TextStyle(
+                          color: AppTheme.blackBean,
+                          fontSize: 15,
+                          height: 1.5,
+                        ),
+                      ),
+
+                      // Divider
+                      const SizedBox(height: 24),
+                      Divider(color: AppTheme.powerBlue, height: 1),
+                      const SizedBox(height: 16),
+
+                      // Additional info
+                      _buildInfoRow(
+                        icon: Icons.calendar_today,
+                        label: 'Date Sent',
+                        value: DateFormat(
+                          'MMM dd, yyyy - hh:mm a',
+                        ).format(message.createdOn),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(
+                        icon: Icons.person,
+                        label: 'Sender',
+                        value: message.createdByName,
+                      ),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(
+                        icon: Icons.email,
+                        label: 'Status',
+                        value: message.isRead ? 'Read' : 'Unread',
+                        valueColor: message.isRead
+                            ? AppTheme.successGreen
+                            : AppTheme.rojo,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             // Footer buttons
             Container(
@@ -209,48 +243,77 @@ class VendorMessagesScreenState extends State<VendorMessagesScreen> {
                   top: BorderSide(color: AppTheme.powerBlue, width: 1),
                 ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.blackBean,
-                        side: BorderSide(color: AppTheme.powerBlue),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+              child: BlocBuilder<VendorMessageBloc, VendorMessageState>(
+                builder: (context, state) {
+                  final isLoading = state is VendorMessageMarkAsReadLoading;
+                  
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.blackBean,
+                            side: BorderSide(color: AppTheme.powerBlue),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Close'),
                         ),
                       ),
-                      child: const Text('Close'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.marianBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (!message.isRead) {
+                                    context.read<VendorMessageBloc>().add(
+                                          MarkMessageAsReadEvent(
+                                            messageId: message.id.toString(),
+                                          ),
+                                        );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.marianBlue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 2,
+                            disabledBackgroundColor: AppTheme.marianBlue.withValues(alpha: 0.5),
+                          ),
+                          child: isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  message.isRead ? 'Reply' : 'Mark as Read',
+                                ),
                         ),
-                        elevation: 2,
                       ),
-                      child: Text(message.isRead ? 'Reply' : 'Mark as Read'),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
+    )
     );
   }
 

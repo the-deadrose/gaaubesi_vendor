@@ -2,6 +2,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/message/domain/entity/vendor_message_list_entity.dart';
 import 'package:gaaubesi_vendor/features/message/domain/usecase/fetch_vendor_message_list_usecase.dart';
+import 'package:gaaubesi_vendor/features/message/domain/usecase/mark_as_read_message_usecase.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_event.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_state.dart';
 import 'package:injectable/injectable.dart';
@@ -9,17 +10,18 @@ import 'package:injectable/injectable.dart';
 @lazySingleton
 class VendorMessageBloc extends Bloc<VendorMessageEvent, VendorMessageState> {
   final FetchVendorMessageListUsecase fetchVendorMessageListUsecase;
+  final MarkAsReadMessageUsecase markAsReadMessageUsecase;
 
-  // Keep track of all loaded messages
   List<VendorMessageEntity> _allMessages = [];
   bool _hasMore = true;
   int _currentPage = 1;
   bool _isFetching = false;
 
-  VendorMessageBloc(this.fetchVendorMessageListUsecase)
-    : super(VendorMessageInitial()) {
+  VendorMessageBloc(
+    this.fetchVendorMessageListUsecase,
+    this.markAsReadMessageUsecase,
+  ) : super(VendorMessageInitial()) {
     on<FetchVendorMessageListEvent>((event, emit) async {
-      // Reset state when fetching fresh list
       _allMessages = [];
       _currentPage = 1;
       _hasMore = true;
@@ -36,7 +38,7 @@ class VendorMessageBloc extends Bloc<VendorMessageEvent, VendorMessageState> {
       result.fold(
         (failure) => emit(VendorMessageError(message: failure.message)),
         (vendorMessageList) {
-          _allMessages = vendorMessageList.results;
+          _allMessages = List<VendorMessageEntity>.from(vendorMessageList.results);
           _hasMore = vendorMessageList.next != null;
 
           if (_allMessages.isEmpty) {
@@ -73,7 +75,7 @@ class VendorMessageBloc extends Bloc<VendorMessageEvent, VendorMessageState> {
         (failure) =>
             emit(VendorMessagePaginationError(message: failure.message)),
         (vendorMessageList) {
-          _allMessages.addAll(vendorMessageList.results);
+          _allMessages.addAll(List<VendorMessageEntity>.from(vendorMessageList.results));
           _hasMore = vendorMessageList.next != null;
           _currentPage = int.tryParse(event.page) ?? (_currentPage + 1);
 
@@ -85,7 +87,37 @@ class VendorMessageBloc extends Bloc<VendorMessageEvent, VendorMessageState> {
                 previous: vendorMessageList.previous,
                 results: List.from(
                   _allMessages,
-                ), // Create new list to trigger UI update
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    });
+
+    on<MarkMessageAsReadEvent>((event, emit) async {
+      emit(VendorMessageMarkAsReadLoading());
+
+      final result = await markAsReadMessageUsecase(
+        MarkAsReadMessageUsecaseParams(messageId: event.messageId),
+      );
+
+      result.fold(
+        (failure) => emit(VendorMessageMarkAsReadError(message: failure.message)),
+        (_) {
+          // Update the local messages list to mark as read
+          for (int i = 0; i < _allMessages.length; i++) {
+            if (_allMessages[i].id.toString() == event.messageId) {
+              _allMessages[i] = _allMessages[i].copyWith(isRead: true);
+              break;
+            }
+          }
+          
+          emit(
+            VendorMessageLoaded(
+              vendorMessageList: VendorMessageListEntity(
+                count: _allMessages.length,
+                results: List.from(_allMessages),
               ),
             ),
           );
@@ -94,7 +126,6 @@ class VendorMessageBloc extends Bloc<VendorMessageEvent, VendorMessageState> {
     });
   }
 
-  // Helper methods if needed
   bool get hasMore => _hasMore;
   int get currentPage => _currentPage;
 }

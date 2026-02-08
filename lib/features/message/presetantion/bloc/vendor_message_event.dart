@@ -22,3 +22,13 @@ class FetchVendorMessageListPaginationEvent extends VendorMessageEvent {
   @override
   List<Object?> get props => [page];
 }
+
+ class MarkMessageAsReadEvent extends VendorMessageEvent {
+  final String messageId;
+
+  MarkMessageAsReadEvent({required this.messageId});
+
+  @override
+  List<Object?> get props => [messageId];
+}
+

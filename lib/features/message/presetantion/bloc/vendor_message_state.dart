@@ -47,3 +47,22 @@ class VendorMessagePaginated extends VendorMessageState {
   @override
   List<Object?> get props => [vendorMessageList];
 }
+
+class VendorMessageMarkAsReadSuccess extends VendorMessageState {
+  final String messageId;
+
+  VendorMessageMarkAsReadSuccess({required this.messageId});
+
+  @override
+  List<Object?> get props => [messageId];
+}
+
+class VendorMessageMarkAsReadError extends VendorMessageState {
+  final String message;
+
+  VendorMessageMarkAsReadError({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
+class VendorMessageMarkAsReadLoading extends VendorMessageState {}

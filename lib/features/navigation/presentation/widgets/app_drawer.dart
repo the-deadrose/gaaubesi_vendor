@@ -193,7 +193,7 @@ class AppDrawer extends StatelessWidget {
                         title: 'Order List',
                         colorScheme: colorScheme,
                         onTap: () {
-                          context.router.push(const OrdersRoute());
+                          context.router.push(OrdersRoute());
                         },
                       ),
                       _NavTile(

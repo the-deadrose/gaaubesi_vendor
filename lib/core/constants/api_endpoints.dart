@@ -108,6 +108,10 @@ class ApiEndpoints {
   static const String declineExtraMileage = '/extra-mileage/decline/';
 
   static const String approveExtraMileage = '/extra-mileage/update/';
+
+  static const String markMessageAsRead = '/messages/read/';
+  
+  static const String markNoticeAsRead = '/notices/read/';
 }
 class QueryParams {
   QueryParams._();

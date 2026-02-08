@@ -34,6 +34,24 @@ class VendorMessageEntity extends Equatable {
     required this.isRead,
   });
 
+  VendorMessageEntity copyWith({
+    int? id,
+    String? message,
+    DateTime? createdOn,
+    String? createdOnFormatted,
+    String? createdByName,
+    bool? isRead,
+  }) {
+    return VendorMessageEntity(
+      id: id ?? this.id,
+      message: message ?? this.message,
+      createdOn: createdOn ?? this.createdOn,
+      createdOnFormatted: createdOnFormatted ?? this.createdOnFormatted,
+      createdByName: createdByName ?? this.createdByName,
+      isRead: isRead ?? this.isRead,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

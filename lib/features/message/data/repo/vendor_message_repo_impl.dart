@@ -15,11 +15,21 @@ class VendorMessageRepoImpl implements VendorMessageRepository {
   Future<Either<Failure, VendorMessageListEntity>> sendVendorMessage(
     String page,
   ) async {
-    // try {
+    try {
       final result = await remoteDatasource.getVendorMessageList(page);
       return Right(result);
-    // } catch (e) {
-    //   return Left(ServerFailure('Failed to fetch vendor messages'));
-    // }
+    } catch (e) {
+      return Left(ServerFailure('Failed to fetch vendor messages'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> markMessageAsRead(String messageId) async {
+    try {
+      final result = await remoteDatasource.markMessageAsRead(messageId);
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure('Failed to mark message as read'));
+    }
   }
 }
