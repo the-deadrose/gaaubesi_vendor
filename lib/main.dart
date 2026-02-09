@@ -30,6 +30,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_ord
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart';
+import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/staff_extra_mileage_permission/staff_extra_mileage_permission_bloc.dart';
@@ -103,6 +104,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<StaffOrderPermissionBloc>()),
         BlocProvider(create: (context) => getIt<StaffGeneralPermissionBloc>()),
         BlocProvider(create: (context) => getIt<StaffExtraMileagePermissionBloc>()),
+        BlocProvider(create: (context) => getIt<SidebarBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

@@ -266,6 +266,16 @@ import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequ
     as _i218;
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart'
     as _i724;
+import 'package:gaaubesi_vendor/features/sidebar/data/datasource/sidebar_datasource.dart'
+    as _i820;
+import 'package:gaaubesi_vendor/features/sidebar/data/repository/sidebar_repo_impl.dart'
+    as _i782;
+import 'package:gaaubesi_vendor/features/sidebar/domain/repository/sidebar_repository.dart'
+    as _i147;
+import 'package:gaaubesi_vendor/features/sidebar/domain/usecase/sidebar_usecase.dart'
+    as _i809;
+import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_bloc.dart'
+    as _i932;
 import 'package:gaaubesi_vendor/features/staff/data/datasource/staff_datasource.dart'
     as _i848;
 import 'package:gaaubesi_vendor/features/staff/data/repository/staff_reposiroy_impl.dart'
@@ -348,6 +358,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i433.BranchListRemoteDatasource>(
       () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),
+    );
+    gh.lazySingleton<_i820.SidebarDatasource>(
+      () => _i820.SidebarDatasourceImpl(gh<_i619.DioClient>()),
     );
     gh.lazySingleton<_i745.VendorMessageRemoteDatasource>(
       () => _i745.VendorMessageDatasourceImpl(gh<_i619.DioClient>()),
@@ -484,6 +497,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i459.WarehouseOrderListUsecase>(
       () => _i459.WarehouseOrderListUsecase(gh<_i532.OrderRepository>()),
     );
+    gh.lazySingleton<_i147.SidebarRepository>(
+      () => _i782.SidebarRepoImpl(gh<_i820.SidebarDatasource>()),
+    );
     gh.lazySingleton<_i793.ContactsRepository>(
       () => _i163.ContactsRepositoryImpl(
         remoteDatasources: gh<_i556.ContactsRemoteDatasources>(),
@@ -582,6 +598,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i219.ExtraMileageBloc>(
       () => _i219.ExtraMileageBloc(gh<_i966.ExtraMileageUsecase>()),
+    );
+    gh.lazySingleton<_i809.SidebarUsecase>(
+      () => _i809.SidebarUsecase(gh<_i147.SidebarRepository>()),
     );
     gh.lazySingleton<_i385.ChangePasswordUsecase>(
       () => _i385.ChangePasswordUsecase(gh<_i40.AuthRepository>()),
@@ -833,6 +852,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i218.FrequentlyUsedPaymentMethodBloc(
         gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
       ),
+    );
+    gh.lazySingleton<_i932.SidebarBloc>(
+      () => _i932.SidebarBloc(gh<_i809.SidebarUsecase>()),
     );
     gh.lazySingleton<_i431.CustomerDetailUsecase>(
       () => _i431.CustomerDetailUsecase(gh<_i894.CustomerRepo>()),

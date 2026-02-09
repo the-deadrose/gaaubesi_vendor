@@ -112,6 +112,8 @@ class ApiEndpoints {
   static const String markMessageAsRead = '/messages/read/';
   
   static const String markNoticeAsRead = '/notices/read/';
+
+  static const String sidebar = '/staff/vendor-staff-sidebar-items/';
 }
 class QueryParams {
   QueryParams._();

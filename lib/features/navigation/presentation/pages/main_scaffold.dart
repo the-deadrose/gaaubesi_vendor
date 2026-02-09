@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
-import 'package:gaaubesi_vendor/features/navigation/presentation/widgets/app_drawer.dart';
+import 'package:gaaubesi_vendor/features/sidebar/presentation/pages/sidebar_page.dart';
 
 @RoutePage()
 class MainScaffoldPage extends StatelessWidget {
@@ -23,7 +23,7 @@ class MainScaffoldPage extends StatelessWidget {
         builder: (context, child) {
           AutoTabsRouter.of(context);
 
-          return Scaffold(drawer: const AppDrawer(), body: child);
+          return Scaffold(drawer: const SidebarDrawer(), body: child);
         },
       ),
     );

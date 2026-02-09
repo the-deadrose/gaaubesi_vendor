@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -422,12 +421,7 @@ class AppDrawer extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _LogoutButton(
-                          colorScheme: colorScheme,
-                          onTap: () {
-                            _showLogoutDialog(context);
-                          },
-                        ),
+                        _LogoutButton(colorScheme: colorScheme, onTap: () {}),
                       ],
                     ),
                   ),
@@ -436,50 +430,6 @@ class AppDrawer extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Logout',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: colorScheme.onSurface.withValues(alpha: 0.7),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.read<AuthBloc>().add(AuthLogoutRequested());
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: colorScheme.error.withValues(alpha: 0.1),
-              foregroundColor: colorScheme.error,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
       ),
     );
   }
