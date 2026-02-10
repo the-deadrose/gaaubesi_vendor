@@ -5,11 +5,15 @@ part 'side_bar_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class SideBarModel extends SideBarEntity {
+  @override
+  @JsonKey(name: 'sub_items')
+  final List<SideBarModel>? subItems;
+
   const SideBarModel({
     required String name,
     String? permission,
     @JsonKey(name: 'has_access') required bool hasAccess,
-    @JsonKey(name: 'sub_items') List<SideBarModel>? subItems,
+    @JsonKey(name: 'sub_items') this.subItems,
   }) : super(
          name: name,
          permission: permission,

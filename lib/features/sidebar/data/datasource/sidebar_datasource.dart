@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
+import 'package:gaaubesi_vendor/features/sidebar/data/datasource/sidebar_local_datasource.dart';
 import 'package:gaaubesi_vendor/features/sidebar/data/model/side_bar_model.dart';
 import 'package:gaaubesi_vendor/features/sidebar/domain/entity/sidebar_entity.dart';
 import 'package:injectable/injectable.dart';
@@ -10,10 +11,11 @@ abstract class SidebarDatasource {
   Future<Either<Failure, List<SideBarEntity>>> getSidebarData();
 }
 
-@LazySingleton(as: SidebarDatasource)
+@Singleton(as: SidebarDatasource)
 class SidebarDatasourceImpl implements SidebarDatasource {
   final DioClient _dioClient;
-  SidebarDatasourceImpl(this._dioClient);
+  final SidebarLocalDatasource _localDatasource;
+  SidebarDatasourceImpl(this._dioClient, this._localDatasource);
 
   @override
   Future<Either<Failure, List<SideBarEntity>>> getSidebarData() async {
@@ -39,6 +41,11 @@ class SidebarDatasourceImpl implements SidebarDatasource {
               .map((item) => SideBarModel.fromJson(item as Map<String, dynamic>))
               .toList();
         }
+      }
+      
+      // Cache the fetched data
+      if (items.isNotEmpty) {
+        await _localDatasource.cacheSidebarData(items);
       }
       
       return Right(items);

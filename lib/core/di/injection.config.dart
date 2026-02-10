@@ -268,6 +268,8 @@ import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payme
     as _i724;
 import 'package:gaaubesi_vendor/features/sidebar/data/datasource/sidebar_datasource.dart'
     as _i820;
+import 'package:gaaubesi_vendor/features/sidebar/data/datasource/sidebar_local_datasource.dart'
+    as _i310;
 import 'package:gaaubesi_vendor/features/sidebar/data/repository/sidebar_repo_impl.dart'
     as _i782;
 import 'package:gaaubesi_vendor/features/sidebar/domain/repository/sidebar_repository.dart'
@@ -336,600 +338,612 @@ import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_inf
     as _i74;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
-extension GetItInjectableX on _i174.GetIt {
-  // initializes the registration of main-scope dependencies inside of GetIt
-  _i174.GetIt init({
-    String? environment,
-    _i526.EnvironmentFilter? environmentFilter,
-  }) {
-    final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    final registerModule = _$RegisterModule();
-    gh.singleton<_i694.AppRouter>(() => _i694.AppRouter());
-    gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
-    gh.lazySingleton<_i558.FlutterSecureStorage>(
-      () => registerModule.secureStorage,
-    );
-    gh.lazySingleton<_i14.SecureStorageService>(
-      () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
-    );
-    gh.lazySingleton<_i619.DioClient>(
-      () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
-    );
-    gh.lazySingleton<_i433.BranchListRemoteDatasource>(
-      () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i820.SidebarDatasource>(
-      () => _i820.SidebarDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i745.VendorMessageRemoteDatasource>(
-      () => _i745.VendorMessageDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i18.AuthLocalDataSource>(
-      () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
-    );
-    gh.lazySingleton<_i1041.ExtraMileageRemoteDatasource>(
-      () => _i1041.ExtraMileageRemoteDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i515.PaymentRequestRemoteDatasource>(
-      () => _i515.PaymentRequestDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i576.RemoteTicketDataSource>(
-      () => _i576.TickectDatasorceImp(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i1017.CodTransferRemoteDataource>(
-      () => _i1017.CodTransferDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i504.AnalysisDatasource>(
-      () => _i504.AnalysisDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i700.OrderRemoteDataSource>(
-      () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i906.NoticeRemoteDatasource>(
-      () => _i906.NoticeRemoteDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i311.AuthRemoteDataSource>(
-      () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i556.ContactsRemoteDatasources>(
-      () => _i556.ContactsRemoteDatasourcesImp(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i15.CalculateDeliveryChargeRemoteDatasource>(
-      () => _i15.CalculateDeliveryChargeDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i630.HomeRemoteDataSource>(
-      () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i339.DailyTransectionRemoteDatasource>(
-      () => _i339.DailyTransectionDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i88.CustomerRemoteDatasource>(
-      () => _i88.CustomerRemoteDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i170.CommentsRemoteDatasource>(
-      () => _i170.CommentsDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i532.OrderRepository>(
-      () => _i800.OrderRepositoryImpl(
-        remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i347.ExtraMileageRepo>(
-      () =>
-          _i302.ExtraMileageRepoImpl(gh<_i1041.ExtraMileageRemoteDatasource>()),
-    );
-    gh.lazySingleton<_i838.VendorInfoRemoteDatasource>(
-      () => _i838.VendorInfoDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i848.StaffDatasource>(
-      () => _i848.StaffDatasourceImpl(gh<_i619.DioClient>()),
-    );
-    gh.lazySingleton<_i684.BranchListRepository>(
-      () => _i218.BranchListRepoImp(
-        remoteDatasource: gh<_i433.BranchListRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i681.GetBranchListUsecase>(
-      () => _i681.GetBranchListUsecase(gh<_i684.BranchListRepository>()),
-    );
-    gh.lazySingleton<_i598.GetPickupPointUsecase>(
-      () => _i598.GetPickupPointUsecase(gh<_i684.BranchListRepository>()),
-    );
-    gh.lazySingleton<_i1045.GetRedirectStationUsecase>(
-      () => _i1045.GetRedirectStationUsecase(gh<_i684.BranchListRepository>()),
-    );
-    gh.lazySingleton<_i629.CalculateDeliveryChargeRepo>(
-      () => _i839.CalculateDeliveryChargeRepoImp(
-        remoteDatasource: gh<_i15.CalculateDeliveryChargeRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i370.AnalysisRepository>(
-      () => _i963.AnalysisDatasourceImpl(gh<_i504.AnalysisDatasource>()),
-    );
-    gh.lazySingleton<_i104.CalculateDeliveryChargeUsecase>(
-      () => _i104.CalculateDeliveryChargeUsecase(
-        gh<_i629.CalculateDeliveryChargeRepo>(),
-      ),
-    );
-    gh.lazySingleton<_i492.PaymentRequestRepo>(
-      () => _i771.PaymentRequestRepoImp(
-        remoteDatasource: gh<_i515.PaymentRequestRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
-      () => _i170.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i353.CreateOrderUseCase>(
-      () => _i353.CreateOrderUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i1054.EditOrderUseCase>(
-      () => _i1054.EditOrderUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
-      () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i340.FetchOrdersUseCase>(
-      () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i83.FetchPossibleRedirectOrdersUseCase>(
-      () =>
-          _i83.FetchPossibleRedirectOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i522.FetchRedirectedUsecsae>(
-      () => _i522.FetchRedirectedUsecsae(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i466.FetchReturnedOrdersUseCase>(
-      () => _i466.FetchReturnedOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
-      () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i255.FetchStaleOrdersUseCase>(
-      () => _i255.FetchStaleOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i358.FetchTodaysRedirectUsecase>(
-      () => _i358.FetchTodaysRedirectUsecase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i1053.SearchOrdersUseCase>(
-      () => _i1053.SearchOrdersUseCase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i459.WarehouseOrderListUsecase>(
-      () => _i459.WarehouseOrderListUsecase(gh<_i532.OrderRepository>()),
-    );
-    gh.lazySingleton<_i147.SidebarRepository>(
-      () => _i782.SidebarRepoImpl(gh<_i820.SidebarDatasource>()),
-    );
-    gh.lazySingleton<_i793.ContactsRepository>(
-      () => _i163.ContactsRepositoryImpl(
-        remoteDatasources: gh<_i556.ContactsRemoteDatasources>(),
-      ),
-    );
-    gh.lazySingleton<_i23.StaffRepository>(
-      () => _i297.StaffReposiroyImpl(gh<_i848.StaffDatasource>()),
-    );
-    gh.lazySingleton<_i92.CommentsRepository>(
-      () => _i944.CommentsRepoImp(
-        remoteDatasource: gh<_i170.CommentsRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i103.HomeRepository>(
-      () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
-    );
-    gh.lazySingleton<_i128.RedirectStationListBloc>(
-      () =>
-          _i128.RedirectStationListBloc(gh<_i1045.GetRedirectStationUsecase>()),
-    );
-    gh.lazySingleton<_i523.DailyTransectionRepo>(
-      () => _i11.DailyTransectionRepoImp(
-        remoteDatasource: gh<_i339.DailyTransectionRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i966.ExtraMileageUsecase>(
-      () => _i966.ExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
-    );
-    gh.lazySingleton<_i40.AuthRepository>(
-      () => _i635.AuthRepositoryImpl(
-        remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
-        localDataSource: gh<_i18.AuthLocalDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i962.VendorMessageRepository>(
-      () => _i977.VendorMessageRepoImpl(
-        remoteDatasource: gh<_i745.VendorMessageRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i795.NoticeRepository>(
-      () => _i1054.NoticeListRepoImp(
-        remoteDatasource: gh<_i906.NoticeRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i749.VendorInfoRepo>(
-      () => _i1066.VendorInfoRepoImpl(
-        remoteDatasource: gh<_i838.VendorInfoRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i84.GetVendorStatsUseCase>(
-      () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
-    );
-    gh.lazySingleton<_i109.MarkReadNoticeUsecase>(
-      () =>
-          _i109.MarkReadNoticeUsecase(repository: gh<_i795.NoticeRepository>()),
-    );
-    gh.lazySingleton<_i83.NoticeListUsecase>(
-      () => _i83.NoticeListUsecase(gh<_i795.NoticeRepository>()),
-    );
-    gh.factory<_i682.WarehouseOrderBloc>(
-      () => _i682.WarehouseOrderBloc(
-        warehouseOrderListUsecase: gh<_i459.WarehouseOrderListUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i567.TicketRepository>(
-      () => _i716.TicketImpRepository(
-        remoteTicketDataSource: gh<_i576.RemoteTicketDataSource>(),
-      ),
-    );
-    gh.factory<_i114.RedirectedOrdersBloc>(
-      () => _i114.RedirectedOrdersBloc(
-        gh<_i522.FetchRedirectedUsecsae>(),
-        gh<_i358.FetchTodaysRedirectUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i151.CreatePaymentRequestUsecase>(
-      () => _i151.CreatePaymentRequestUsecase(gh<_i492.PaymentRequestRepo>()),
-    );
-    gh.lazySingleton<_i935.FetchFrequentlyUsedPaymentUsecase>(
-      () => _i935.FetchFrequentlyUsedPaymentUsecase(
-        gh<_i492.PaymentRequestRepo>(),
-      ),
-    );
-    gh.lazySingleton<_i324.FetchPaymentRequestUsecase>(
-      () => _i324.FetchPaymentRequestUsecase(gh<_i492.PaymentRequestRepo>()),
-    );
-    gh.lazySingleton<_i646.CodTransferRepo>(
-      () => _i841.CodTransferRepoImp(
-        remoteDataSource: gh<_i1017.CodTransferRemoteDataource>(),
-      ),
-    );
-    gh.factory<_i850.StaleOrderBloc>(
-      () => _i850.StaleOrderBloc(
-        fetchStaleOrdersUseCase: gh<_i255.FetchStaleOrdersUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i219.ExtraMileageBloc>(
-      () => _i219.ExtraMileageBloc(gh<_i966.ExtraMileageUsecase>()),
-    );
-    gh.lazySingleton<_i809.SidebarUsecase>(
-      () => _i809.SidebarUsecase(gh<_i147.SidebarRepository>()),
-    );
-    gh.lazySingleton<_i385.ChangePasswordUsecase>(
-      () => _i385.ChangePasswordUsecase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i277.GetCurrentUserUseCase>(
-      () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i634.LoginUseCase>(
-      () => _i634.LoginUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i357.LogoutUseCase>(
-      () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
-    );
-    gh.lazySingleton<_i544.ChangePasswordStaffUsecase>(
-      () => _i544.ChangePasswordStaffUsecase(gh<_i23.StaffRepository>()),
-    );
-    gh.lazySingleton<_i472.CreateStaffUsecase>(
-      () => _i472.CreateStaffUsecase(gh<_i23.StaffRepository>()),
-    );
-    gh.lazySingleton<_i469.EditStaffInfoUsecase>(
-      () => _i469.EditStaffInfoUsecase(gh<_i23.StaffRepository>()),
-    );
-    gh.lazySingleton<_i430.EditStaffPermissionUsecase>(
-      () => _i430.EditStaffPermissionUsecase(gh<_i23.StaffRepository>()),
-    );
-    gh.lazySingleton<_i335.FetchStaffAvailablePermissionUsecase>(
-      () => _i335.FetchStaffAvailablePermissionUsecase(
-        gh<_i23.StaffRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i104.FetchStaffListUsecase>(
-      () => _i104.FetchStaffListUsecase(gh<_i23.StaffRepository>()),
-    );
-    gh.factory<_i691.RtvOrderBloc>(
-      () => _i691.RtvOrderBloc(
-        fetchRtvOrdersUseCase: gh<_i287.FetchRtvOrdersUseCase>(),
-      ),
-    );
-    gh.factory<_i37.DeliveredOrderBloc>(
-      () => _i37.DeliveredOrderBloc(
-        fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i894.CustomerRepo>(
-      () => _i362.CustomerRepoImp(
-        remoteDataSource: gh<_i88.CustomerRemoteDatasource>(),
-      ),
-    );
-    gh.lazySingleton<_i715.ApproveExtraMileageUsecase>(
-      () => _i715.ApproveExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
-    );
-    gh.lazySingleton<_i835.DeclineExtraMileageUsecase>(
-      () => _i835.DeclineExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
-    );
-    gh.lazySingleton<_i910.StaffListBloc>(
-      () => _i910.StaffListBloc(
-        fetchStaffListUsecase: gh<_i104.FetchStaffListUsecase>(),
-      ),
-    );
-    gh.factory<_i124.OrderDetailBloc>(
-      () => _i124.OrderDetailBloc(
-        fetchOrderDetailUseCase: gh<_i170.FetchOrderDetailUseCase>(),
-        editOrderUseCase: gh<_i1054.EditOrderUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i406.StaffExtraMileagePermissionBloc>(
-      () => _i406.StaffExtraMileagePermissionBloc(
-        fetchStaffAvailablePermissionUsecase:
-            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
-        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i209.StaffGeneralPermissionBloc>(
-      () => _i209.StaffGeneralPermissionBloc(
-        fetchStaffAvailablePermissionUsecase:
-            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
-        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i218.StaffOrderPermissionBloc>(
-      () => _i218.StaffOrderPermissionBloc(
-        fetchStaffAvailablePermissionUsecase:
-            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
-        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i889.StaffAvailablePermissionBloc>(
-      () => _i889.StaffAvailablePermissionBloc(
-        fetchStaffAvailablePermissionUsecase:
-            gh<_i335.FetchStaffAvailablePermissionUsecase>(),
-        editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i7.FetchDailyTransactionUsecase>(
-      () => _i7.FetchDailyTransactionUsecase(gh<_i523.DailyTransectionRepo>()),
-    );
-    gh.factory<_i724.PaymentRequestBloc>(
-      () => _i724.PaymentRequestBloc(
-        gh<_i151.CreatePaymentRequestUsecase>(),
-        gh<_i324.FetchPaymentRequestUsecase>(),
-      ),
-    );
-    gh.factory<_i894.PossibleRedirectOrderBloc>(
-      () => _i894.PossibleRedirectOrderBloc(
-        fetchPossibleRedirectOrdersUseCase:
-            gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
-      ),
-    );
-    gh.factory<_i44.CalculateDeliveryChargeBloc>(
-      () => _i44.CalculateDeliveryChargeBloc(
-        gh<_i104.CalculateDeliveryChargeUsecase>(),
-      ),
-    );
-    gh.factory<_i270.BranchListBloc>(
-      () => _i270.BranchListBloc(
-        getBranchListUsecase: gh<_i681.GetBranchListUsecase>(),
-        getPickupPointUsecase: gh<_i598.GetPickupPointUsecase>(),
-      ),
-    );
-    gh.factory<_i915.HomeBloc>(
-      () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
-    );
-    gh.lazySingleton<_i117.FetchBranchReportAnalysisUsecase>(
-      () => _i117.FetchBranchReportAnalysisUsecase(
-        gh<_i370.AnalysisRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i522.FetchDeliveryReportUsecase>(
-      () => _i522.FetchDeliveryReportUsecase(gh<_i370.AnalysisRepository>()),
-    );
-    gh.lazySingleton<_i409.FetchPickupOrderAnalysisUsecase>(
-      () =>
-          _i409.FetchPickupOrderAnalysisUsecase(gh<_i370.AnalysisRepository>()),
-    );
-    gh.lazySingleton<_i877.FetchSalesReportAnalysisUsecase>(
-      () =>
-          _i877.FetchSalesReportAnalysisUsecase(gh<_i370.AnalysisRepository>()),
-    );
-    gh.lazySingleton<_i932.AllCommentsUsecase>(
-      () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i383.CommentReplyUsecase>(
-      () => _i383.CommentReplyUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i350.CreateCommentOrderdetailUsecase>(
-      () =>
-          _i350.CreateCommentOrderdetailUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i625.FilteredCommentsUsecase>(
-      () => _i625.FilteredCommentsUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i942.ReplyCommentOrderDetailUsecase>(
-      () => _i942.ReplyCommentOrderDetailUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i427.TodaysCommentsUsecase>(
-      () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
-    );
-    gh.lazySingleton<_i1050.CreateTicketUseCase>(
-      () =>
-          _i1050.CreateTicketUseCase(repository: gh<_i567.TicketRepository>()),
-    );
-    gh.lazySingleton<_i457.TicketsListUseCase>(
-      () => _i457.TicketsListUseCase(repository: gh<_i567.TicketRepository>()),
-    );
-    gh.lazySingleton<_i501.ChangeStaffPasswordBloc>(
-      () => _i501.ChangeStaffPasswordBloc(
-        changePasswordStaffUsecase: gh<_i544.ChangePasswordStaffUsecase>(),
-      ),
-    );
-    gh.factory<_i337.ReturnedOrderBloc>(
-      () => _i337.ReturnedOrderBloc(
-        fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i612.FetchHeadofficeUsecase>(
-      () => _i612.FetchHeadofficeUsecase(
-        contactsRepository: gh<_i793.ContactsRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i617.FetchServiceStationUsecase>(
-      () => _i617.FetchServiceStationUsecase(
-        contactsRepository: gh<_i793.ContactsRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i944.PickupOrderAnalysisBloc>(
-      () => _i944.PickupOrderAnalysisBloc(
-        fetchPickupOrderAnalysisUsecase:
-            gh<_i409.FetchPickupOrderAnalysisUsecase>(),
-      ),
-    );
-    gh.factory<_i587.NoticeBloc>(
-      () => _i587.NoticeBloc(
-        gh<_i83.NoticeListUsecase>(),
-        gh<_i109.MarkReadNoticeUsecase>(),
-      ),
-    );
-    gh.factory<_i626.OrderBloc>(
-      () => _i626.OrderBloc(
-        fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
-        createOrderUseCase: gh<_i353.CreateOrderUseCase>(),
-      ),
-    );
-    gh.factory<_i117.DailyTransactionBloc>(
-      () => _i117.DailyTransactionBloc(gh<_i7.FetchDailyTransactionUsecase>()),
-    );
-    gh.lazySingleton<_i327.CreateStaffBloc>(
-      () => _i327.CreateStaffBloc(gh<_i472.CreateStaffUsecase>()),
-    );
-    gh.factory<_i11.CommentsBloc>(
-      () => _i11.CommentsBloc(
-        todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
-        allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
-        filteredCommentsUsecase: gh<_i625.FilteredCommentsUsecase>(),
-        commentReplyUsecase: gh<_i383.CommentReplyUsecase>(),
-        createCommentOrderdetailUsecase:
-            gh<_i350.CreateCommentOrderdetailUsecase>(),
-        replyCommentOrderDetailUsecase:
-            gh<_i942.ReplyCommentOrderDetailUsecase>(),
-      ),
-    );
-    gh.singleton<_i365.AuthBloc>(
-      () => _i365.AuthBloc(
-        loginUseCase: gh<_i634.LoginUseCase>(),
-        logoutUseCase: gh<_i357.LogoutUseCase>(),
-        getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
-        changePasswordUsecase: gh<_i385.ChangePasswordUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i414.CodTransferListUsecase>(
-      () => _i414.CodTransferListUsecase(gh<_i646.CodTransferRepo>()),
-    );
-    gh.lazySingleton<_i780.FetchVendorMessageListUsecase>(
-      () => _i780.FetchVendorMessageListUsecase(
-        repository: gh<_i962.VendorMessageRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i527.MarkAsReadMessageUsecase>(
-      () => _i527.MarkAsReadMessageUsecase(
-        repository: gh<_i962.VendorMessageRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i365.VendorInfoUsecase>(
-      () => _i365.VendorInfoUsecase(gh<_i749.VendorInfoRepo>()),
-    );
-    gh.lazySingleton<_i119.VendorUpdateUsecase>(
-      () => _i119.VendorUpdateUsecase(gh<_i749.VendorInfoRepo>()),
-    );
-    gh.factory<_i218.FrequentlyUsedPaymentMethodBloc>(
-      () => _i218.FrequentlyUsedPaymentMethodBloc(
-        gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i932.SidebarBloc>(
-      () => _i932.SidebarBloc(gh<_i809.SidebarUsecase>()),
-    );
-    gh.lazySingleton<_i431.CustomerDetailUsecase>(
-      () => _i431.CustomerDetailUsecase(gh<_i894.CustomerRepo>()),
-    );
-    gh.lazySingleton<_i25.CustomerListUseCase>(
-      () => _i25.CustomerListUseCase(gh<_i894.CustomerRepo>()),
-    );
-    gh.factory<_i459.CodTransferBloc>(
-      () => _i459.CodTransferBloc(
-        codTransferListUsecase: gh<_i414.CodTransferListUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i409.VendorMessageBloc>(
-      () => _i409.VendorMessageBloc(
-        gh<_i780.FetchVendorMessageListUsecase>(),
-        gh<_i527.MarkAsReadMessageUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i982.EditStaffInfoBloc>(
-      () => _i982.EditStaffInfoBloc(
-        editStaffInfoUsecase: gh<_i469.EditStaffInfoUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i783.ExtraMileageApprovalBloc>(
-      () => _i783.ExtraMileageApprovalBloc(
-        gh<_i715.ApproveExtraMileageUsecase>(),
-        gh<_i835.DeclineExtraMileageUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i913.SalesReportAnalysisBloc>(
-      () => _i913.SalesReportAnalysisBloc(
-        gh<_i877.FetchSalesReportAnalysisUsecase>(),
-      ),
-    );
-    gh.factory<_i488.TicketBloc>(
-      () => _i488.TicketBloc(
-        ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
-        createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i300.DeliveryReportAnalysisBloc>(
-      () => _i300.DeliveryReportAnalysisBloc(
-        fetchDeliveryReportUsecase: gh<_i522.FetchDeliveryReportUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i417.ServiceStationBloc>(
-      () => _i417.ServiceStationBloc(
-        fetchServiceStationUsecase: gh<_i617.FetchServiceStationUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i842.BranchReportAnalysisBloc>(
-      () => _i842.BranchReportAnalysisBloc(
-        fetchBranchReportAnalysisUsecase:
-            gh<_i117.FetchBranchReportAnalysisUsecase>(),
-      ),
-    );
-    gh.factory<_i246.CustomerListBloc>(
-      () => _i246.CustomerListBloc(gh<_i25.CustomerListUseCase>()),
-    );
-    gh.factory<_i437.HeadOfficeContactsBloc>(
-      () => _i437.HeadOfficeContactsBloc(
-        fetchHeadofficeUsecase: gh<_i612.FetchHeadofficeUsecase>(),
-      ),
-    );
-    gh.lazySingleton<_i74.VendorInfoBloc>(
-      () => _i74.VendorInfoBloc(
-        vendorInfoUsecase: gh<_i365.VendorInfoUsecase>(),
-        vendorUpdateUsecase: gh<_i119.VendorUpdateUsecase>(),
-      ),
-    );
-    gh.factory<_i989.CustomerDetailBloc>(
-      () => _i989.CustomerDetailBloc(gh<_i431.CustomerDetailUsecase>()),
-    );
-    return this;
-  }
+// initializes the registration of main-scope dependencies inside of GetIt
+Future<_i174.GetIt> init(
+  _i174.GetIt getIt, {
+  String? environment,
+  _i526.EnvironmentFilter? environmentFilter,
+}) async {
+  final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
+  final registerModule = _$RegisterModule();
+  await gh.factoryAsync<_i460.SharedPreferences>(
+    () => registerModule.sharedPreferences,
+    preResolve: true,
+  );
+  gh.singleton<_i694.AppRouter>(() => _i694.AppRouter());
+  gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
+  gh.lazySingleton<_i558.FlutterSecureStorage>(
+    () => registerModule.secureStorage,
+  );
+  gh.lazySingleton<_i14.SecureStorageService>(
+    () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
+  );
+  gh.lazySingleton<_i619.DioClient>(
+    () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
+  );
+  gh.lazySingleton<_i433.BranchListRemoteDatasource>(
+    () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i745.VendorMessageRemoteDatasource>(
+    () => _i745.VendorMessageDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i18.AuthLocalDataSource>(
+    () => _i18.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
+  );
+  gh.lazySingleton<_i1041.ExtraMileageRemoteDatasource>(
+    () => _i1041.ExtraMileageRemoteDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i515.PaymentRequestRemoteDatasource>(
+    () => _i515.PaymentRequestDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.singleton<_i310.SidebarLocalDatasource>(
+    () => _i310.SidebarLocalDatasourceImpl(gh<_i460.SharedPreferences>()),
+  );
+  gh.lazySingleton<_i576.RemoteTicketDataSource>(
+    () => _i576.TickectDatasorceImp(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i1017.CodTransferRemoteDataource>(
+    () => _i1017.CodTransferDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i504.AnalysisDatasource>(
+    () => _i504.AnalysisDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i700.OrderRemoteDataSource>(
+    () => _i700.OrderRemoteDataSourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i906.NoticeRemoteDatasource>(
+    () => _i906.NoticeRemoteDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i311.AuthRemoteDataSource>(
+    () => _i311.AuthRemoteDataSourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i556.ContactsRemoteDatasources>(
+    () => _i556.ContactsRemoteDatasourcesImp(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i15.CalculateDeliveryChargeRemoteDatasource>(
+    () => _i15.CalculateDeliveryChargeDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i630.HomeRemoteDataSource>(
+    () => _i630.HomeRemoteDataSourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i339.DailyTransectionRemoteDatasource>(
+    () => _i339.DailyTransectionDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i88.CustomerRemoteDatasource>(
+    () => _i88.CustomerRemoteDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i170.CommentsRemoteDatasource>(
+    () => _i170.CommentsDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i532.OrderRepository>(
+    () => _i800.OrderRepositoryImpl(
+      remoteDataSource: gh<_i700.OrderRemoteDataSource>(),
+    ),
+  );
+  gh.lazySingleton<_i347.ExtraMileageRepo>(
+    () => _i302.ExtraMileageRepoImpl(gh<_i1041.ExtraMileageRemoteDatasource>()),
+  );
+  gh.lazySingleton<_i838.VendorInfoRemoteDatasource>(
+    () => _i838.VendorInfoDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i848.StaffDatasource>(
+    () => _i848.StaffDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i684.BranchListRepository>(
+    () => _i218.BranchListRepoImp(
+      remoteDatasource: gh<_i433.BranchListRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i681.GetBranchListUsecase>(
+    () => _i681.GetBranchListUsecase(gh<_i684.BranchListRepository>()),
+  );
+  gh.lazySingleton<_i598.GetPickupPointUsecase>(
+    () => _i598.GetPickupPointUsecase(gh<_i684.BranchListRepository>()),
+  );
+  gh.lazySingleton<_i1045.GetRedirectStationUsecase>(
+    () => _i1045.GetRedirectStationUsecase(gh<_i684.BranchListRepository>()),
+  );
+  gh.lazySingleton<_i629.CalculateDeliveryChargeRepo>(
+    () => _i839.CalculateDeliveryChargeRepoImp(
+      remoteDatasource: gh<_i15.CalculateDeliveryChargeRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i370.AnalysisRepository>(
+    () => _i963.AnalysisDatasourceImpl(gh<_i504.AnalysisDatasource>()),
+  );
+  gh.lazySingleton<_i104.CalculateDeliveryChargeUsecase>(
+    () => _i104.CalculateDeliveryChargeUsecase(
+      gh<_i629.CalculateDeliveryChargeRepo>(),
+    ),
+  );
+  gh.lazySingleton<_i492.PaymentRequestRepo>(
+    () => _i771.PaymentRequestRepoImp(
+      remoteDatasource: gh<_i515.PaymentRequestRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i170.FetchOrderDetailUseCase>(
+    () => _i170.FetchOrderDetailUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i353.CreateOrderUseCase>(
+    () => _i353.CreateOrderUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i1054.EditOrderUseCase>(
+    () => _i1054.EditOrderUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i451.FetchDeliveredOrdersUseCase>(
+    () => _i451.FetchDeliveredOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i340.FetchOrdersUseCase>(
+    () => _i340.FetchOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i83.FetchPossibleRedirectOrdersUseCase>(
+    () => _i83.FetchPossibleRedirectOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i522.FetchRedirectedUsecsae>(
+    () => _i522.FetchRedirectedUsecsae(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i466.FetchReturnedOrdersUseCase>(
+    () => _i466.FetchReturnedOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i287.FetchRtvOrdersUseCase>(
+    () => _i287.FetchRtvOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i255.FetchStaleOrdersUseCase>(
+    () => _i255.FetchStaleOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i358.FetchTodaysRedirectUsecase>(
+    () => _i358.FetchTodaysRedirectUsecase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i1053.SearchOrdersUseCase>(
+    () => _i1053.SearchOrdersUseCase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i459.WarehouseOrderListUsecase>(
+    () => _i459.WarehouseOrderListUsecase(gh<_i532.OrderRepository>()),
+  );
+  gh.lazySingleton<_i793.ContactsRepository>(
+    () => _i163.ContactsRepositoryImpl(
+      remoteDatasources: gh<_i556.ContactsRemoteDatasources>(),
+    ),
+  );
+  gh.lazySingleton<_i23.StaffRepository>(
+    () => _i297.StaffReposiroyImpl(gh<_i848.StaffDatasource>()),
+  );
+  gh.lazySingleton<_i92.CommentsRepository>(
+    () => _i944.CommentsRepoImp(
+      remoteDatasource: gh<_i170.CommentsRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i103.HomeRepository>(
+    () => _i990.HomeRepositoryImpl(gh<_i630.HomeRemoteDataSource>()),
+  );
+  gh.lazySingleton<_i128.RedirectStationListBloc>(
+    () => _i128.RedirectStationListBloc(gh<_i1045.GetRedirectStationUsecase>()),
+  );
+  gh.lazySingleton<_i523.DailyTransectionRepo>(
+    () => _i11.DailyTransectionRepoImp(
+      remoteDatasource: gh<_i339.DailyTransectionRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i966.ExtraMileageUsecase>(
+    () => _i966.ExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
+  );
+  gh.lazySingleton<_i40.AuthRepository>(
+    () => _i635.AuthRepositoryImpl(
+      remoteDataSource: gh<_i311.AuthRemoteDataSource>(),
+      localDataSource: gh<_i18.AuthLocalDataSource>(),
+    ),
+  );
+  gh.lazySingleton<_i962.VendorMessageRepository>(
+    () => _i977.VendorMessageRepoImpl(
+      remoteDatasource: gh<_i745.VendorMessageRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i795.NoticeRepository>(
+    () => _i1054.NoticeListRepoImp(
+      remoteDatasource: gh<_i906.NoticeRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i749.VendorInfoRepo>(
+    () => _i1066.VendorInfoRepoImpl(
+      remoteDatasource: gh<_i838.VendorInfoRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i84.GetVendorStatsUseCase>(
+    () => _i84.GetVendorStatsUseCase(gh<_i103.HomeRepository>()),
+  );
+  gh.lazySingleton<_i109.MarkReadNoticeUsecase>(
+    () => _i109.MarkReadNoticeUsecase(repository: gh<_i795.NoticeRepository>()),
+  );
+  gh.lazySingleton<_i83.NoticeListUsecase>(
+    () => _i83.NoticeListUsecase(gh<_i795.NoticeRepository>()),
+  );
+  gh.factory<_i682.WarehouseOrderBloc>(
+    () => _i682.WarehouseOrderBloc(
+      warehouseOrderListUsecase: gh<_i459.WarehouseOrderListUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i567.TicketRepository>(
+    () => _i716.TicketImpRepository(
+      remoteTicketDataSource: gh<_i576.RemoteTicketDataSource>(),
+    ),
+  );
+  gh.factory<_i114.RedirectedOrdersBloc>(
+    () => _i114.RedirectedOrdersBloc(
+      gh<_i522.FetchRedirectedUsecsae>(),
+      gh<_i358.FetchTodaysRedirectUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i151.CreatePaymentRequestUsecase>(
+    () => _i151.CreatePaymentRequestUsecase(gh<_i492.PaymentRequestRepo>()),
+  );
+  gh.lazySingleton<_i935.FetchFrequentlyUsedPaymentUsecase>(
+    () =>
+        _i935.FetchFrequentlyUsedPaymentUsecase(gh<_i492.PaymentRequestRepo>()),
+  );
+  gh.lazySingleton<_i324.FetchPaymentRequestUsecase>(
+    () => _i324.FetchPaymentRequestUsecase(gh<_i492.PaymentRequestRepo>()),
+  );
+  gh.lazySingleton<_i646.CodTransferRepo>(
+    () => _i841.CodTransferRepoImp(
+      remoteDataSource: gh<_i1017.CodTransferRemoteDataource>(),
+    ),
+  );
+  gh.factory<_i850.StaleOrderBloc>(
+    () => _i850.StaleOrderBloc(
+      fetchStaleOrdersUseCase: gh<_i255.FetchStaleOrdersUseCase>(),
+    ),
+  );
+  gh.lazySingleton<_i219.ExtraMileageBloc>(
+    () => _i219.ExtraMileageBloc(gh<_i966.ExtraMileageUsecase>()),
+  );
+  gh.singleton<_i820.SidebarDatasource>(
+    () => _i820.SidebarDatasourceImpl(
+      gh<_i619.DioClient>(),
+      gh<_i310.SidebarLocalDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i385.ChangePasswordUsecase>(
+    () => _i385.ChangePasswordUsecase(gh<_i40.AuthRepository>()),
+  );
+  gh.lazySingleton<_i277.GetCurrentUserUseCase>(
+    () => _i277.GetCurrentUserUseCase(gh<_i40.AuthRepository>()),
+  );
+  gh.lazySingleton<_i634.LoginUseCase>(
+    () => _i634.LoginUseCase(gh<_i40.AuthRepository>()),
+  );
+  gh.lazySingleton<_i357.LogoutUseCase>(
+    () => _i357.LogoutUseCase(gh<_i40.AuthRepository>()),
+  );
+  gh.lazySingleton<_i544.ChangePasswordStaffUsecase>(
+    () => _i544.ChangePasswordStaffUsecase(gh<_i23.StaffRepository>()),
+  );
+  gh.lazySingleton<_i472.CreateStaffUsecase>(
+    () => _i472.CreateStaffUsecase(gh<_i23.StaffRepository>()),
+  );
+  gh.lazySingleton<_i469.EditStaffInfoUsecase>(
+    () => _i469.EditStaffInfoUsecase(gh<_i23.StaffRepository>()),
+  );
+  gh.lazySingleton<_i430.EditStaffPermissionUsecase>(
+    () => _i430.EditStaffPermissionUsecase(gh<_i23.StaffRepository>()),
+  );
+  gh.lazySingleton<_i335.FetchStaffAvailablePermissionUsecase>(
+    () =>
+        _i335.FetchStaffAvailablePermissionUsecase(gh<_i23.StaffRepository>()),
+  );
+  gh.lazySingleton<_i104.FetchStaffListUsecase>(
+    () => _i104.FetchStaffListUsecase(gh<_i23.StaffRepository>()),
+  );
+  gh.factory<_i691.RtvOrderBloc>(
+    () => _i691.RtvOrderBloc(
+      fetchRtvOrdersUseCase: gh<_i287.FetchRtvOrdersUseCase>(),
+    ),
+  );
+  gh.factory<_i37.DeliveredOrderBloc>(
+    () => _i37.DeliveredOrderBloc(
+      fetchDeliveredOrdersUseCase: gh<_i451.FetchDeliveredOrdersUseCase>(),
+    ),
+  );
+  gh.lazySingleton<_i894.CustomerRepo>(
+    () => _i362.CustomerRepoImp(
+      remoteDataSource: gh<_i88.CustomerRemoteDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i715.ApproveExtraMileageUsecase>(
+    () => _i715.ApproveExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
+  );
+  gh.lazySingleton<_i835.DeclineExtraMileageUsecase>(
+    () => _i835.DeclineExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
+  );
+  gh.lazySingleton<_i910.StaffListBloc>(
+    () => _i910.StaffListBloc(
+      fetchStaffListUsecase: gh<_i104.FetchStaffListUsecase>(),
+    ),
+  );
+  gh.factory<_i124.OrderDetailBloc>(
+    () => _i124.OrderDetailBloc(
+      fetchOrderDetailUseCase: gh<_i170.FetchOrderDetailUseCase>(),
+      editOrderUseCase: gh<_i1054.EditOrderUseCase>(),
+    ),
+  );
+  gh.lazySingleton<_i406.StaffExtraMileagePermissionBloc>(
+    () => _i406.StaffExtraMileagePermissionBloc(
+      fetchStaffAvailablePermissionUsecase:
+          gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+      editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i209.StaffGeneralPermissionBloc>(
+    () => _i209.StaffGeneralPermissionBloc(
+      fetchStaffAvailablePermissionUsecase:
+          gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+      editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i218.StaffOrderPermissionBloc>(
+    () => _i218.StaffOrderPermissionBloc(
+      fetchStaffAvailablePermissionUsecase:
+          gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+      editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i889.StaffAvailablePermissionBloc>(
+    () => _i889.StaffAvailablePermissionBloc(
+      fetchStaffAvailablePermissionUsecase:
+          gh<_i335.FetchStaffAvailablePermissionUsecase>(),
+      editStaffPermissionUsecase: gh<_i430.EditStaffPermissionUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i7.FetchDailyTransactionUsecase>(
+    () => _i7.FetchDailyTransactionUsecase(gh<_i523.DailyTransectionRepo>()),
+  );
+  gh.factory<_i724.PaymentRequestBloc>(
+    () => _i724.PaymentRequestBloc(
+      gh<_i151.CreatePaymentRequestUsecase>(),
+      gh<_i324.FetchPaymentRequestUsecase>(),
+    ),
+  );
+  gh.factory<_i894.PossibleRedirectOrderBloc>(
+    () => _i894.PossibleRedirectOrderBloc(
+      fetchPossibleRedirectOrdersUseCase:
+          gh<_i83.FetchPossibleRedirectOrdersUseCase>(),
+    ),
+  );
+  gh.factory<_i44.CalculateDeliveryChargeBloc>(
+    () => _i44.CalculateDeliveryChargeBloc(
+      gh<_i104.CalculateDeliveryChargeUsecase>(),
+    ),
+  );
+  gh.factory<_i270.BranchListBloc>(
+    () => _i270.BranchListBloc(
+      getBranchListUsecase: gh<_i681.GetBranchListUsecase>(),
+      getPickupPointUsecase: gh<_i598.GetPickupPointUsecase>(),
+    ),
+  );
+  gh.factory<_i915.HomeBloc>(
+    () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
+  );
+  gh.lazySingleton<_i117.FetchBranchReportAnalysisUsecase>(
+    () =>
+        _i117.FetchBranchReportAnalysisUsecase(gh<_i370.AnalysisRepository>()),
+  );
+  gh.lazySingleton<_i522.FetchDeliveryReportUsecase>(
+    () => _i522.FetchDeliveryReportUsecase(gh<_i370.AnalysisRepository>()),
+  );
+  gh.lazySingleton<_i409.FetchPickupOrderAnalysisUsecase>(
+    () => _i409.FetchPickupOrderAnalysisUsecase(gh<_i370.AnalysisRepository>()),
+  );
+  gh.lazySingleton<_i877.FetchSalesReportAnalysisUsecase>(
+    () => _i877.FetchSalesReportAnalysisUsecase(gh<_i370.AnalysisRepository>()),
+  );
+  gh.lazySingleton<_i932.AllCommentsUsecase>(
+    () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
+  );
+  gh.lazySingleton<_i383.CommentReplyUsecase>(
+    () => _i383.CommentReplyUsecase(gh<_i92.CommentsRepository>()),
+  );
+  gh.lazySingleton<_i350.CreateCommentOrderdetailUsecase>(
+    () => _i350.CreateCommentOrderdetailUsecase(gh<_i92.CommentsRepository>()),
+  );
+  gh.lazySingleton<_i625.FilteredCommentsUsecase>(
+    () => _i625.FilteredCommentsUsecase(gh<_i92.CommentsRepository>()),
+  );
+  gh.lazySingleton<_i942.ReplyCommentOrderDetailUsecase>(
+    () => _i942.ReplyCommentOrderDetailUsecase(gh<_i92.CommentsRepository>()),
+  );
+  gh.lazySingleton<_i427.TodaysCommentsUsecase>(
+    () => _i427.TodaysCommentsUsecase(gh<_i92.CommentsRepository>()),
+  );
+  gh.lazySingleton<_i1050.CreateTicketUseCase>(
+    () => _i1050.CreateTicketUseCase(repository: gh<_i567.TicketRepository>()),
+  );
+  gh.lazySingleton<_i457.TicketsListUseCase>(
+    () => _i457.TicketsListUseCase(repository: gh<_i567.TicketRepository>()),
+  );
+  gh.lazySingleton<_i501.ChangeStaffPasswordBloc>(
+    () => _i501.ChangeStaffPasswordBloc(
+      changePasswordStaffUsecase: gh<_i544.ChangePasswordStaffUsecase>(),
+    ),
+  );
+  gh.factory<_i337.ReturnedOrderBloc>(
+    () => _i337.ReturnedOrderBloc(
+      fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
+    ),
+  );
+  gh.lazySingleton<_i612.FetchHeadofficeUsecase>(
+    () => _i612.FetchHeadofficeUsecase(
+      contactsRepository: gh<_i793.ContactsRepository>(),
+    ),
+  );
+  gh.lazySingleton<_i617.FetchServiceStationUsecase>(
+    () => _i617.FetchServiceStationUsecase(
+      contactsRepository: gh<_i793.ContactsRepository>(),
+    ),
+  );
+  gh.singleton<_i147.SidebarRepository>(
+    () => _i782.SidebarRepoImpl(
+      gh<_i820.SidebarDatasource>(),
+      gh<_i310.SidebarLocalDatasource>(),
+    ),
+  );
+  gh.lazySingleton<_i944.PickupOrderAnalysisBloc>(
+    () => _i944.PickupOrderAnalysisBloc(
+      fetchPickupOrderAnalysisUsecase:
+          gh<_i409.FetchPickupOrderAnalysisUsecase>(),
+    ),
+  );
+  gh.factory<_i587.NoticeBloc>(
+    () => _i587.NoticeBloc(
+      gh<_i83.NoticeListUsecase>(),
+      gh<_i109.MarkReadNoticeUsecase>(),
+    ),
+  );
+  gh.factory<_i626.OrderBloc>(
+    () => _i626.OrderBloc(
+      fetchOrdersUseCase: gh<_i340.FetchOrdersUseCase>(),
+      createOrderUseCase: gh<_i353.CreateOrderUseCase>(),
+    ),
+  );
+  gh.factory<_i117.DailyTransactionBloc>(
+    () => _i117.DailyTransactionBloc(gh<_i7.FetchDailyTransactionUsecase>()),
+  );
+  gh.lazySingleton<_i327.CreateStaffBloc>(
+    () => _i327.CreateStaffBloc(gh<_i472.CreateStaffUsecase>()),
+  );
+  gh.factory<_i11.CommentsBloc>(
+    () => _i11.CommentsBloc(
+      todaysCommentsUsecase: gh<_i427.TodaysCommentsUsecase>(),
+      allCommentsUsecase: gh<_i932.AllCommentsUsecase>(),
+      filteredCommentsUsecase: gh<_i625.FilteredCommentsUsecase>(),
+      commentReplyUsecase: gh<_i383.CommentReplyUsecase>(),
+      createCommentOrderdetailUsecase:
+          gh<_i350.CreateCommentOrderdetailUsecase>(),
+      replyCommentOrderDetailUsecase:
+          gh<_i942.ReplyCommentOrderDetailUsecase>(),
+    ),
+  );
+  gh.singleton<_i365.AuthBloc>(
+    () => _i365.AuthBloc(
+      loginUseCase: gh<_i634.LoginUseCase>(),
+      logoutUseCase: gh<_i357.LogoutUseCase>(),
+      getCurrentUserUseCase: gh<_i277.GetCurrentUserUseCase>(),
+      changePasswordUsecase: gh<_i385.ChangePasswordUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i414.CodTransferListUsecase>(
+    () => _i414.CodTransferListUsecase(gh<_i646.CodTransferRepo>()),
+  );
+  gh.lazySingleton<_i780.FetchVendorMessageListUsecase>(
+    () => _i780.FetchVendorMessageListUsecase(
+      repository: gh<_i962.VendorMessageRepository>(),
+    ),
+  );
+  gh.lazySingleton<_i527.MarkAsReadMessageUsecase>(
+    () => _i527.MarkAsReadMessageUsecase(
+      repository: gh<_i962.VendorMessageRepository>(),
+    ),
+  );
+  gh.lazySingleton<_i365.VendorInfoUsecase>(
+    () => _i365.VendorInfoUsecase(gh<_i749.VendorInfoRepo>()),
+  );
+  gh.lazySingleton<_i119.VendorUpdateUsecase>(
+    () => _i119.VendorUpdateUsecase(gh<_i749.VendorInfoRepo>()),
+  );
+  gh.factory<_i218.FrequentlyUsedPaymentMethodBloc>(
+    () => _i218.FrequentlyUsedPaymentMethodBloc(
+      gh<_i935.FetchFrequentlyUsedPaymentUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i431.CustomerDetailUsecase>(
+    () => _i431.CustomerDetailUsecase(gh<_i894.CustomerRepo>()),
+  );
+  gh.lazySingleton<_i25.CustomerListUseCase>(
+    () => _i25.CustomerListUseCase(gh<_i894.CustomerRepo>()),
+  );
+  gh.factory<_i459.CodTransferBloc>(
+    () => _i459.CodTransferBloc(
+      codTransferListUsecase: gh<_i414.CodTransferListUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i409.VendorMessageBloc>(
+    () => _i409.VendorMessageBloc(
+      gh<_i780.FetchVendorMessageListUsecase>(),
+      gh<_i527.MarkAsReadMessageUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i809.SidebarUsecase>(
+    () => _i809.SidebarUsecase(gh<_i147.SidebarRepository>()),
+  );
+  gh.lazySingleton<_i809.GetCachedSidebarUsecase>(
+    () => _i809.GetCachedSidebarUsecase(gh<_i147.SidebarRepository>()),
+  );
+  gh.lazySingleton<_i809.ClearSidebarCacheUsecase>(
+    () => _i809.ClearSidebarCacheUsecase(gh<_i147.SidebarRepository>()),
+  );
+  gh.lazySingleton<_i982.EditStaffInfoBloc>(
+    () => _i982.EditStaffInfoBloc(
+      editStaffInfoUsecase: gh<_i469.EditStaffInfoUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i783.ExtraMileageApprovalBloc>(
+    () => _i783.ExtraMileageApprovalBloc(
+      gh<_i715.ApproveExtraMileageUsecase>(),
+      gh<_i835.DeclineExtraMileageUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i913.SalesReportAnalysisBloc>(
+    () => _i913.SalesReportAnalysisBloc(
+      gh<_i877.FetchSalesReportAnalysisUsecase>(),
+    ),
+  );
+  gh.factory<_i488.TicketBloc>(
+    () => _i488.TicketBloc(
+      ticketsListUseCase: gh<_i457.TicketsListUseCase>(),
+      createTicketUseCase: gh<_i1050.CreateTicketUseCase>(),
+    ),
+  );
+  gh.lazySingleton<_i300.DeliveryReportAnalysisBloc>(
+    () => _i300.DeliveryReportAnalysisBloc(
+      fetchDeliveryReportUsecase: gh<_i522.FetchDeliveryReportUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i417.ServiceStationBloc>(
+    () => _i417.ServiceStationBloc(
+      fetchServiceStationUsecase: gh<_i617.FetchServiceStationUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i842.BranchReportAnalysisBloc>(
+    () => _i842.BranchReportAnalysisBloc(
+      fetchBranchReportAnalysisUsecase:
+          gh<_i117.FetchBranchReportAnalysisUsecase>(),
+    ),
+  );
+  gh.factory<_i246.CustomerListBloc>(
+    () => _i246.CustomerListBloc(gh<_i25.CustomerListUseCase>()),
+  );
+  gh.factory<_i437.HeadOfficeContactsBloc>(
+    () => _i437.HeadOfficeContactsBloc(
+      fetchHeadofficeUsecase: gh<_i612.FetchHeadofficeUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i74.VendorInfoBloc>(
+    () => _i74.VendorInfoBloc(
+      vendorInfoUsecase: gh<_i365.VendorInfoUsecase>(),
+      vendorUpdateUsecase: gh<_i119.VendorUpdateUsecase>(),
+    ),
+  );
+  gh.factory<_i989.CustomerDetailBloc>(
+    () => _i989.CustomerDetailBloc(gh<_i431.CustomerDetailUsecase>()),
+  );
+  gh.lazySingleton<_i932.SidebarBloc>(
+    () => _i932.SidebarBloc(
+      gh<_i809.SidebarUsecase>(),
+      gh<_i809.GetCachedSidebarUsecase>(),
+      gh<_i809.ClearSidebarCacheUsecase>(),
+    ),
+  );
+  return getIt;
 }
 
 class _$RegisterModule extends _i769.RegisterModule {}

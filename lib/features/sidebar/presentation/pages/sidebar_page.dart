@@ -1,6 +1,8 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_bloc.dart';
 import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_event.dart';
 import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_state.dart';
@@ -23,6 +25,9 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
   @override
   void initState() {
     super.initState();
+    // Load cached data first for instant UI
+    context.read<SidebarBloc>().add(LoadCachedSidebarDataEvent());
+    // Then fetch fresh data from server
     context.read<SidebarBloc>().add(FetchSidebarDataEvent());
   }
 
@@ -82,28 +87,33 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              vendorName,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
+                        child: InkWell(
+                          onTap: () {
+                         context.router.push(const VendorInfoRoute());
+                        },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                vendorName,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Vendor Dashboard',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.6,
+                              const SizedBox(height: 4),
+                              Text(
+                                'Vendor Dashboard',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -111,7 +121,6 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                 );
               },
             ),
-            // Menu Items
             Expanded(
               child: BlocBuilder<SidebarBloc, SidebarState>(
                 builder: (context, state) {
@@ -143,7 +152,6 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                               context,
                             );
                             
-                            // Check if item has subitems
                             final hasSubItems = item.subItems != null && item.subItems!.isNotEmpty;
                             final isExpanded = _expandedItems[item.name] ?? false;
                             
@@ -274,6 +282,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
+              context.read<SidebarBloc>().add(ClearSidebarCacheEvent());
               context.read<AuthBloc>().add(AuthLogoutRequested());
             },
             style: TextButton.styleFrom(
@@ -295,15 +304,18 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
     return subItems
         .where((item) => item.hasAccess)
         .map((subItem) {
+          final config = SidebarConfig.getConfigByName(
+            subItem.name,
+            context,
+          );
+          
           return Padding(
             padding: const EdgeInsets.only(left: 32, right: 16, top: 2, bottom: 2),
             child: Material(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(8),
               child: InkWell(
-                onTap: () {
-                  // Handle subitem navigation
-                },
+                onTap: config.onTap,
                 borderRadius: BorderRadius.circular(8),
                 splashColor: colorScheme.primary.withValues(alpha: 0.08),
                 highlightColor: colorScheme.primary.withValues(alpha: 0.05),
@@ -312,13 +324,10 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Row(
                     children: [
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary,
-                          shape: BoxShape.circle,
-                        ),
+                      Icon(
+                        config.icon,
+                        size: 18,
+                        color: colorScheme.primary,
                       ),
                       const SizedBox(width: 12),
                       Expanded(

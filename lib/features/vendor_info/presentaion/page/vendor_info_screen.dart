@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/domain/entity/vendor_info_entity.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart';
@@ -67,7 +68,6 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
             final vendor = state.vendorInfo;
             final location = vendor.vendorLocation;
 
-            // Create marker for the vendor location
             if (location.coordinates.length >= 2) {
               final latLng = LatLng(
                 location.coordinates[1],
@@ -100,13 +100,10 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile Section
                     _buildProfileSection(vendor, theme, colors),
 
-                    // Contact Information
                     _buildContactSection(vendor, theme, colors),
 
-                    // Map Section
                     _buildMapSection(location, theme, colors),
                   ],
                 ),
@@ -198,100 +195,99 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
     ThemeData theme,
     AdditionalColors colors,
   ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      color: theme.colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                  width: 2,
-                ),
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                width: 2,
               ),
-              child: CircleAvatar(
-                radius: 38,
-                backgroundColor: Colors.white,
-                child: vendor.profilePicture != null
-                    ? CachedNetworkImage(
-                        imageUrl: vendor.profilePicture!,
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                          radius: 38,
-                          backgroundImage: imageProvider,
-                        ),
-                        placeholder: (context, url) => CircleAvatar(
-                          radius: 38,
-                          backgroundColor: Colors.white,
-                        ),
-                        errorWidget: (context, url, error) => CircleAvatar(
-                          radius: 38,
-                          backgroundColor: Colors.white,
-                          backgroundImage: const AssetImage(
-                            'assets/default_avatar.png',
-                          ),
-                        ),
-                      )
-                    : CircleAvatar(
-                        backgroundColor: Colors.white,
+            ),
+            child: CircleAvatar(
+              radius: 38,
+              backgroundColor: Colors.white,
+              child: vendor.profilePicture != null
+                  ? CachedNetworkImage(
+                      imageUrl: vendor.profilePicture!,
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
                         radius: 38,
+                        backgroundImage: imageProvider,
+                      ),
+                      placeholder: (context, url) => CircleAvatar(
+                        radius: 38,
+                        backgroundColor: Colors.white,
+                      ),
+                      errorWidget: (context, url, error) => CircleAvatar(
+                        radius: 38,
+                        backgroundColor: Colors.white,
                         backgroundImage: const AssetImage(
                           'assets/default_avatar.png',
                         ),
                       ),
-              ),
+                    )
+                  : CircleAvatar(
+                      backgroundColor: Colors.white,
+                      radius: 38,
+                      backgroundImage: const AssetImage(
+                        'assets/default_avatar.png',
+                      ),
+                    ),
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    vendor.fullName,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  vendor.fullName,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                Row(
+                  children: [
+                    Icon(Icons.store_rounded, size: 18, color: colors.darkGray),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        vendor.primaryBranch,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.darkGray,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                InkWell(
+                  onTap: () {
+                    context.router.push(const EditProfileRoute());
+                  },
+                  child: Chip(
+                    label: Text(
+                      "Edit Info",
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.store_rounded,
-                        size: 18,
-                        color: colors.darkGray,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          vendor.primaryBranch,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colors.darkGray,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -301,74 +297,63 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
     ThemeData theme,
     AdditionalColors colors,
   ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      color: theme.colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.contact_page_rounded,
-                  color: theme.colorScheme.primary,
-                  size: 24,
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.contact_page_rounded,
+                color: theme.colorScheme.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Contact Information',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  'Contact Information',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildContactItem(
-              icon: Icons.email_rounded,
-              label: 'Email',
-              value: vendor.email,
-              theme: theme,
-              colors: colors,
-            ),
-            const SizedBox(height: 16),
-            _buildContactItem(
-              icon: Icons.phone_rounded,
-              label: 'Phone',
-              value: vendor.phoneNumber,
-              theme: theme,
-              colors: colors,
-            ),
-            const SizedBox(height: 16),
-            _buildContactItem(
-              icon: Icons.location_on_rounded,
-              label: 'Address',
-              value: vendor.address,
-              theme: theme,
-              colors: colors,
-            ),
-            if (vendor.website != null && vendor.website!.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildContactItem(
-                icon: Icons.language_rounded,
-                label: 'Website',
-                value: vendor.website!,
-                theme: theme,
-                colors: colors,
               ),
             ],
+          ),
+          const SizedBox(height: 20),
+          _buildContactItem(
+            icon: Icons.email_rounded,
+            label: 'Email',
+            value: vendor.email,
+            theme: theme,
+            colors: colors,
+          ),
+          const SizedBox(height: 16),
+          _buildContactItem(
+            icon: Icons.phone_rounded,
+            label: 'Phone',
+            value: vendor.phoneNumber,
+            theme: theme,
+            colors: colors,
+          ),
+          const SizedBox(height: 16),
+          _buildContactItem(
+            icon: Icons.location_on_rounded,
+            label: 'Address',
+            value: vendor.address,
+            theme: theme,
+            colors: colors,
+          ),
+          if (vendor.website != null && vendor.website!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildContactItem(
+              icon: Icons.language_rounded,
+              label: 'Website',
+              value: vendor.website!,
+              theme: theme,
+              colors: colors,
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -431,101 +416,90 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
     ThemeData theme,
     AdditionalColors colors,
   ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      color: theme.colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.map_rounded,
-                  color: theme.colorScheme.primary,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Location on Map',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            if (location.coordinates.length < 2)
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: colors.lightGray.withValues(alpha: 0.3),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.location_off_rounded,
-                        size: 48,
-                        color: colors.darkGray,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Location data not available',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colors.darkGray,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              Container(
-                height: 250,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: GoogleMap(
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                        location.coordinates[1],
-                        location.coordinates[0],
-                      ),
-                      zoom: 15,
-                    ),
-                    markers: _markers,
-                    zoomControlsEnabled: true,
-                    myLocationButtonEnabled: true,
-                    myLocationEnabled: true,
-                    mapType: MapType.normal,
-                    onTap: (latLng) {
-                      // Handle map taps if needed
-                    },
-                  ),
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.map_rounded,
+                color: theme.colorScheme.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Location on Map',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          if (location.coordinates.length < 2)
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: colors.lightGray.withValues(alpha: 0.3),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.location_off_rounded,
+                      size: 48,
+                      color: colors.darkGray,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Location data not available',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.darkGray,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: GoogleMap(
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      location.coordinates[1],
+                      location.coordinates[0],
+                    ),
+                    zoom: 15,
+                  ),
+                  markers: _markers,
+                  zoomControlsEnabled: true,
+                  myLocationButtonEnabled: true,
+                  myLocationEnabled: true,
+                  mapType: MapType.normal,
+                  onTap: (latLng) {
+                    // Handle map taps if needed
+                  },
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

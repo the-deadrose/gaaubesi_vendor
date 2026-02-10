@@ -2,6 +2,15 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 
+void _showComingSoon(BuildContext context, String featureName) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('$featureName is coming soon!'),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
 class SidebarItemConfig {
   final String name;
   final IconData icon;
@@ -25,20 +34,20 @@ class SidebarConfig {
             Navigator.pop(context);
           },
         );
-      // case 'Your Orders':
-      //   return SidebarItemConfig(
-      //     name: name,
-      //     icon: Icons.assignment,
-      //     onTap: () {
-      //       context.router.push(OrdersRoute());
-      //     },
-      //   );
+      case 'Your Orders':
+        return SidebarItemConfig(
+          name: name,
+          icon: Icons.assignment,
+          onTap: () {
+            _showComingSoon(context, 'Your Orders');
+          },
+        );
       case 'Orders':
         return SidebarItemConfig(
           name: name,
           icon: Icons.shopping_cart,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 0));
           },
         );
       case 'Warehouse':
@@ -46,24 +55,23 @@ class SidebarConfig {
           name: name,
           icon: Icons.warehouse,
           onTap: () {
-            // context.router.push(WarehouseRoute());
+            context.router.push(OrdersRoute(initialTab: 5));
           },
         );
-      // case 'Special Holded Orders':
-      //   return SidebarItemConfig(
-      //     name: name,
-      //     icon: Icons.hourglass_bottom,
-      //     onTap: () {
-      //       // Add navigation here
-      //     },
-      //   );
+      case 'Special Holded Orders':
+        return SidebarItemConfig(
+          name: name,
+          icon: Icons.hourglass_bottom,
+          onTap: () {
+            _showComingSoon(context, 'Special Holded Orders');
+          },
+        );
       case 'RTVs':
         return SidebarItemConfig(
           name: name,
           icon: Icons.undo,
           onTap: () {
-            context.router.push(OrdersRoute());
-
+            context.router.push(OrdersRoute(initialTab: 4));
           },
         );
       case 'Delivered':
@@ -71,7 +79,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.check_circle,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 1));
           },
         );
       case 'Possible Redirect':
@@ -79,7 +87,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.trending_flat,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 2));
           },
         );
       case 'Your Customers':
@@ -90,14 +98,14 @@ class SidebarConfig {
             context.router.push(const CustomerListRoute());
           },
         );
-      // case 'Utilities':
-      //   return SidebarItemConfig(
-      //     name: name,
-      //     icon: Icons.settings_applications,
-      //     onTap: () {
-      //       // Add navigation here
-      //     },
-      //   );
+      case 'Utilities':
+        return SidebarItemConfig(
+          name: name,
+          icon: Icons.settings_applications,
+          onTap: () {
+            _showComingSoon(context, 'Utilities');
+          },
+        );
       case 'Tickets':
         return SidebarItemConfig(
           name: name,
@@ -127,7 +135,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.access_time,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 6));
           },
         );
       case 'Redirected Orders':
@@ -135,7 +143,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.trending_flat,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 7));
           },
         );
       case 'Redirected Orders Today':
@@ -143,7 +151,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.today,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 8));
           },
         );
       case 'Returned Orders':
@@ -151,7 +159,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.keyboard_return,
           onTap: () {
-            context.router.push(OrdersRoute());
+            context.router.push(OrdersRoute(initialTab: 3));
           },
         );
       case 'Comments':
@@ -175,7 +183,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.payment,
           onTap: () {
-            // context.router.push(const VendorPaymentsRoute());
+            context.router.push(const PaymentRequestListRoute());
           },
         );
       case 'COD Payments':
@@ -183,7 +191,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.attach_money,
           onTap: () {
-            // context.router.push(const VendorCODPaymentsRoute());
+            context.router.push(const CodTransferListRoute());
           },
         );
       case 'Payment Tickets':
@@ -191,7 +199,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.receipt,
           onTap: () {
-            // Add navigation here
+            context.router.push(const PaymentRequestListRoute());
           },
         );
       case 'Daily Transactions':
@@ -199,7 +207,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.history,
           onTap: () {
-            // Add navigation here
+            context.router.push(DailyTransactionRoute());
           },
         );
       case 'Analysis':
@@ -207,7 +215,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.analytics,
           onTap: () {
-            // Add navigation here
+            _showComingSoon(context, 'Analysis');
           },
         );
       case 'Today\'s Details':
@@ -215,7 +223,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.details,
           onTap: () {
-            // Add navigation here
+            _showComingSoon(context, 'Today\'s Details');
           },
         );
       case 'Pickup By Date':
@@ -223,7 +231,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.calendar_today,
           onTap: () {
-            // Add navigation here
+            context.router.push(const PickupOrderAnalysisRoute());
           },
         );
       case 'Sales Report':
@@ -231,7 +239,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.trending_up,
           onTap: () {
-            // Add navigation here
+            context.router.push(const SalesReportAnalysisRoute());
           },
         );
       case 'Delivery Report':
@@ -239,7 +247,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.local_shipping,
           onTap: () {
-            // Add navigation here
+            context.router.push(const DeliveryReportAnalysisRoute());
           },
         );
       case 'Branch Analysis':
@@ -247,7 +255,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.store,
           onTap: () {
-            // Add navigation here
+            context.router.push(const BranchReportAnalysisRoute());
           },
         );
       case 'Staffs':
@@ -263,7 +271,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.folder_open,
           onTap: () {
-            // Add navigation here
+            _showComingSoon(context, 'Resources');
           },
         );
       case 'Extra Mileage':
@@ -271,7 +279,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.route,
           onTap: () {
-           context.router.push(const ExtraMileageRoute());
+            context.router.push(const ExtraMileageRoute());
           },
         );
       case 'GBL Contacts':
@@ -279,7 +287,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.contacts,
           onTap: () {
-            // Add navigation here
+            _showComingSoon(context, 'GBL Contacts');
           },
         );
       case 'Service Stations':
@@ -287,7 +295,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.handyman,
           onTap: () {
-         context.router.push(const ServiceStationRoute());
+            context.router.push(const ServiceStationRoute());
           },
         );
       case 'Head Office':
@@ -295,7 +303,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.business,
           onTap: () {
-           context.router.push(const HeadOfficeContactsRoute());
+            context.router.push(const HeadOfficeContactsRoute());
           },
         );
       case 'Redirect Stations':
@@ -303,7 +311,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.transit_enterexit,
           onTap: () {
-            // Add navigation here
+            context.router.push(const RedirectStationListRoute());
           },
         );
       case 'Sub Branches':
@@ -311,17 +319,11 @@ class SidebarConfig {
           name: name,
           icon: Icons.multiple_stop,
           onTap: () {
-           
+            _showComingSoon(context, 'Sub Branches');
           },
         );
       default:
-        return SidebarItemConfig(
-          name: name,
-          icon: Icons.apps,
-          onTap: () {
-            Navigator.pop(context);
-          },
-        );
+        return SidebarItemConfig(name: name, icon: Icons.apps, onTap: () {});
     }
   }
 }

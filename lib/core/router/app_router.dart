@@ -275,8 +275,8 @@ extension AppRoutesExtension on AppRouter {
   static const String dailyTransaction = '/daily-transaction';
   static const String todaysRedirectedOrders = '/todays-redirected-orders';
   static const String calculateDeliveryCharge = '/calculate-delivery-charge';
-  static const String orderDetail = '/payment-request';
-  static const String redirectedOrders = '/payment-request-list';
+  static const String paymentRequest = '/payment-request';
+  static const String paymentRequestList = '/payment-request-list';
   static const String vendorMessages = '/vendor-messages';
   static const String customerDetail = '/customer-detail';
   static const String vendorInfo = '/vendor-info';

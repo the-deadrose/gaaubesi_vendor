@@ -7,7 +7,6 @@ import 'package:injectable/injectable.dart';
 
 
 @lazySingleton
-
 class SidebarUsecase extends UseCase<List<SideBarEntity>, NoParams> {
   final SidebarRepository _sidebarRepository;
 
@@ -16,5 +15,34 @@ class SidebarUsecase extends UseCase<List<SideBarEntity>, NoParams> {
   @override
   Future<Either<Failure, List<SideBarEntity>>> call(NoParams params) {
     return _sidebarRepository.getSidebarData();
+  }
+}
+
+@lazySingleton
+class GetCachedSidebarUsecase extends UseCase<List<SideBarEntity>, NoParams> {
+  final SidebarRepository _sidebarRepository;
+
+  GetCachedSidebarUsecase(this._sidebarRepository);
+
+  @override
+  Future<Either<Failure, List<SideBarEntity>>> call(NoParams params) {
+    return _sidebarRepository.getCachedSidebarData();
+  }
+}
+
+@lazySingleton
+class ClearSidebarCacheUsecase extends UseCase<void, NoParams> {
+  final SidebarRepository _sidebarRepository;
+
+  ClearSidebarCacheUsecase(this._sidebarRepository);
+
+  @override
+  Future<Either<Failure, void>> call(NoParams params) async {
+    try {
+      await _sidebarRepository.clearSidebarCache();
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }
