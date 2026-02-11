@@ -2,10 +2,12 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
+import 'package:gaaubesi_vendor/core/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/stale_orders_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/stale_order_card.dart';
 
 class StaleOrderListSliver extends StatelessWidget {
   const StaleOrderListSliver({super.key});
@@ -15,9 +17,7 @@ class StaleOrderListSliver extends StatelessWidget {
     return BlocBuilder<StaleOrderBloc, StaleOrderState>(
       builder: (context, state) {
         if (state is StaleOrderLoading) {
-          return const SliverFillRemaining(
-            child: Center(child: CircularProgressIndicator()),
-          );
+          return _buildShimmerLoading();
         }
 
         if (state is StaleOrderError) {
@@ -72,18 +72,11 @@ class StaleOrderListSliver extends StatelessWidget {
             (context, index) {
               if (index < orders.length) {
                 final order = orders[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(order.orderIdWithStatus),
-                      subtitle: Text(order.receiverName),
-                      trailing: Text(order.lastDeliveryStatus),
-                      onTap: () {
-                        context.router.push(OrderDetailRoute(orderId: order.orderId));
-                      },
-                    ),
-                  ),
+                return StaleOrderCard(
+                  order: order,
+                  onTap: () {
+                    context.router.push(OrderDetailRoute(orderId: order.orderId));
+                  },
                 );
               } else if (isLoadingMore) {
                 return const Padding(
@@ -97,6 +90,79 @@ class StaleOrderListSliver extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        height: 16,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: AppTheme.lightGray,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        height: 16,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: AppTheme.lightGray,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 12,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 12,
+                    width: 150,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 12,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightGray,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        childCount: 3,
+      ),
     );
   }
 }

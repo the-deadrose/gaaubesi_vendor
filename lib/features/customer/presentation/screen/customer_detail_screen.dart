@@ -52,61 +52,60 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        elevation: 0,
+        title: BlocBuilder<CustomerDetailBloc, CustomerDetailState>(
+          builder: (context, state) {
+            if (state is CustomerDetailLoaded) {
+              return Text(
+                'Customer Details',
+              
+              );
+            }
+            return Text(
+              'Loading...',
+              style: TextStyle(color: theme.colorScheme.onSurface),
+            );
+          },
+        ),
+        centerTitle: true,
+      ),
       body: BlocConsumer<CustomerDetailBloc, CustomerDetailState>(
         listener: (context, state) {},
         builder: (context, state) {
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 180,
-                pinned: true,
-                backgroundColor: theme.colorScheme.surface,
-                foregroundColor: theme.colorScheme.onSurface,
-                elevation: 0,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: state is CustomerDetailLoaded
-                      ? Text(
-                          "",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        )
-                      : Text(
-                          'Customer Details',
-                          style: TextStyle(color: theme.colorScheme.onSurface),
-                        ),
-                  background: Container(
-                    color: theme.colorScheme.surface,
-                    child: state is CustomerDetailLoaded
-                        ? _buildProfileHeader(state.customerDetail)
-                        : _buildShimmerHeader(),
-                  ),
-                ),
-                actions: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.refresh,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    onPressed: _refreshData,
-                  ),
-                ],
-              ),
-              SliverToBoxAdapter(child: _buildContent(state)),
-            ],
+          return SingleChildScrollView(
+            child: Column(
+              children: [_buildProfileHeader(state), _buildContent(state)],
+            ),
           );
         },
       ),
     );
   }
 
-  Widget _buildProfileHeader(CustomerDetailEntity customer) {
+  Widget _buildProfileHeader(CustomerDetailState state) {
+    if (state is CustomerDetailLoaded) {
+      return _buildProfileHeaderContent(state.customerDetail);
+    }
+    return _buildShimmerHeader();
+  }
+
+  Widget _buildProfileHeaderContent(CustomerDetailEntity customer) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -198,7 +197,16 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     final highlightColor = theme.colorScheme.onSurface.withValues(alpha: 0.1);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -802,24 +810,31 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
     required String label,
     required String value,
   }) {
-    Theme.of(context);
+    final theme = Theme.of(context);
 
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.black),
+        Icon(
+          icon,
+          size: 16,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+        ),
         const SizedBox(width: 8),
         Text(
           '$label: ',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.black,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: TextStyle(fontSize: 14, color: Colors.black),
+            style: TextStyle(
+              fontSize: 14,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

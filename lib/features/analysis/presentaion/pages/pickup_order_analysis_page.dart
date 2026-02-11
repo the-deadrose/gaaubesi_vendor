@@ -479,71 +479,77 @@ class _PickupOrderAnalysisScreenState extends State<PickupOrderAnalysisScreen> {
   }
 
   Widget _buildShimmerLoading() {
-    return ListView.builder(
+    return Padding(
       padding: const EdgeInsets.all(16),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return _buildShimmerCard();
-      },
-    );
-  }
-
-  Widget _buildShimmerCard() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 20,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppTheme.lightGray,
-              borderRadius: BorderRadius.circular(4),
+        children: List.generate(
+          3,
+          (index) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: AppTheme.lightGray,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 16,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: AppTheme.lightGray,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              height: 12,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                color: AppTheme.lightGray,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 32,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: AppTheme.lightGray,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          Container(
-            height: 16,
-            width: 200,
-            decoration: BoxDecoration(
-              color: AppTheme.lightGray,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            height: 12,
-            width: 150,
-            decoration: BoxDecoration(
-              color: AppTheme.lightGray,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildFilteringView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(color: AppTheme.marianBlue),
-          const SizedBox(height: 16),
-          Text(
-            'Analyzing data...',
-            style: TextStyle(fontSize: 16, color: AppTheme.blackBean),
-          ),
-        ],
-      ),
-    );
+    return _buildShimmerLoading();
   }
 
   Widget _buildAnalysisView(PickupOrderAnalysisEntity analysis) {

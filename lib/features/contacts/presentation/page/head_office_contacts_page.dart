@@ -15,13 +15,34 @@ class HeadOfficeContactsPage extends StatefulWidget {
   State<HeadOfficeContactsPage> createState() => _HeadOfficeContactsPageState();
 }
 
-class _HeadOfficeContactsPageState extends State<HeadOfficeContactsPage> {
+class _HeadOfficeContactsPageState extends State<HeadOfficeContactsPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _shimmerController;
+  late Animation<Color?> _shimmerAnimation;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchInitialData();
     });
+
+    // Initialize shimmer animation
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _shimmerAnimation = ColorTween(
+      begin: Colors.grey.shade300,
+      end: Colors.grey.shade100,
+    ).animate(_shimmerController);
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    super.dispose();
   }
 
   void _fetchInitialData() {
@@ -70,7 +91,7 @@ class _HeadOfficeContactsPageState extends State<HeadOfficeContactsPage> {
 
   Widget _buildContent(HeadOfficeContactsState state) {
     if (state is HeadOfficeContactsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildShimmerLoading();
     }
 
     if (state is HeadOfficeContactsError) {
@@ -115,7 +136,161 @@ class _HeadOfficeContactsPageState extends State<HeadOfficeContactsPage> {
       return _buildLoadedContent(state.headOfficeContacts);
     }
 
-    return const Center(child: CircularProgressIndicator());
+    return _buildShimmerLoading();
+  }
+
+  Widget _buildShimmerLoading() {
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: 6, // Number of shimmer sections
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          return _buildShimmerSection();
+        },
+      ),
+    );
+  }
+
+  Widget _buildShimmerSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Shimmer section header
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Row(
+            children: [
+              AnimatedBuilder(
+                animation: _shimmerAnimation,
+                builder: (context, child) {
+                  return Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: _shimmerAnimation.value,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: _shimmerAnimation,
+                  builder: (context, child) {
+                    return Container(
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: _shimmerAnimation.value,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              AnimatedBuilder(
+                animation: _shimmerAnimation,
+                builder: (context, child) {
+                  return Container(
+                    width: 70,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: _shimmerAnimation.value,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        // Shimmer contacts list
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: 3, // Number of shimmer contact items
+            separatorBuilder: (context, index) => Divider(
+              height: 1,
+              color: Colors.grey.shade200,
+              indent: 16,
+              endIndent: 16,
+            ),
+            itemBuilder: (context, index) {
+              return _buildShimmerContactItem();
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShimmerContactItem() {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: AnimatedBuilder(
+        animation: _shimmerAnimation,
+        builder: (context, child) {
+          return Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _shimmerAnimation.value,
+              shape: BoxShape.circle,
+            ),
+          );
+        },
+      ),
+      title: AnimatedBuilder(
+        animation: _shimmerAnimation,
+        builder: (context, child) {
+          return Container(
+            height: 16,
+            width: 120,
+            decoration: BoxDecoration(
+              color: _shimmerAnimation.value,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          );
+        },
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: AnimatedBuilder(
+          animation: _shimmerAnimation,
+          builder: (context, child) {
+            return Container(
+              height: 14,
+              width: 100,
+              decoration: BoxDecoration(
+                color: _shimmerAnimation.value,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            );
+          },
+        ),
+      ),
+      trailing: AnimatedBuilder(
+        animation: _shimmerAnimation,
+        builder: (context, child) {
+          return Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: _shimmerAnimation.value,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildLoadedContent(HeadOfficeContactEntity headOfficeContacts) {

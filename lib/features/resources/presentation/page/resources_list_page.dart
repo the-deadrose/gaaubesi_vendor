@@ -15,8 +15,10 @@ class ResourcesListScreen extends StatefulWidget {
   State<ResourcesListScreen> createState() => _ResourcesListScreenState();
 }
 
-class _ResourcesListScreenState extends State<ResourcesListScreen> {
+class _ResourcesListScreenState extends State<ResourcesListScreen>
+    with SingleTickerProviderStateMixin {
   late ScrollController _scrollController;
+  late AnimationController _shimmerController;
 
   @override
   void initState() {
@@ -24,13 +26,17 @@ class _ResourcesListScreenState extends State<ResourcesListScreen> {
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     context.read<ResourcesListBloc>().add(
-      const FetchResourcesListEvent(page: '1'),
-    );
+          const FetchResourcesListEvent(page: '1'),
+        );
+    
+    _shimmerController = AnimationController.unbounded(vsync: this)
+      ..repeat(min: -0.5, max: 1.5, period: const Duration(milliseconds: 1200));
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -38,8 +44,8 @@ class _ResourcesListScreenState extends State<ResourcesListScreen> {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       context.read<ResourcesListBloc>().add(
-        const LoadMoreResourcesEvent(page: '1'),
-      );
+            const LoadMoreResourcesEvent(page: '1'),
+          );
     }
   }
 
@@ -105,7 +111,9 @@ class _ResourcesListScreenState extends State<ResourcesListScreen> {
       body: BlocBuilder<ResourcesListBloc, ResourcesListState>(
         builder: (context, state) {
           if (state is ResourcesListLoadingState) {
-            return const Center(child: CircularProgressIndicator());
+            return _CustomShimmerLoading(
+              shimmerController: _shimmerController,
+            );
           }
 
           if (state is ResourcesListErrorState) {
@@ -118,8 +126,8 @@ class _ResourcesListScreenState extends State<ResourcesListScreen> {
                   ElevatedButton(
                     onPressed: () {
                       context.read<ResourcesListBloc>().add(
-                        const FetchResourcesListEvent(page: '1'),
-                      );
+                            const FetchResourcesListEvent(page: '1'),
+                          );
                     },
                     child: const Text('Retry'),
                   ),
@@ -155,6 +163,137 @@ class _ResourcesListScreenState extends State<ResourcesListScreen> {
   }
 }
 
+class _CustomShimmerLoading extends StatelessWidget {
+  final Animation<double> shimmerController;
+
+  const _CustomShimmerLoading({
+    Key? key,
+    required this.shimmerController,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: 8,
+      itemBuilder: (context, index) {
+        return AnimatedBuilder(
+          animation: shimmerController,
+          builder: (context, child) {
+            return _ShimmerItem(
+              value: shimmerController.value,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _ShimmerItem extends StatelessWidget {
+  final double value;
+
+  const _ShimmerItem({
+    Key? key,
+    required this.value,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Title shimmer
+              Expanded(
+                child: _ShimmerContainer(
+                  width: double.infinity,
+                  height: 20,
+                  value: value,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Chevron icon placeholder
+              _ShimmerContainer(
+                width: 24,
+                height: 24,
+                value: value,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Description line 1
+          _ShimmerContainer(
+            width: double.infinity,
+            height: 16,
+            value: value,
+          ),
+          const SizedBox(height: 8),
+          // Description line 2
+          _ShimmerContainer(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: 16,
+            value: value,
+          ),
+          const SizedBox(height: 16),
+          // Divider
+          Container(
+            height: 1,
+            color: Colors.grey.withValues(alpha: 0.3),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShimmerContainer extends StatelessWidget {
+  final double width;
+  final double height;
+  final double value;
+
+  const _ShimmerContainer({
+    Key? key,
+    required this.width,
+    required this.height,
+    required this.value,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4.0),
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey[300]!,
+            Colors.grey[100]!,
+            Colors.grey[300]!,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+          transform: _ShimmerGradientTransform(value),
+        ),
+      ),
+    );
+  }
+}
+
+class _ShimmerGradientTransform extends GradientTransform {
+  final double value;
+
+  const _ShimmerGradientTransform(this.value);
+
+  @override
+  Matrix4 transform(Rect bounds, {TextDirection? textDirection}) {
+    final width = bounds.width;
+    return Matrix4.translationValues(width * value, 0, 0);
+  }
+}
+
 class _ResourceItemWidget extends StatelessWidget {
   final ResourceItemEntity resource;
   final VoidCallback onTap;
@@ -180,8 +319,8 @@ class _ResourceItemWidget extends StatelessWidget {
                   child: Text(
                     resource.title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -193,8 +332,7 @@ class _ResourceItemWidget extends StatelessWidget {
               resource.description,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Divider(color: Colors.grey.withValues(alpha: 0.3), thickness: 1),
           ],
         ),

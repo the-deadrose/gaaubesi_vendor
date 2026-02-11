@@ -130,212 +130,237 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     );
   }
 
-  void _showFilterDialog() {
-    String tempStatus = _selectedStatus;
-    DateTime? tempStartDate = _selectedStartDate;
-    DateTime? tempEndDate = _selectedEndDate;
-
-    showModalBottomSheet(
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final pickedDate = await showDatePicker(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Filters',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withValues(alpha:  0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close_rounded,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 1,
-                      color: Colors.grey.withValues(alpha:  0.2),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildFilterSection(
-                              title: 'Status',
-                              children: [
-                                _FilterChip(
-                                  label: 'All',
-                                  selected: tempStatus == '',
-                                  onSelected: (selected) {
-                                    setModalState(() => tempStatus = '');
-                                  },
-                                  icon: Icons.all_inclusive_rounded,
-                                ),
-                                _FilterChip(
-                                  label: 'Pending',
-                                  selected: tempStatus == 'pending',
-                                  onSelected: (selected) {
-                                    setModalState(() => tempStatus = 'pending');
-                                  },
-                                  icon: Icons.access_time_rounded,
-                                  color: Colors.orange,
-                                ),
-                                _FilterChip(
-                                  label: 'Approved',
-                                  selected: tempStatus == 'approved',
-                                  onSelected: (selected) {
-                                    setModalState(() => tempStatus = 'approved');
-                                  },
-                                  icon: Icons.check_circle_rounded,
-                                  color: Colors.green,
-                                ),
-                                _FilterChip(
-                                  label: 'Rejected',
-                                  selected: tempStatus == 'rejected',
-                                  onSelected: (selected) {
-                                    setModalState(() => tempStatus = 'rejected');
-                                  },
-                                  icon: Icons.cancel_rounded,
-                                  color: Colors.red,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            _buildFilterSection(
-                              title: 'Date Range',
-                              children: [
-                                _DatePickerChip(
-                                  label: 'Start Date',
-                                  date: tempStartDate,
-                                  onDatePicked: (date) {
-                                    setModalState(() => tempStartDate = date);
-                                  },
-                                ),
-                                const SizedBox(width: 8),
-                                _DatePickerChip(
-                                  label: 'End Date',
-                                  date: tempEndDate,
-                                  onDatePicked: (date) {
-                                    setModalState(() => tempEndDate = date);
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.grey.withValues(alpha:  0.2),
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                setModalState(() {
-                                  tempStatus = '';
-                                  tempStartDate = null;
-                                  tempEndDate = null;
-                                });
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                side: BorderSide(
-                                  color: Colors.grey.withValues(alpha:  0.3),
-                                ),
-                              ),
-                              child: const Text('Reset All'),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedStatus = tempStatus;
-                                  _selectedStartDate = tempStartDate;
-                                  _selectedEndDate = tempEndDate;
-                                });
-                                Navigator.pop(context);
-                                _applyFilters();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: const Text('Apply Filters'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+      initialDate: isStartDate
+          ? (_selectedStartDate ?? DateTime.now())
+          : (_selectedEndDate ?? DateTime.now()),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary,
+              onPrimary: Colors.white,
+              surface: Theme.of(context).colorScheme.surface,
+              onSurface: Theme.of(context).colorScheme.onSurface,
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+            ),
+          ),
+          child: child!,
         );
       },
     );
+    if (pickedDate != null) {
+      setState(() {
+        if (isStartDate) {
+          _selectedStartDate = pickedDate;
+        } else {
+          _selectedEndDate = pickedDate;
+        }
+      });
+      _applyFilters();
+    }
   }
 
-  Widget _buildFilterChips() {
+  Widget _buildStatusChips() {
+    const statuses = [
+      {'value': '', 'label': 'All', 'icon': Icons.all_inclusive_rounded},
+      {
+        'value': 'pending',
+        'label': 'Pending',
+        'icon': Icons.access_time_rounded,
+      },
+      {
+        'value': 'approved',
+        'label': 'Approved',
+        'icon': Icons.check_circle_rounded,
+      },
+      {'value': 'rejected', 'label': 'Rejected', 'icon': Icons.cancel_rounded},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: statuses.map((status) {
+          final isSelected = _selectedStatus == (status['value'] as String?);
+          final color = Theme.of(context).colorScheme.primary;
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    status['icon'] as IconData,
+                    size: 16,
+                    color: isSelected ? Colors.white : color,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    status['label'] as String,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? Colors.white : color,
+                    ),
+                  ),
+                ],
+              ),
+              selected: isSelected,
+              onSelected: (selected) {
+                setState(() {
+                  _selectedStatus = status['value'] as String;
+                });
+                _applyFilters();
+              },
+              backgroundColor: color.withValues(alpha: 0.1),
+              selectedColor: color,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: color.withValues(alpha: isSelected ? 0 : 0.3),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildDateFilterSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+          bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Date Range',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDatePickerButton(
+                  label: 'Start Date',
+                  date: _selectedStartDate,
+                  isStartDate: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildDatePickerButton(
+                  label: 'End Date',
+                  date: _selectedEndDate,
+                  isStartDate: false,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_selectedStartDate != null || _selectedEndDate != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _clearDateFilter,
+                child: const Text('Clear Date Filter'),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDatePickerButton({
+    required String label,
+    required DateTime? date,
+    required bool isStartDate,
+  }) {
+    return GestureDetector(
+      onTap: () => _selectDate(context, isStartDate),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: date != null
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+              : Colors.grey.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: date != null
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+                : Colors.grey.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_rounded,
+                  size: 16,
+                  color: date != null
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.grey[600],
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  date != null ? DateFormat('dd/MM/yyyy').format(date) : label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: date != null
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: date != null
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+            if (date != null)
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (isStartDate) {
+                      _selectedStartDate = null;
+                    } else {
+                      _selectedEndDate = null;
+                    }
+                  });
+                  _applyFilters();
+                },
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveFilterChips() {
     final chips = <Widget>[];
 
     if (_selectedStatus.isNotEmpty) {
@@ -344,27 +369,28 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           label: _selectedStatus == 'pending'
               ? 'Pending'
               : _selectedStatus == 'approved'
-                  ? 'Approved'
-                  : 'Rejected',
+              ? 'Approved'
+              : 'Rejected',
           onRemove: _clearStatusFilter,
-          color: _getStatusChipColor(_selectedStatus),
+          color: Theme.of(context).colorScheme.primary,
           icon: _getStatusIcon(_selectedStatus),
         ),
       );
-      chips.add(const SizedBox(width: 8));
     }
 
-    // Date range chip
     if (_selectedStartDate != null || _selectedEndDate != null) {
+      if (chips.isNotEmpty) {
+        chips.add(const SizedBox(width: 8));
+      }
       chips.add(
         _ActiveFilterChip(
-          label: '${_selectedStartDate != null ? DateFormat('dd/MM').format(_selectedStartDate!) : ''}'
-              '${_selectedEndDate != null ? ' - ${DateFormat('dd/MM').format(_selectedEndDate!)}' : ''}',
+          label:
+              '${_selectedStartDate != null ? DateFormat('dd/MM/yy').format(_selectedStartDate!) : ''}'
+              '${_selectedEndDate != null ? ' - ${DateFormat('dd/MM/yy').format(_selectedEndDate!)}' : ''}',
           onRemove: _clearDateFilter,
           icon: Icons.calendar_today_rounded,
         ),
       );
-      chips.add(const SizedBox(width: 8));
     }
 
     if (chips.isEmpty) {
@@ -372,18 +398,11 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            Icon(
-              Icons.filter_alt_rounded,
-              size: 16,
-              color: Colors.grey[600],
-            ),
+            Icon(Icons.filter_alt_rounded, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 8),
             Text(
               'No filters applied',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -405,7 +424,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     final statusLabel = '$extraKm KM';
 
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(16.0),
       child: Material(
         color: Colors.transparent,
         child: Column(
@@ -420,15 +439,11 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
                     children: [
                       Text(
                         'Order #${item.order}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 2),
-                   
                     ],
                   ),
                 ),
@@ -438,7 +453,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha:  0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -477,7 +492,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha:  0.05),
+        color: Colors.grey.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -493,9 +508,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
             label: 'Location',
             value: item.location,
           ),
-         
-          ],
-        
+        ],
       ),
     );
   }
@@ -508,11 +521,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Colors.grey[600],
-        ),
+        Icon(icon, size: 16, color: Colors.grey[600]),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -549,11 +558,14 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           onPressed: () {
             _showConfirmationDialog(
               title: 'Decline Extra Mileage',
-              message: 'Are you sure you want to decline this extra mileage request for Order #${item.order}?',
+              message:
+                  'Are you sure you want to decline this extra mileage request for Order #${item.order}?',
               confirmText: 'Decline',
               onConfirm: () {
                 _approvalBloc.add(
-                  DeclineExtraMileageRequestEvent(mileageId: item.pk.toString()),
+                  DeclineExtraMileageRequestEvent(
+                    mileageId: item.pk.toString(),
+                  ),
                 );
                 Navigator.pop(context);
               },
@@ -573,11 +585,14 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           onPressed: () {
             _showConfirmationDialog(
               title: 'Approve Extra Mileage',
-              message: 'Are you sure you want to approve this extra mileage request for Order #${item.order}?',
+              message:
+                  'Are you sure you want to approve this extra mileage request for Order #${item.order}?',
               confirmText: 'Approve',
               onConfirm: () {
                 _approvalBloc.add(
-                  ApproveExtraMileageRequestEvent(mileageId: item.pk.toString()),
+                  ApproveExtraMileageRequestEvent(
+                    mileageId: item.pk.toString(),
+                  ),
                 );
                 Navigator.pop(context);
               },
@@ -610,19 +625,6 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     return Icons.error_outline_rounded;
   }
 
-  Color _getStatusChipColor(String status) {
-    switch (status) {
-      case 'pending':
-        return Colors.orange;
-      case 'approved':
-        return Colors.green;
-      case 'rejected':
-        return Colors.red;
-      default:
-        return Colors.blue;
-    }
-  }
-
   IconData _getStatusIcon(String status) {
     switch (status) {
       case 'pending':
@@ -634,30 +636,6 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
       default:
         return Icons.all_inclusive_rounded;
     }
-  }
-
-
-  Widget _buildFilterSection({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: children,
-        ),
-      ],
-    );
   }
 
   @override
@@ -711,20 +689,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           centerTitle: true,
           backgroundColor: theme.colorScheme.primary,
           foregroundColor: theme.colorScheme.onPrimary,
-          actions: [
-            _buildAppBarActionButton(
-              icon: Icons.filter_list_rounded,
-              onPressed: _showFilterDialog,
-              tooltip: 'Filters',
-            ),
-            const SizedBox(width: 8),
-            _buildAppBarActionButton(
-              icon: Icons.refresh_rounded,
-              onPressed: _refreshData,
-              tooltip: 'Refresh',
-            ),
-            const SizedBox(width: 8),
-          ],
+          actions: [],
         ),
         body: BlocConsumer<ExtraMileageBloc, ExtraMileageListState>(
           listener: (context, state) {
@@ -744,7 +709,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           builder: (context, state) {
             return Column(
               children: [
-                _buildFilterChips(),
+                _buildStatusChips(),
+                _buildDateFilterSection(),
+                _buildActiveFilterChips(),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
@@ -763,29 +730,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     );
   }
 
-  Widget _buildAppBarActionButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-    required String tooltip,
-  }) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha:  0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20),
-        padding: EdgeInsets.zero,
-        tooltip: tooltip,
-      ),
-    );
-  }
-
   Widget _buildContent(ExtraMileageListState state) {
-    if (state is ExtraMileageListLoadingState ) {
+    if (state is ExtraMileageListLoadingState ||
+        state is ExtraMileageListInitialState) {
       return _buildLoadingState();
     }
 
@@ -805,8 +752,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
 
       return NotificationListener<ScrollNotification>(
         onNotification: (notification) {
-          if (notification is ScrollEndNotification) {
-          }
+          if (notification is ScrollEndNotification) {}
           return false;
         },
         child: ListView.builder(
@@ -815,8 +761,8 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount:
               extraMileageList.results.length +
-                  (state is ExtraMileageListPaginatingState ? 1 : 0) +
-                  (_extraMileageBloc.hasNextPage ? 1 : 0),
+              (state is ExtraMileageListPaginatingState ? 1 : 0) +
+              (_extraMileageBloc.hasNextPage ? 1 : 0),
           itemBuilder: (context, index) {
             if (state is ExtraMileageListPaginatingState &&
                 index == extraMileageList.results.length) {
@@ -831,42 +777,129 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
               return const SizedBox.shrink();
             }
 
-            return _buildExtraMileageItem(
-              extraMileageList.results[index],
-            );
+            return _buildExtraMileageItem(extraMileageList.results[index]);
           },
         ),
       );
-    }
-
-    if (state is ExtraMileageListInitialState) {
-      return _buildInitialState();
     }
 
     return _buildLoadingState();
   }
 
   Widget _buildLoadingState() {
-    return Center(
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: 6,
+      itemBuilder: (context, index) {
+        return _buildShimmerItem();
+      },
+    );
+  }
+
+  Widget _buildShimmerItem() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.primary,
+          // Header shimmer
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _CustomShimmer(
+                    width: 120,
+                    height: 20,
+                    borderRadius: BorderRadius.circular(8),
+                    margin: const EdgeInsets.only(bottom: 4),
+                  ),
+                  _CustomShimmer(
+                    width: 80,
+                    height: 16,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ],
+              ),
+              _CustomShimmer(
+                width: 60,
+                height: 32,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Info grid shimmer
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                _buildShimmerInfoRow(),
+                const SizedBox(height: 12),
+                _buildShimmerInfoRow(),
+              ],
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Loading extra mileage requests...',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-            ),
+
+          // Action buttons shimmer
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _CustomShimmer(
+                width: 80,
+                height: 40,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 12),
+              _CustomShimmer(
+                width: 80,
+                height: 40,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildShimmerInfoRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _CustomShimmer(
+          width: 16,
+          height: 16,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _CustomShimmer(
+                width: 60,
+                height: 12,
+                borderRadius: BorderRadius.circular(6),
+                margin: const EdgeInsets.only(bottom: 4),
+              ),
+              _CustomShimmer(
+                width: double.infinity,
+                height: 16,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -881,7 +914,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha:  0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -893,9 +926,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
             const SizedBox(height: 24),
             Text(
               'Failed to Load',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Padding(
@@ -903,9 +936,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
               child: Text(
                 state.message,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               ),
             ),
             const SizedBox(height: 32),
@@ -914,7 +947,10 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -939,7 +975,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha:  0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -951,9 +989,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
             const SizedBox(height: 24),
             Text(
               'No Extra Mileage',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Padding(
@@ -963,9 +1001,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
                     ? 'No extra mileage requests found'
                     : 'No $_selectedStatus requests found',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
               ),
             ),
             const SizedBox(height: 32),
@@ -974,7 +1012,10 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -988,44 +1029,14 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     );
   }
 
-  Widget _buildInitialState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Initializing...',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLoadMoreIndicator() {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Center(
-        child: Container(
+        child: _CustomShimmer(
           width: 32,
           height: 32,
-          padding: const EdgeInsets.all(8),
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.primary,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );
@@ -1037,12 +1048,91 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
       child: Center(
         child: Text(
           'No more requests to load',
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 13,
-          ),
+          style: TextStyle(color: Colors.grey[500], fontSize: 13),
         ),
       ),
+    );
+  }
+}
+
+class _CustomShimmer extends StatefulWidget {
+  final double width;
+  final double height;
+  final BorderRadiusGeometry borderRadius;
+  final EdgeInsetsGeometry margin;
+
+  const _CustomShimmer({
+    required this.width,
+    required this.height,
+    this.borderRadius = BorderRadius.zero,
+    this.margin = EdgeInsets.zero,
+  });
+
+  @override
+  _CustomShimmerState createState() => _CustomShimmerState();
+}
+
+class _CustomShimmerState extends State<_CustomShimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _gradientPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: false);
+
+    _gradientPosition = Tween<double>(
+      begin: -1.5,
+      end: 1.5,
+    ).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          margin: widget.margin,
+          decoration: BoxDecoration(
+            borderRadius: widget.borderRadius,
+            gradient: LinearGradient(
+              begin: Alignment(_gradientPosition.value, 0),
+              end: Alignment(1.0, 0.0),
+              colors: isDarkMode
+                  ? [
+                      Colors.grey[800]!.withValues(alpha: 0.1),
+                      Colors.grey[700]!.withValues(alpha: 0.2),
+                      Colors.grey[600]!.withValues(alpha: 0.3),
+                      Colors.grey[700]!.withValues(alpha: 0.2),
+                      Colors.grey[800]!.withValues(alpha: 0.1),
+                    ]
+                  : [
+                      Colors.grey[300]!.withValues(alpha: 0.1),
+                      Colors.grey[400]!.withValues(alpha: 0.2),
+                      Colors.grey[500]!.withValues(alpha: 0.3),
+                      Colors.grey[400]!.withValues(alpha: 0.2),
+                      Colors.grey[300]!.withValues(alpha: 0.1),
+                    ],
+              stops: const [0.0, 0.3, 0.5, 0.7, 1.0],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -1065,17 +1155,13 @@ class _ActiveFilterChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 14,
-            color: color,
-          ),
+          Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
           Text(
             label,
@@ -1088,150 +1174,9 @@ class _ActiveFilterChip extends StatelessWidget {
           const SizedBox(width: 4),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(
-              Icons.close_rounded,
-              size: 14,
-              color: color,
-            ),
+            child: Icon(Icons.close_rounded, size: 14, color: color),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Function(bool) onSelected;
-  final IconData? icon;
-  final Color? color;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onSelected,
-    this.icon,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final chipColor = color ?? Theme.of(context).colorScheme.primary;
-    
-    return FilterChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              size: 14,
-              color: selected ? chipColor : Colors.grey,
-            ),
-            const SizedBox(width: 4),
-          ],
-          Text(label),
-        ],
-      ),
-      selected: selected,
-      onSelected: onSelected,
-      backgroundColor: Colors.grey.withValues(alpha:  0.1),
-      selectedColor: chipColor.withValues(alpha:  0.1),
-      checkmarkColor: chipColor,
-      labelStyle: TextStyle(
-        fontSize: 13,
-        fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-        color: selected ? chipColor : Colors.grey[700],
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: selected ? chipColor.withValues(alpha:  0.3) : Colors.transparent,
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      showCheckmark: false,
-    );
-  }
-}
-
-class _DatePickerChip extends StatelessWidget {
-  final String label;
-  final DateTime? date;
-  final Function(DateTime) onDatePicked;
-
-  const _DatePickerChip({
-    required this.label,
-    required this.date,
-    required this.onDatePicked,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasDate = date != null;
-    
-    return GestureDetector(
-      onTap: () async {
-        final pickedDate = await showDatePicker(
-          context: context,
-          initialDate: date ?? DateTime.now(),
-          firstDate: DateTime(2020),
-          lastDate: DateTime.now(),
-          builder: (context, child) {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Theme.of(context).colorScheme.primary,
-                  onPrimary: Colors.white,
-                  surface: Theme.of(context).colorScheme.surface,
-                  onSurface: Theme.of(context).colorScheme.onSurface,
-                ), dialogTheme: DialogThemeData(backgroundColor: Theme.of(context).colorScheme.surface),
-              ),
-              child: child!,
-            );
-          },
-        );
-        if (pickedDate != null) {
-          onDatePicked(pickedDate);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: hasDate
-              ? Theme.of(context).colorScheme.primary.withValues(alpha:  0.1)
-              : Colors.grey.withValues(alpha:  0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: hasDate
-                ? Theme.of(context).colorScheme.primary.withValues(alpha:  0.3)
-                : Colors.grey.withValues(alpha:  0.3),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.calendar_today_rounded,
-              size: 16,
-              color: hasDate
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.grey[600],
-            ),
-            const SizedBox(width: 8),
-            Text(
-              hasDate ? DateFormat('dd/MM/yyyy').format(date!) : label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: hasDate ? FontWeight.w600 : FontWeight.normal,
-                color: hasDate
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[700],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
