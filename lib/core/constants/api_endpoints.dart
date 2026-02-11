@@ -114,6 +114,12 @@ class ApiEndpoints {
   static const String markNoticeAsRead = '/notices/read/';
 
   static const String sidebar = '/staff/vendor-staff-sidebar-items/';
+
+  static const String todayDetails = '/analysis/today-details/'; 
+
+  static const String subBranches = '/services/service-station/';
+
+  static const String resourcesList = '/resources-list/';
 }
 class QueryParams {
   QueryParams._();

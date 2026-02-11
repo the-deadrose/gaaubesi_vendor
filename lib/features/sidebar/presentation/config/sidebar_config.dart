@@ -223,7 +223,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.details,
           onTap: () {
-            _showComingSoon(context, 'Today\'s Details');
+            context.router.push(const TodayDetailRoute());
           },
         );
       case 'Pickup By Date':
@@ -271,7 +271,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.folder_open,
           onTap: () {
-            _showComingSoon(context, 'Resources');
+            context.router.push(const ResourcesListRoute());
           },
         );
       case 'Extra Mileage':
@@ -319,7 +319,7 @@ class SidebarConfig {
           name: name,
           icon: Icons.multiple_stop,
           onTap: () {
-            _showComingSoon(context, 'Sub Branches');
+            context.router.push(const SubBranchesRoute());
           },
         );
       default:

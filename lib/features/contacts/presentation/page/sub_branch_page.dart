@@ -1,38 +1,37 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gaaubesi_vendor/features/branch/domain/entity/redirect_station_list_entity.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_bloc.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_event.dart';
-import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_state.dart';
+import 'package:gaaubesi_vendor/features/contacts/domain/entity/sub_branch_entity.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/sub_branch/sub_branch_bloc.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/sub_branch/sub_branch_event.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/sub_branch/sub_branch_state.dart';
 
 @RoutePage()
-class RedirectStationListScreen extends StatefulWidget {
-  const RedirectStationListScreen({super.key});
+class SubBranchesScreen extends StatefulWidget {
+  const SubBranchesScreen({super.key});
 
   @override
-  State<RedirectStationListScreen> createState() =>
-      _RedirectStationListScreenState();
+  State<SubBranchesScreen> createState() => _SubBranchesScreenState();
 }
 
-class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
+class _SubBranchesScreenState extends State<SubBranchesScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _searchFocusNode = FocusNode();
-  late RedirectStationListBloc _bloc;
+  late SubBranchBloc _bloc;
   bool _isFirstLoad = true;
-  List<RedirectStationEntity> _cachedStations = [];
+  List<SubBranchesEntity> _cachedSubBranches = [];
 
   @override
   void initState() {
     super.initState();
-    _bloc = context.read<RedirectStationListBloc>();
+    _bloc = context.read<SubBranchBloc>();
     _loadInitialData();
     _setupScrollListener();
   }
 
   void _loadInitialData() {
-    _bloc.add(FetchRedirectStationListEvent(page: '1'));
+    _bloc.add(FetchSubBranchesEvent(page: '1'));
   }
 
   void _setupScrollListener() {
@@ -47,8 +46,8 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
   void _loadMoreData() {
     if (_bloc.hasMore && !_bloc.isLoadingMore) {
       _bloc.add(
-        FetchRedirectStationListEvent(
-          page: '1',
+        FetchSubBranchesEvent(
+          page: (_bloc.currentPage + 1).toString(),
           searchQuery: _searchController.text.isNotEmpty
               ? _searchController.text
               : null,
@@ -62,19 +61,19 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
     if (query.isNotEmpty) {
       _searchFocusNode.unfocus();
       _isFirstLoad = true;
-      _bloc.add(RefreshRedirectStationListEvent(page: '1', searchQuery: query));
+      _bloc.add(RefreshSubBranchesEvent(page: '1', searchQuery: query));
     }
   }
 
   void _clearSearch() {
     _searchController.clear();
-    _bloc.add(RefreshRedirectStationListEvent(page: '1'));
+    _bloc.add(RefreshSubBranchesEvent(page: '1'));
   }
 
   void _onRefresh() {
     _isFirstLoad = true;
     _bloc.add(
-      RefreshRedirectStationListEvent(
+      RefreshSubBranchesEvent(
         page: '1',
         searchQuery: _searchController.text.isNotEmpty
             ? _searchController.text
@@ -99,7 +98,7 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
-        title: const Text('Redirect Stations'),
+        title: const Text('Sub Branches'),
         centerTitle: true,
       ),
       body: Column(
@@ -113,7 +112,7 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
                     controller: _searchController,
                     focusNode: _searchFocusNode,
                     decoration: InputDecoration(
-                      hintText: 'Search by branch name, code, or location...',
+                      hintText: 'Search by branch name, district, or area...',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -166,57 +165,56 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
             ),
           ),
           Expanded(
-            child:
-                BlocConsumer<RedirectStationListBloc, RedirectStationListState>(
-                  listener: (context, state) {
-                    if (state is RedirectStationListLoaded ||
-                        state is RedirectStationListPaginated) {
-                      _isFirstLoad = false;
-                    }
+            child: BlocConsumer<SubBranchBloc, SubBranchState>(
+              listener: (context, state) {
+                if (state is SubBranchLoadedState ||
+                    state is SubBranchPaginated) {
+                  _isFirstLoad = false;
+                }
 
-                    if (state is RedirectStationListError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.message),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    } else if (state is RedirectStationListPaginateError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.message),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    return _buildBody(state);
-                  },
-                ),
+                if (state is SubBranchErrorState) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } else if (state is SubBranchPaginatingError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.message),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                return _buildBody(state);
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBody(RedirectStationListState state) {
-    if (state is RedirectStationListInitial ||
-        (state is RedirectStationListLoading && _isFirstLoad)) {
+  Widget _buildBody(SubBranchState state) {
+    if (state is SubBranchInitialState ||
+        (state is SubBranchLoadingState && _isFirstLoad)) {
       return _buildLoadingScreen();
     }
 
-    if (state is RedirectStationListError) {
+    if (state is SubBranchErrorState) {
       return _buildErrorScreen(state.message);
     }
 
-    if (state is RedirectStationListEmpty) {
+    if (state is SubBranchEmptyState) {
       return _buildEmptyScreen();
     }
 
-    if (state is RedirectStationListLoaded ||
-        state is RedirectStationListPaginated ||
-        state is RedirectStationListPaginating) {
+    if (state is SubBranchLoadedState ||
+        state is SubBranchPaginated ||
+        state is SubBranchPaginating) {
       return _buildLoadedContent(state);
     }
 
@@ -253,7 +251,7 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                _bloc.add(FetchRedirectStationListEvent(page: '1'));
+                _bloc.add(FetchSubBranchesEvent(page: '1'));
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -284,8 +282,8 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
                 const SizedBox(height: 16),
                 Text(
                   _searchController.text.isNotEmpty
-                      ? 'No stations found for "${_searchController.text}"'
-                      : 'No redirect stations available',
+                      ? 'No sub branches found for "${_searchController.text}"'
+                      : 'No sub branches available',
                   style: const TextStyle(fontSize: 18, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -303,17 +301,17 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
     );
   }
 
-  Widget _buildLoadedContent(RedirectStationListState state) {
-    if (state is RedirectStationListLoaded) {
-      _cachedStations = state.redirectStationList.results;
-    } else if (state is RedirectStationListPaginated) {
-      _cachedStations = state.redirectStationList.results;
+  Widget _buildLoadedContent(SubBranchState state) {
+    if (state is SubBranchLoadedState) {
+      _cachedSubBranches = state.subBranchesResponseEntity.results;
+    } else if (state is SubBranchPaginated) {
+      _cachedSubBranches = state.subBranchesResponseEntity.results;
     }
 
-    final stations = _cachedStations;
+    final subBranches = _cachedSubBranches;
 
-    final bool isLoadingMore = state is RedirectStationListPaginating;
-    final bool isPaginateError = state is RedirectStationListPaginateError;
+    final bool isLoadingMore = state is SubBranchPaginating;
+    final bool isPaginateError = state is SubBranchPaginatingError;
 
     final isSearchResult = _searchController.text.isNotEmpty;
 
@@ -329,7 +327,7 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Search Results: ${stations.length} found',
+                    'Search Results: ${subBranches.length} found',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -348,21 +346,21 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.only(top: 8, bottom: 16),
-              itemCount:
-                  stations.length + (isLoadingMore || isPaginateError ? 1 : 0),
+              itemCount: subBranches.length +
+                  (isLoadingMore || isPaginateError ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index >= stations.length) {
+                if (index >= subBranches.length) {
                   return _buildBottomLoader(
                     isLoadingMore: isLoadingMore,
                     isPaginateError: isPaginateError,
                     errorMessage: isPaginateError
-                        ? 'Failed to load more stations'
+                        ? 'Failed to load more branches'
                         : null,
                   );
                 }
 
-                final station = stations[index];
-                return _RedirectStationListItem(station: station);
+                final subBranch = subBranches[index];
+                return _SubBranchListItem(subBranch: subBranch);
               },
             ),
           ),
@@ -425,13 +423,13 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
             width: 60,
             margin: const EdgeInsets.only(bottom: 12),
           ),
-
+          
           _ShimmerWidget(
             height: 16,
             width: 120,
             margin: const EdgeInsets.only(bottom: 8),
           ),
-
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -445,7 +443,7 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
               _ShimmerWidget(height: 24, width: 60),
             ],
           ),
-
+          
           Row(
             children: [
               _ShimmerWidget(
@@ -461,48 +459,55 @@ class _RedirectStationListScreenState extends State<RedirectStationListScreen> {
               ),
             ],
           ),
-
+          
           const SizedBox(height: 16),
-
-          _ShimmerWidget(
-            height: 16,
-            width: 150,
-            margin: const EdgeInsets.only(bottom: 8),
+          
+          Row(
+            children: [
+              _ShimmerWidget(
+                height: 16,
+                width: 16,
+                margin: const EdgeInsets.only(right: 8),
+              ),
+              _ShimmerWidget(
+                height: 16,
+                width: 100,
+              ),
+            ],
           ),
-
-          Container(
-            padding: const EdgeInsets.all(12),
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                _ShimmerWidget(
-                  height: 24,
-                  width: 24,
-                  margin: const EdgeInsets.only(right: 12),
+          
+          const SizedBox(height: 8),
+          
+          Row(
+            children: [
+              _ShimmerWidget(
+                height: 16,
+                width: 16,
+                margin: const EdgeInsets.only(right: 8),
+              ),
+              _ShimmerWidget(
+                height: 16,
+                width: 150,
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          
+          Row(
+            children: [
+              _ShimmerWidget(
+                height: 16,
+                width: 16,
+                margin: const EdgeInsets.only(right: 8),
+              ),
+              Expanded(
+                child: _ShimmerWidget(
+                  height: 16,
+                  width: MediaQuery.of(context).size.width * 0.7,
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _ShimmerWidget(
-                        height: 16,
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        margin: const EdgeInsets.only(bottom: 4),
-                      ),
-                      _ShimmerWidget(
-                        height: 14,
-                        width: MediaQuery.of(context).size.width * 0.4,
-                      ),
-                    ],
-                  ),
-                ),
-                _ShimmerWidget(height: 20, width: 40),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -569,10 +574,10 @@ class __ShimmerWidgetState extends State<_ShimmerWidget>
   }
 }
 
-class _RedirectStationListItem extends StatelessWidget {
-  final RedirectStationEntity station;
+class _SubBranchListItem extends StatelessWidget {
+  final SubBranchesEntity subBranch;
 
-  const _RedirectStationListItem({required this.station});
+  const _SubBranchListItem({required this.subBranch});
 
   @override
   Widget build(BuildContext context) {
@@ -583,206 +588,164 @@ class _RedirectStationListItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-         
-
-          const SizedBox(height: 12),
-
-          _buildBranchSection(
-            title: 'HOME BRANCH',
-            branch: station.homeBranch,
-            isHomeBranch: true,
-            theme: theme,
+          // Header with Name and District
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      subBranch.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subBranch.district,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Base Charge Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: theme.primaryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Rs ${subBranch.baseCharge}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: theme.primaryColor,
+                  ),
+                ),
+              ),
+            ],
           ),
-
+          
           const SizedBox(height: 16),
-
-          _buildRedirectBranchesSection(theme),
+          
+          // Details Section
+          _buildDetailRow(
+            icon: Icons.timer,
+            label: 'Arrival Time',
+            value: subBranch.arrivalTime,
+          ),
+          
+          const SizedBox(height: 8),
+          
+          _buildDetailRow(
+            icon: Icons.location_on,
+            label: 'Area Covered',
+            value: subBranch.areaCovered,
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Additional Info
+          if (subBranch.areaCovered.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 20,
+                    color: theme.primaryColor,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Coverage Area: ${subBranch.areaCovered}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildBranchSection({
-    required String title,
-    required BranchEntity branch,
-    required bool isHomeBranch,
-    required ThemeData theme,
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: isHomeBranch ? theme.primaryColor : Colors.green,
-            letterSpacing: 0.5,
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: Colors.blue,
           ),
         ),
-        const SizedBox(height: 8),
-        _buildBranchInfo(branch, isHomeBranch: isHomeBranch),
-      ],
-    );
-  }
-
-  Widget _buildBranchInfo(BranchEntity branch, {bool isHomeBranch = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                branch.name,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
                 style: TextStyle(
-                  fontSize: isHomeBranch ? 18 : 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                branch.code,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '${branch.district}, ${branch.province}',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRedirectBranchesSection(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'REDIRECT BRANCHES',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.green,
-                letterSpacing: 0.5,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${station.redirectBranches.length}',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.green,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        ...station.redirectBranches.map((branch) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade100,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward,
-                    size: 12,
-                    color: Colors.green,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        branch.name,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${branch.district}, ${branch.province}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                          Text(
-                            branch.code,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
       ],
     );
   }

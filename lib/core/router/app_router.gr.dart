@@ -682,6 +682,22 @@ class RedirectedOrdersRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [ResourcesListScreen]
+class ResourcesListRoute extends PageRouteInfo<void> {
+  const ResourcesListRoute({List<PageRouteInfo>? children})
+    : super(ResourcesListRoute.name, initialChildren: children);
+
+  static const String name = 'ResourcesListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ResourcesListScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [SalesReportAnalysisScreen]
 class SalesReportAnalysisRoute extends PageRouteInfo<void> {
   const SalesReportAnalysisRoute({List<PageRouteInfo>? children})
@@ -709,6 +725,22 @@ class ServiceStationRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const ServiceStationScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [SplashScreen]
+class SplashRoute extends PageRouteInfo<void> {
+  const SplashRoute({List<PageRouteInfo>? children})
+    : super(SplashRoute.name, initialChildren: children);
+
+  static const String name = 'SplashRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SplashScreen();
     },
   );
 }
@@ -825,6 +857,22 @@ class StaffListRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [SubBranchesScreen]
+class SubBranchesRoute extends PageRouteInfo<void> {
+  const SubBranchesRoute({List<PageRouteInfo>? children})
+    : super(SubBranchesRoute.name, initialChildren: children);
+
+  static const String name = 'SubBranchesRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SubBranchesScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [TicketDetailScreen]
 class TicketDetailRoute extends PageRouteInfo<TicketDetailRouteArgs> {
   TicketDetailRoute({
@@ -931,6 +979,22 @@ class TicketRouteArgs {
 
   @override
   int get hashCode => key.hashCode ^ subject.hashCode;
+}
+
+/// generated route for
+/// [TodayDetailScreen]
+class TodayDetailRoute extends PageRouteInfo<void> {
+  const TodayDetailRoute({List<PageRouteInfo>? children})
+    : super(TodayDetailRoute.name, initialChildren: children);
+
+  static const String name = 'TodayDetailRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const TodayDetailScreen();
+    },
+  );
 }
 
 /// generated route for

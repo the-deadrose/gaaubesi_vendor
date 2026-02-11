@@ -3,6 +3,7 @@ import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/contacts/data/datasource/contacts_datasources.dart';
 import 'package:gaaubesi_vendor/features/contacts/domain/entity/head_office_contact_entity.dart';
 import 'package:gaaubesi_vendor/features/contacts/domain/entity/service_station_entity.dart';
+import 'package:gaaubesi_vendor/features/contacts/domain/entity/sub_branch_entity.dart';
 import 'package:gaaubesi_vendor/features/contacts/domain/repository/contacts_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -29,10 +30,29 @@ class ContactsRepositoryImpl implements ContactsRepository {
     String? searchQuery,
   }) async {
     try {
-      final result = await remoteDatasources.fetchServiceStations(page: page, searchQuery: searchQuery);
+      final result = await remoteDatasources.fetchServiceStations(
+        page: page,
+        searchQuery: searchQuery,
+      );
       return Right(result);
     } catch (e) {
       return Left(ServerFailure('Failed to fetch service stations'));
     }
+  }
+
+  @override
+  Future<Either<Failure, SubBranchesResponseEntity>> getSubBranches({
+    required String page,
+    String? searchQuery,
+  }) async {
+    // try {
+      final result = await remoteDatasources.fetchSubBranches(
+        page: page,
+        searchQuery: searchQuery,
+      );
+      return Right(result);
+    // } catch (e) {
+    //   return Left(ServerFailure('Failed to fetch sub branches'));
+    // }
   }
 }

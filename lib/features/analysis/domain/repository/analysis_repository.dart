@@ -4,6 +4,7 @@ import 'package:gaaubesi_vendor/features/analysis/domain/entity/branch_report_an
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/delivery_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/pickup_order_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/sales_report_analysis_entity.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/today_detail_entity.dart';
 
 abstract class AnalysisRepository {
   Future<Either<Failure, DeliveryReportAnalysisEntity>>
@@ -29,4 +30,6 @@ abstract class AnalysisRepository {
     required String startDate,
     required String endDate,
   });
+
+  Future<Either<Failure, TodayDetailEntity>> fetchTodayDetails({required String status});
 }

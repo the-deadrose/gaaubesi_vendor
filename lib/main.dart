@@ -7,6 +7,7 @@ import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_bloc.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/today_detail/today_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
@@ -17,6 +18,7 @@ import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_blo
 import 'package:gaaubesi_vendor/features/comments/presentation/pages/comments_page.dart';
 import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/head_office/head_office_contact_bloc.dart';
 import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/service_sation/service_station_bloc.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/sub_branch/sub_branch_bloc.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/list/customer_bloc.dart';
 import 'package:gaaubesi_vendor/features/customer/presentation/bloc/detail/customer_detail_bloc.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/presentation/bloc/daily_transaction_bloc.dart';
@@ -30,6 +32,7 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_ord
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/warehouse/warehouse_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequently_used_methods/frequently_used_payment_method_bloc.dart';
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart';
+import 'package:gaaubesi_vendor/features/resources/presentation/bloc/resources_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/change_password/change_staff_password_bloc.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/blocs/create_staff/create_staff_bloc.dart';
@@ -103,8 +106,13 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<CreateStaffBloc>()),
         BlocProvider(create: (context) => getIt<StaffOrderPermissionBloc>()),
         BlocProvider(create: (context) => getIt<StaffGeneralPermissionBloc>()),
-        BlocProvider(create: (context) => getIt<StaffExtraMileagePermissionBloc>()),
+        BlocProvider(
+          create: (context) => getIt<StaffExtraMileagePermissionBloc>(),
+        ),
         BlocProvider(create: (context) => getIt<SidebarBloc>()),
+        BlocProvider(create: (context) => getIt<TodayDetailBloc>()),
+        BlocProvider(create: (context) => getIt<SubBranchBloc>()),
+        BlocProvider(create: (context) => getIt<ResourcesListBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

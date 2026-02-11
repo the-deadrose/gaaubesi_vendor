@@ -3,13 +3,20 @@ import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/contacts/data/model/head_office_contact_model.dart';
 import 'package:gaaubesi_vendor/features/contacts/data/model/service_station_model.dart';
+import 'package:gaaubesi_vendor/features/contacts/data/model/sub_branches_model.dart';
 import 'package:gaaubesi_vendor/features/contacts/domain/entity/head_office_contact_entity.dart';
 import 'package:gaaubesi_vendor/features/contacts/domain/entity/service_station_entity.dart';
+import 'package:gaaubesi_vendor/features/contacts/domain/entity/sub_branch_entity.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class ContactsRemoteDatasources {
   Future<HeadOfficeContactEntity> fetchHeadOfficeContacts();
   Future<ServiceStationListEntity> fetchServiceStations({
+    required String page,
+    String? searchQuery,
+  });
+
+  Future<SubBranchesResponseEntity> fetchSubBranches({
     required String page,
     String? searchQuery,
   });
@@ -55,8 +62,8 @@ class ContactsRemoteDatasourcesImp implements ContactsRemoteDatasources {
         issueContact: model.issueContact.map((e) => e.toEntity()).toList(),
       );
     } catch (e, stackTrace) {
-      debugPrint('🔴 Error fetching head office contacts: $e');
-      debugPrint('🔴 Stack trace: $stackTrace');
+      debugPrint(' Error fetching head office contacts: $e');
+      debugPrint('Stack trace: $stackTrace');
 
       rethrow;
     }
@@ -92,10 +99,39 @@ class ContactsRemoteDatasourcesImp implements ContactsRemoteDatasources {
 
       return model.toEntity();
     } catch (e, stackTrace) {
-      debugPrint('🔴 Error fetching service stations: $e');
-      debugPrint('🔴 Stack trace: $stackTrace');
+      debugPrint('Error fetching service stations: $e');
+      debugPrint('Stack trace: $stackTrace');
 
       rethrow;
     }
+  }
+
+  @override
+  Future<SubBranchesResponseEntity> fetchSubBranches({
+    required String page,
+    String? searchQuery,
+  }) async {
+    // try {
+      final response = await _dioClient.get(
+        ApiEndpoints.subBranches,
+        queryParameters: {
+          QueryParams.page: page,
+          if (searchQuery != null && searchQuery.isNotEmpty)
+            'search': searchQuery,
+        },
+      );
+      debugPrint(' API Response received for Sub Branches');
+      debugPrint(' Response Type: ${response.data.runtimeType}');
+      final SubBranchesResponseModel model = SubBranchesResponseModel.fromJson(
+        response.data,
+      );
+
+      debugPrint('Successfully parsed sub-branches data');
+      return model.toEntity();
+    // } catch (e, stackTrace) {
+    //   debugPrint('Error fetching sub-branches: $e');
+    //   debugPrint('Stack trace: $stackTrace');
+    //   rethrow;
+    // }
   }
 }

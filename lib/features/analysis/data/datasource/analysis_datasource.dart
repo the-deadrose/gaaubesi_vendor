@@ -7,10 +7,12 @@ import 'package:gaaubesi_vendor/features/analysis/data/model/branch_report_analy
 import 'package:gaaubesi_vendor/features/analysis/data/model/delivery_report_analysis_model.dart';
 import 'package:gaaubesi_vendor/features/analysis/data/model/pickup_order_analysis_model.dart';
 import 'package:gaaubesi_vendor/features/analysis/data/model/sales_report_analysis_model.dart';
+import 'package:gaaubesi_vendor/features/analysis/data/model/today_detail_model.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/branch_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/delivery_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/pickup_order_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/sales_report_analysis_entity.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/today_detail_entity.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class AnalysisDatasource {
@@ -37,6 +39,8 @@ abstract class AnalysisDatasource {
     required String startDate,
     required String endDate,
   });
+
+  Future<Either<Failure, TodayDetailEntity>> fetchTodayDetails({required String status});
 }
 
 @LazySingleton(as: AnalysisDatasource)
@@ -185,53 +189,91 @@ class AnalysisDatasourceImpl implements AnalysisDatasource {
   }) async {
     try {
       final queryParameters = {'from_date': startDate, 'to_date': endDate};
-      
-      debugPrint('🔍 Pickup Analysis Request:');
+
+      debugPrint(' Pickup Analysis Request:');
       debugPrint('   Endpoint: ${ApiEndpoints.pickupOrderAnalysis}');
       debugPrint('   Query Parameters: $queryParameters');
-      
+
       final response = await _dioClient.get(
         ApiEndpoints.pickupOrderAnalysis,
         queryParameters: queryParameters,
       );
-      
-      debugPrint('📦 Pickup Analysis Response:');
+
+      debugPrint(' Pickup Analysis Response:');
       debugPrint('   Status Code: ${response.statusCode}');
       debugPrint('   Response Type: ${response.data.runtimeType}');
       debugPrint('   Full Response: ${response.data}');
-      
+
       List<PickupOrderAnalysisEntity> reports = [];
-      
+
       if (response.data is Map) {
-        debugPrint('✅ Response is Map type - converting to entity');
+        debugPrint(' Response is Map type - converting to entity');
         final analysis = PickupOrderAnalysisModel.fromJson(
           response.data as Map<String, dynamic>,
         ).toEntity();
         reports = [analysis];
-        debugPrint('   Converted to entity: ${analysis.fromDate} - ${analysis.toDate}');
+        debugPrint(
+          '   Converted to entity: ${analysis.fromDate} - ${analysis.toDate}',
+        );
       } else if (response.data is List) {
-        debugPrint('✅ Response is List type - processing list items');
+        debugPrint(' Response is List type - processing list items');
         reports = (response.data as List)
             .map((item) => PickupOrderAnalysisModel.fromJson(item).toEntity())
             .toList();
         debugPrint('   Processed ${reports.length} items');
       } else {
-        debugPrint('❌ Response is unexpected type: ${response.data.runtimeType}');
+        debugPrint(
+          ' Response is unexpected type: ${response.data.runtimeType}',
+        );
         return left(
           ServerFailure(
             'Unexpected response type: ${response.data.runtimeType}',
           ),
         );
       }
-      
+
       return right(reports);
     } catch (e, stackTrace) {
-      debugPrint('❌ Error fetching pickup order analysis:');
+      debugPrint('Error fetching pickup order analysis:');
       debugPrint('   Error: $e');
       debugPrint('   Stack Trace: $stackTrace');
       return left(
         ServerFailure('Failed to fetch pickup order analysis data: $e'),
       );
+    }
+  }
+
+  @override
+  Future<Either<Failure, TodayDetailEntity>> fetchTodayDetails({
+    required String status,
+  }) async {
+    try {
+      final queryParameters = {'filter': status};
+      final response = await _dioClient.get(
+        ApiEndpoints.todayDetails,
+        queryParameters: queryParameters,
+      );
+      
+      debugPrint('Today Details Response: ${response.data}');
+      
+      // Handle response structure: {filter: ..., count: ..., data: [...]}
+      final responseData = response.data as Map<String, dynamic>;
+      final dataList = responseData['data'] as List<dynamic>?;
+      
+      if (dataList == null || dataList.isEmpty) {
+        debugPrint('No data in response');
+        return left(ServerFailure('No orders found for this filter.'));
+      }
+      
+      // Get the first item from the data array
+      final firstItem = dataList.first as Map<String, dynamic>;
+      debugPrint('Parsed item: $firstItem');
+      
+      return right(TodayDetailModel.fromJson(firstItem).toEntity());
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching today details: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return left(ServerFailure('Failed to fetch today details data: $e'));
     }
   }
 }

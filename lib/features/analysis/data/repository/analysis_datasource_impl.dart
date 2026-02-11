@@ -5,6 +5,7 @@ import 'package:gaaubesi_vendor/features/analysis/domain/entity/branch_report_an
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/delivery_report_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/pickup_order_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/sales_report_analysis_entity.dart';
+import 'package:gaaubesi_vendor/features/analysis/domain/entity/today_detail_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/repository/analysis_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -78,6 +79,17 @@ class AnalysisDatasourceImpl implements AnalysisRepository {
       );
     } catch (e) {
       return left(ServerFailure('Failed to fetch pickup order analysis data.'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TodayDetailEntity>> fetchTodayDetails({
+    required String status,
+  }) async {
+    try {
+      return await _datasource.fetchTodayDetails(status: status);
+    } catch (e) {
+      return left(ServerFailure('Failed to fetch today\'s details.'));
     }
   }
 }

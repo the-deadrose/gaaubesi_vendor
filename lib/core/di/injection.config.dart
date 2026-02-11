@@ -30,6 +30,8 @@ import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_pickup_or
     as _i409;
 import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_sales_report_analysis_usecase.dart'
     as _i877;
+import 'package:gaaubesi_vendor/features/analysis/domain/usecase/fetch_today_detailusecase.dart'
+    as _i539;
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_bloc.dart'
     as _i842;
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart'
@@ -38,6 +40,8 @@ import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup
     as _i944;
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/sales/sales_report_analysis_bloc.dart'
     as _i913;
+import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/today_detail/today_detail_bloc.dart'
+    as _i109;
 import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_local_data_source.dart'
     as _i18;
 import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_remote_data_source.dart'
@@ -122,10 +126,14 @@ import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_headoffic
     as _i612;
 import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_service_station_usecase.dart'
     as _i617;
+import 'package:gaaubesi_vendor/features/contacts/domain/usecase/fetch_subbraches_usecase.dart'
+    as _i778;
 import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/head_office/head_office_contact_bloc.dart'
     as _i437;
 import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/service_sation/service_station_bloc.dart'
     as _i417;
+import 'package:gaaubesi_vendor/features/contacts/presentation/bloc/sub_branch/sub_branch_bloc.dart'
+    as _i856;
 import 'package:gaaubesi_vendor/features/customer/data/datasource/customer_datasource.dart'
     as _i88;
 import 'package:gaaubesi_vendor/features/customer/data/repo/customer_repo_imp.dart'
@@ -266,6 +274,16 @@ import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/frequ
     as _i218;
 import 'package:gaaubesi_vendor/features/payment_request/presentation/bloc/payment_request/payment_request_bloc.dart'
     as _i724;
+import 'package:gaaubesi_vendor/features/resources/data/datasource/resources_datasource.dart'
+    as _i676;
+import 'package:gaaubesi_vendor/features/resources/data/repository/resources_repository_impl.dart'
+    as _i647;
+import 'package:gaaubesi_vendor/features/resources/domain/repository/resources_repository.dart'
+    as _i997;
+import 'package:gaaubesi_vendor/features/resources/domain/usecase/fetch_resources_usecase.dart'
+    as _i384;
+import 'package:gaaubesi_vendor/features/resources/presentation/bloc/resources_list_bloc.dart'
+    as _i947;
 import 'package:gaaubesi_vendor/features/sidebar/data/datasource/sidebar_datasource.dart'
     as _i820;
 import 'package:gaaubesi_vendor/features/sidebar/data/datasource/sidebar_local_datasource.dart'
@@ -410,6 +428,9 @@ Future<_i174.GetIt> init(
   );
   gh.lazySingleton<_i339.DailyTransectionRemoteDatasource>(
     () => _i339.DailyTransectionDatasourceImpl(gh<_i619.DioClient>()),
+  );
+  gh.lazySingleton<_i676.ResourcesDatasource>(
+    () => _i676.ResourcesDatasourceImpl(gh<_i619.DioClient>()),
   );
   gh.lazySingleton<_i88.CustomerRemoteDatasource>(
     () => _i88.CustomerRemoteDatasourceImpl(gh<_i619.DioClient>()),
@@ -656,6 +677,9 @@ Future<_i174.GetIt> init(
   gh.lazySingleton<_i835.DeclineExtraMileageUsecase>(
     () => _i835.DeclineExtraMileageUsecase(gh<_i347.ExtraMileageRepo>()),
   );
+  gh.lazySingleton<_i997.ResourcesRepository>(
+    () => _i647.ResourcesRepositoryImpl(gh<_i676.ResourcesDatasource>()),
+  );
   gh.lazySingleton<_i910.StaffListBloc>(
     () => _i910.StaffListBloc(
       fetchStaffListUsecase: gh<_i104.FetchStaffListUsecase>(),
@@ -721,6 +745,9 @@ Future<_i174.GetIt> init(
       getPickupPointUsecase: gh<_i598.GetPickupPointUsecase>(),
     ),
   );
+  gh.lazySingleton<_i384.FetchResourcesUsecase>(
+    () => _i384.FetchResourcesUsecase(gh<_i997.ResourcesRepository>()),
+  );
   gh.factory<_i915.HomeBloc>(
     () => _i915.HomeBloc(gh<_i84.GetVendorStatsUseCase>()),
   );
@@ -736,6 +763,9 @@ Future<_i174.GetIt> init(
   );
   gh.lazySingleton<_i877.FetchSalesReportAnalysisUsecase>(
     () => _i877.FetchSalesReportAnalysisUsecase(gh<_i370.AnalysisRepository>()),
+  );
+  gh.lazySingleton<_i539.FetchTodayDetailusecase>(
+    () => _i539.FetchTodayDetailusecase(gh<_i370.AnalysisRepository>()),
   );
   gh.lazySingleton<_i932.AllCommentsUsecase>(
     () => _i932.AllCommentsUsecase(gh<_i92.CommentsRepository>()),
@@ -769,6 +799,11 @@ Future<_i174.GetIt> init(
   gh.factory<_i337.ReturnedOrderBloc>(
     () => _i337.ReturnedOrderBloc(
       fetchReturnedOrdersUseCase: gh<_i466.FetchReturnedOrdersUseCase>(),
+    ),
+  );
+  gh.lazySingleton<_i778.FetchSubbrachesUsecase>(
+    () => _i778.FetchSubbrachesUsecase(
+      repository: gh<_i793.ContactsRepository>(),
     ),
   );
   gh.lazySingleton<_i612.FetchHeadofficeUsecase>(
@@ -810,6 +845,11 @@ Future<_i174.GetIt> init(
   );
   gh.lazySingleton<_i327.CreateStaffBloc>(
     () => _i327.CreateStaffBloc(gh<_i472.CreateStaffUsecase>()),
+  );
+  gh.lazySingleton<_i856.SubBranchBloc>(
+    () => _i856.SubBranchBloc(
+      fetchSubbranchesUsecase: gh<_i778.FetchSubbrachesUsecase>(),
+    ),
   );
   gh.factory<_i11.CommentsBloc>(
     () => _i11.CommentsBloc(
@@ -886,6 +926,11 @@ Future<_i174.GetIt> init(
       editStaffInfoUsecase: gh<_i469.EditStaffInfoUsecase>(),
     ),
   );
+  gh.lazySingleton<_i947.ResourcesListBloc>(
+    () => _i947.ResourcesListBloc(
+      fetchResourcesUsecase: gh<_i384.FetchResourcesUsecase>(),
+    ),
+  );
   gh.lazySingleton<_i783.ExtraMileageApprovalBloc>(
     () => _i783.ExtraMileageApprovalBloc(
       gh<_i715.ApproveExtraMileageUsecase>(),
@@ -895,6 +940,11 @@ Future<_i174.GetIt> init(
   gh.lazySingleton<_i913.SalesReportAnalysisBloc>(
     () => _i913.SalesReportAnalysisBloc(
       gh<_i877.FetchSalesReportAnalysisUsecase>(),
+    ),
+  );
+  gh.lazySingleton<_i109.TodayDetailBloc>(
+    () => _i109.TodayDetailBloc(
+      fetchTodayDetailUsecase: gh<_i539.FetchTodayDetailusecase>(),
     ),
   );
   gh.factory<_i488.TicketBloc>(

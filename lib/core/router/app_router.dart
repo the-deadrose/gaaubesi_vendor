@@ -13,6 +13,7 @@ import 'package:gaaubesi_vendor/features/ticket/presentation/pages/create_ticket
 import 'package:gaaubesi_vendor/features/ticket/presentation/pages/tickets_detail_page.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/pages/login_page.dart';
+import 'package:gaaubesi_vendor/features/auth/presentation/pages/splash_screen.dart';
 import 'package:gaaubesi_vendor/features/home/presentation/pages/home_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/orders_page.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/pages/create_order_page.dart';
@@ -43,6 +44,9 @@ import 'package:gaaubesi_vendor/features/staff/presentation/pages/staff_list_pag
 import 'package:gaaubesi_vendor/features/staff/presentation/pages/staff_info_edit_page.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/pages/staff_change_password_page.dart';
 import 'package:gaaubesi_vendor/features/staff/presentation/pages/create_staff_page.dart';
+import 'package:gaaubesi_vendor/features/analysis/presentaion/pages/today_detail_page.dart';
+import 'package:gaaubesi_vendor/features/contacts/presentation/page/sub_branch_page.dart';
+import 'package:gaaubesi_vendor/features/resources/presentation/page/resources_list_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -51,11 +55,11 @@ part 'app_router.gr.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
+    AutoRoute(page: SplashRoute.page, path: '/', initial: true),
     AutoRoute(page: LoginRoute.page, path: '/login'),
     AutoRoute(
       page: MainScaffoldRoute.page,
-      path: '/',
-      initial: true,
+      path: '/dashboard',
       guards: [AuthGuard()],
       children: [
         AutoRoute(page: HomeRoute.page, path: 'home', initial: true),
@@ -253,6 +257,24 @@ class AppRouter extends RootStackRouter {
       path: '/create-staff',
       guards: [AuthGuard()],
     ),
+
+    AutoRoute(
+      page: TodayDetailRoute.page,
+      path: '/today-detail',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: SubBranchesRoute.page,
+      path: '/sub-branches',
+      guards: [AuthGuard()],
+    ),
+
+    AutoRoute(
+      page: ResourcesListRoute.page,
+      path: '/resources-list',
+      guards: [AuthGuard()],
+    ),
   ];
 }
 
@@ -294,4 +316,7 @@ extension AppRoutesExtension on AppRouter {
   static const String staffInfoEdit = '/staff-info-edit';
   static const String changePasswordStaff = '/change-password-staff';
   static const String createStaff = '/create-staff';
+  static const String todaysDetail = '/today-detail';
+  static const String subBranches = '/sub-branches';
+  static const String resourcesList = '/resources-list';
 }
