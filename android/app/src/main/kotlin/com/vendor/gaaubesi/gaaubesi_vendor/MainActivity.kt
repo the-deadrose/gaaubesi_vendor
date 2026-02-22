@@ -1,4 +1,4 @@
-package com.vendor.gaaubesi.gaaubesi_vendor
+package com.vendor.gaaubesi
 
 import io.flutter.embedding.android.FlutterActivity
 
