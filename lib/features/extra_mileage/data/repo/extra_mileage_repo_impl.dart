@@ -14,14 +14,14 @@ class ExtraMileageRepoImpl implements ExtraMileageRepo {
   @override
   Future<Either<Failure, ExtraMileageResponseListEntity>> fetchExtraMileageList(
     String page,
-    String status,
     String startDate,
     String endDate,
+    String destination,
   ) async {
     try {
       final result = await _remoteDatasource.fetchExtraMileageList(
         page,
-        status,
+        destination,
         startDate,
         endDate,
       );

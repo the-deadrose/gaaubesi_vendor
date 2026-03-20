@@ -10,7 +10,7 @@ import 'package:injectable/injectable.dart';
 class ExtraMileageBloc extends Bloc<ExtraMileageEvent, ExtraMileageListState> {
   final ExtraMileageUsecase _extraMileageUsecase;
   String? _nextPageUrl;
-  String _currentStatus = 'pending';
+  String _currentDestination = '';
   String _currentStartDate = '';
   String _currentEndDate = '';
   List<ExtraMileageResponseEntity> _allResults = [];
@@ -28,7 +28,7 @@ class ExtraMileageBloc extends Bloc<ExtraMileageEvent, ExtraMileageListState> {
   ) async {
     emit(ExtraMileageListLoadingState());
 
-    _currentStatus = event.status;
+    _currentDestination = event.destination;
     _currentStartDate = event.startDate;
     _currentEndDate = event.endDate;
     _allResults = [];
@@ -36,7 +36,7 @@ class ExtraMileageBloc extends Bloc<ExtraMileageEvent, ExtraMileageListState> {
     final result = await _extraMileageUsecase.call(
       ExtraMileageParams(
         page: '1',
-        status: event.status,
+        destination: event.destination,
         startDate: event.startDate,
         endDate: event.endDate,
       ),
@@ -93,7 +93,7 @@ class ExtraMileageBloc extends Bloc<ExtraMileageEvent, ExtraMileageListState> {
     final result = await _extraMileageUsecase.call(
       ExtraMileageParams(
         page: page,
-        status: _currentStatus,
+        destination: _currentDestination,
         startDate: _currentStartDate,
         endDate: _currentEndDate,
       ),
@@ -138,7 +138,7 @@ class ExtraMileageBloc extends Bloc<ExtraMileageEvent, ExtraMileageListState> {
     RefreshExtraMileageListEvent event,
     Emitter<ExtraMileageListState> emit,
   ) async {
-    _currentStatus = event.status;
+    _currentDestination = event.destination;
     _currentStartDate = event.startDate;
     _currentEndDate = event.endDate;
     _allResults = [];
@@ -146,7 +146,7 @@ class ExtraMileageBloc extends Bloc<ExtraMileageEvent, ExtraMileageListState> {
     final result = await _extraMileageUsecase.call(
       ExtraMileageParams(
         page: '1',
-        status: event.status,
+        destination: event.destination,
         startDate: event.startDate,
         endDate: event.endDate,
       ),

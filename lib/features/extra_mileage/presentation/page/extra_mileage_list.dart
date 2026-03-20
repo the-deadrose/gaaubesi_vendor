@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/domain/entity/extra_mileage_list_entity.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_milage_list_event.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_mileage_list_bloc.dart';
@@ -8,6 +10,7 @@ import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/extra_m
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_bloc.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_event.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/presentation/bloc/approval/extra_mileage_approval_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
 import 'package:intl/intl.dart';
 
 @RoutePage()
@@ -23,7 +26,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
   late ExtraMileageBloc _extraMileageBloc;
   late ExtraMileageApprovalBloc _approvalBloc;
 
-  String _selectedStatus = '';
+  String _selectedDestination = '';
   DateTime? _selectedStartDate;
   DateTime? _selectedEndDate;
 
@@ -32,6 +35,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     super.initState();
     _extraMileageBloc = context.read<ExtraMileageBloc>();
     _approvalBloc = context.read<ExtraMileageApprovalBloc>();
+
+    // Fetch branches list
+    context.read<BranchListBloc>().add(const FetchBranchListEvent(''));
 
     _fetchInitialData();
     _scrollController.addListener(_onScroll);
@@ -46,7 +52,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
   void _fetchInitialData() {
     _extraMileageBloc.add(
       FetchExtraMileageListEvent(
-        status: _selectedStatus,
+        destination: _selectedDestination,
         startDate: _selectedStartDate != null
             ? DateFormat('yyyy-MM-dd').format(_selectedStartDate!)
             : '',
@@ -69,7 +75,7 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
   void _refreshData() {
     _extraMileageBloc.add(
       RefreshExtraMileageListEvent(
-        status: _selectedStatus,
+        destination: _selectedDestination,
         startDate: _selectedStartDate != null
             ? DateFormat('yyyy-MM-dd').format(_selectedStartDate!)
             : '',
@@ -84,13 +90,6 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     setState(() {
       _selectedStartDate = null;
       _selectedEndDate = null;
-    });
-    _applyFilters();
-  }
-
-  void _clearStatusFilter() {
-    setState(() {
-      _selectedStatus = '';
     });
     _applyFilters();
   }
@@ -167,72 +166,97 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     }
   }
 
-  Widget _buildStatusChips() {
-    const statuses = [
-      {'value': '', 'label': 'All', 'icon': Icons.all_inclusive_rounded},
-      {
-        'value': 'pending',
-        'label': 'Pending',
-        'icon': Icons.access_time_rounded,
-      },
-      {
-        'value': 'approved',
-        'label': 'Approved',
-        'icon': Icons.check_circle_rounded,
-      },
-      {'value': 'rejected', 'label': 'Rejected', 'icon': Icons.cancel_rounded},
-    ];
+  Widget _buildDestinationDropdown() {
+    return BlocBuilder<BranchListBloc, BranchListState>(
+      builder: (context, state) {
+        List<dynamic> destinations = [];
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: statuses.map((status) {
-          final isSelected = _selectedStatus == (status['value'] as String?);
-          final color = Theme.of(context).colorScheme.primary;
+        if (state is BranchListLoaded) {
+          destinations = state.branchList;
+        }
 
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    status['icon'] as IconData,
-                    size: 16,
-                    color: isSelected ? Colors.white : color,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    status['label'] as String,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: isSelected ? Colors.white : color,
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: Border(
+              bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Search by Destination',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedDestination.isEmpty
+                      ? null
+                      : _selectedDestination,
+                  isExpanded: true,
+                  underline: const SizedBox(),
+                  hint: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'Select Destination',
+                      style: TextStyle(color: Colors.grey[600]),
                     ),
                   ),
-                ],
-              ),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedStatus = status['value'] as String;
-                });
-                _applyFilters();
-              },
-              backgroundColor: color.withValues(alpha: 0.1),
-              selectedColor: color,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: color.withValues(alpha: isSelected ? 0 : 0.3),
+                  items: [
+                    DropdownMenuItem<String>(
+                      value: '',
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text('All Destinations'),
+                      ),
+                    ),
+                    ...destinations.map<DropdownMenuItem<String>>((
+                      destination,
+                    ) {
+                      return DropdownMenuItem<String>(
+                        value: destination.label ?? '',
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(destination.label ?? '')),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedDestination = newValue ?? '';
+                    });
+                    _applyFilters();
+                  },
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-          );
-        }).toList(),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -360,63 +384,6 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     );
   }
 
-  Widget _buildActiveFilterChips() {
-    final chips = <Widget>[];
-
-    if (_selectedStatus.isNotEmpty) {
-      chips.add(
-        _ActiveFilterChip(
-          label: _selectedStatus == 'pending'
-              ? 'Pending'
-              : _selectedStatus == 'approved'
-              ? 'Approved'
-              : 'Rejected',
-          onRemove: _clearStatusFilter,
-          color: Theme.of(context).colorScheme.primary,
-          icon: _getStatusIcon(_selectedStatus),
-        ),
-      );
-    }
-
-    if (_selectedStartDate != null || _selectedEndDate != null) {
-      if (chips.isNotEmpty) {
-        chips.add(const SizedBox(width: 8));
-      }
-      chips.add(
-        _ActiveFilterChip(
-          label:
-              '${_selectedStartDate != null ? DateFormat('dd/MM/yy').format(_selectedStartDate!) : ''}'
-              '${_selectedEndDate != null ? ' - ${DateFormat('dd/MM/yy').format(_selectedEndDate!)}' : ''}',
-          onRemove: _clearDateFilter,
-          icon: Icons.calendar_today_rounded,
-        ),
-      );
-    }
-
-    if (chips.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Icon(Icons.filter_alt_rounded, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: 8),
-            Text(
-              'No filters applied',
-              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(children: chips),
-      ),
-    );
-  }
 
   Widget _buildExtraMileageItem(ExtraMileageResponseEntity item) {
     final extraKm = item.extraKm;
@@ -625,19 +592,6 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
     return Icons.error_outline_rounded;
   }
 
-  IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'pending':
-        return Icons.access_time_rounded;
-      case 'approved':
-        return Icons.check_circle_rounded;
-      case 'rejected':
-        return Icons.cancel_rounded;
-      default:
-        return Icons.all_inclusive_rounded;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -709,9 +663,8 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
           builder: (context, state) {
             return Column(
               children: [
-                _buildStatusChips(),
+                _buildDestinationDropdown(),
                 _buildDateFilterSection(),
-                _buildActiveFilterChips(),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
@@ -997,9 +950,9 @@ class _ExtraMileageScreenState extends State<ExtraMileageScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                _selectedStatus.isEmpty
+                _selectedDestination.isEmpty
                     ? 'No extra mileage requests found'
-                    : 'No $_selectedStatus requests found',
+                    : 'No requests found for $_selectedDestination',
                 textAlign: TextAlign.center,
                 style: Theme.of(
                   context,
@@ -1137,47 +1090,3 @@ class _CustomShimmerState extends State<_CustomShimmer>
   }
 }
 
-class _ActiveFilterChip extends StatelessWidget {
-  final String label;
-  final VoidCallback onRemove;
-  final IconData icon;
-  final Color color;
-
-  const _ActiveFilterChip({
-    required this.label,
-    required this.onRemove,
-    required this.icon,
-    this.color = Colors.blue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: onRemove,
-            child: Icon(Icons.close_rounded, size: 14, color: color),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -8,18 +8,18 @@ abstract class ExtraMileageEvent extends Equatable {
 }
 
 class FetchExtraMileageListEvent extends ExtraMileageEvent {
-  final String status;
+  final String destination;
   final String startDate;
   final String endDate;
 
   const FetchExtraMileageListEvent({
-    required this.status,
+    required this.destination,
     required this.startDate,
     required this.endDate,
   });
 
   @override
-  List<Object?> get props => [status, startDate, endDate];
+  List<Object?> get props => [destination, startDate, endDate];
 }
 
 class LoadMoreExtraMileageEvent extends ExtraMileageEvent {
@@ -27,16 +27,16 @@ class LoadMoreExtraMileageEvent extends ExtraMileageEvent {
 }
 
 class RefreshExtraMileageListEvent extends ExtraMileageEvent {
-  final String status;
+  final String destination;
   final String startDate;
   final String endDate;
 
   const RefreshExtraMileageListEvent({
-    required this.status,
+    required this.destination,
     required this.startDate,
     required this.endDate,
   });
 
   @override
-  List<Object?> get props => [status, startDate, endDate];
+  List<Object?> get props => [destination, startDate, endDate];
 }

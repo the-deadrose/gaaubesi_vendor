@@ -55,6 +55,7 @@ dependencies:
   fl_chart: ^1.1.1
   syncfusion_flutter_charts: ^32.1.25
   shared_preferences: ^2.2.0
+  # firebase_core: ^4.4.0
 
   
 

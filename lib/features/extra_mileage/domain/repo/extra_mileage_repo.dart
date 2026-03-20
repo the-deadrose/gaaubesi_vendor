@@ -5,9 +5,9 @@ import 'package:gaaubesi_vendor/features/extra_mileage/domain/entity/extra_milea
 abstract class ExtraMileageRepo {
   Future<Either<Failure, ExtraMileageResponseListEntity>> fetchExtraMileageList(
     String page,
-    String status,
     String startDate,
     String endDate,
+    String destination,
   );
 
   Future<Either<Failure, void>> approveExtraMileage(String mileageId);

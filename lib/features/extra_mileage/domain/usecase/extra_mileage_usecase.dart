@@ -16,22 +16,22 @@ class ExtraMileageUsecase
   ) {
     return extraMileageRepo.fetchExtraMileageList(
       params.page,
-      params.status,
       params.startDate,
       params.endDate,
+      params.destination,
     );
   }
 }
 
 class ExtraMileageParams {
   final String page;
-  final String status;
+ final String destination;
   final String startDate;
   final String endDate;
 
   ExtraMileageParams({
     required this.page,
-    required this.status,
+    required this.destination,
     required this.startDate,
     required this.endDate,
   });

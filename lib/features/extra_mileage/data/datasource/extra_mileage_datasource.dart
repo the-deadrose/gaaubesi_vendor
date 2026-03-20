@@ -9,7 +9,7 @@ import 'package:injectable/injectable.dart';
 abstract class ExtraMileageRemoteDatasource {
   Future<ExtraMileageResponseListEntity> fetchExtraMileageList(
     String page,
-    String status,
+    String destination,
     String startDate,
     String endDate,
   );
@@ -27,22 +27,21 @@ class ExtraMileageRemoteDatasourceImpl implements ExtraMileageRemoteDatasource {
   @override
   Future<ExtraMileageResponseListEntity> fetchExtraMileageList(
     String page,
-    String status,
+    String destination,
     String startDate,
     String endDate,
   ) async {
     try {
       final hasParams =
           page.isNotEmpty ||
-          status.isNotEmpty ||
+          destination.isNotEmpty ||
           startDate.isNotEmpty ||
           endDate.isNotEmpty;
 
       dynamic response;
       if (hasParams) {
         final queryParameters = <String, dynamic>{};
-        if (page.isNotEmpty) queryParameters['page'] = page;
-        if (status.isNotEmpty) queryParameters['status'] = status;
+        if (destination.isNotEmpty) queryParameters['destination_branch'] = destination;
         if (startDate.isNotEmpty) queryParameters['start_date'] = startDate;
         if (endDate.isNotEmpty) queryParameters['end_date'] = endDate;
 

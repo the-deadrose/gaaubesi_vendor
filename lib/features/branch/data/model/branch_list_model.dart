@@ -27,7 +27,7 @@ class OrderStatusModel {
 
   OrderStatusEntity toEntity() => OrderStatusEntity(
         value: id.toString(), // Use ID as value for backend
-        label: '$code - $name', // Show code and name in dropdown
+        label: name, // Show only name in dropdown
         code: code, // Branch code for matching
       );
 
