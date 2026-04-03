@@ -41,6 +41,7 @@ class ExtraMileageRemoteDatasourceImpl implements ExtraMileageRemoteDatasource {
       dynamic response;
       if (hasParams) {
         final queryParameters = <String, dynamic>{};
+        queryParameters["status"] = 'pending'; 
         if (destination.isNotEmpty) queryParameters['destination_branch'] = destination;
         if (startDate.isNotEmpty) queryParameters['start_date'] = startDate;
         if (endDate.isNotEmpty) queryParameters['end_date'] = endDate;
