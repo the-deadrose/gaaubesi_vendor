@@ -11,6 +11,7 @@ import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/today_detail/
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/destination_branch_bloc.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/calculate_charge/presentation/bloc/calculate_delivery_charge_bloc.dart';
 import 'package:gaaubesi_vendor/features/cod_transfer/presentation/bloc/cod_transfer_bloc.dart';
@@ -113,6 +114,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt<TodayDetailBloc>()),
         BlocProvider(create: (context) => getIt<SubBranchBloc>()),
         BlocProvider(create: (context) => getIt<ResourcesListBloc>()),
+        BlocProvider(create: (context) => getIt<DestinationBranchBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',

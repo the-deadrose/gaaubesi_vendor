@@ -29,12 +29,12 @@ class _BranchReportAnalysisScreenState
   final TextEditingController _searchController = TextEditingController();
   DateTime? _selectedStartDate;
   DateTime? _selectedEndDate;
-  OrderStatusEntity? _selectedBranch;
+  BranchListEntity? _selectedBranch;
   static const int maxDaysRange = 180;
   String? _dateRangeError;
   bool _isSearching = false;
   final FocusNode _searchFocusNode = FocusNode();
-  List<OrderStatusEntity> _filteredBranches = [];
+  List<BranchListEntity> _filteredBranches = [];
 
   @override
   void initState() {
@@ -182,7 +182,7 @@ class _BranchReportAnalysisScreenState
     _fetchAnalysis();
   }
 
-  void _selectBranch(OrderStatusEntity branch) {
+  void _selectBranch(BranchListEntity branch) {
     setState(() {
       _selectedBranch = branch;
       _searchController.text = branch.label;
@@ -225,7 +225,7 @@ class _BranchReportAnalysisScreenState
     });
   }
 
-  void _showBranchSearchDialog(List<OrderStatusEntity> branches) {
+  void _showBranchSearchDialog(List<BranchListEntity> branches) {
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -611,7 +611,7 @@ class _BranchReportAnalysisScreenState
     );
   }
 
-  Widget _buildBranchSelectionField(List<OrderStatusEntity> branches) {
+  Widget _buildBranchSelectionField(List<BranchListEntity> branches) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

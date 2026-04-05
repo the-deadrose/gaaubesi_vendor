@@ -11,8 +11,10 @@ import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_bl
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/order/order_state.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/destination_branch_bloc.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/destination_branch_state.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/pickup_point_entity.dart';
 
@@ -29,6 +31,9 @@ class CreateOrderPage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => getIt<BranchListBloc>(),
+        ),
+        BlocProvider(
+          create: (context) => getIt<DestinationBranchBloc>(),
         ),
       ],
       child: const _CreateOrderView(),
@@ -64,10 +69,10 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
   final _referenceIdFocus = FocusNode();
   final _remarksFocus = FocusNode();
 
-  List<OrderStatusEntity> _allBranches = [];
-  List<OrderStatusEntity> _filteredBranches = [];
-  List<OrderStatusEntity> _allDestBranches = [];
-  List<OrderStatusEntity> _filteredDestBranches = [];
+  List<BranchListEntity> _allBranches = [];
+  List<BranchListEntity> _filteredBranches = [];
+  List<BranchListEntity> _allDestBranches = [];
+  List<BranchListEntity> _filteredDestBranches = [];
   List<PickupPointEntity> _pickupPointList = [];
   
   String? _selectedSource;
@@ -86,6 +91,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     super.initState();
     _loadBranches();
     _loadPickupPoints();
+    _loadDestinationBranches();
   }
 
   Future<void> _loadBranches() async {
@@ -128,14 +134,13 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     }
   }
 
-  void _updateBranches(List<OrderStatusEntity> branches) {
+  void _updateBranches(List<BranchListEntity> branches) {
     debugPrint('[CreateOrderPage] _updateBranches called with ${branches.length} branches');
     for (var i = 0; i < branches.length && i < 3; i++) {
       debugPrint('[CreateOrderPage] Branch $i BEFORE filter: value="${branches[i].value}", label="${branches[i].label}", code="${branches[i].code}"');
       debugPrint('[CreateOrderPage] Branch $i isEmpty checks: value=${branches[i].value.isEmpty}, label=${branches[i].label.isEmpty}, code=${branches[i].code.isEmpty}');
     }
     setState(() {
-      // Filter out branches with empty values and remove duplicates
       final seen = <String>{};
       _allBranches = branches
           .where((b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty)
@@ -202,6 +207,64 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     }
   }
 
+  Future<void> _loadDestinationBranches() async {
+    try {
+      final destBranchBloc = context.read<DestinationBranchBloc>();
+
+      // Check current state first
+      final currentState = destBranchBloc.state;
+      if (currentState is DestinationBranchLoaded) {
+        _updateDestinationBranches(currentState.destinationBranch);
+        return;
+      }
+
+      // If not loaded, fetch destination branches
+      destBranchBloc.add(FetchDestinationBranchEvent(''));
+
+      // Listen to destination branch state
+      await for (final state in destBranchBloc.stream) {
+        if (state is DestinationBranchLoaded) {
+          if (mounted) {
+            _updateDestinationBranches(state.destinationBranch);
+          }
+          break;
+        } else if (state is DestinationBranchError) {
+          if (mounted) {
+            setState(() {
+            });
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading destination branches: $e');
+      if (mounted) {
+        setState(() {
+        });
+      }
+    }
+  }
+
+  void _updateDestinationBranches(List<BranchListEntity> destBranches) {
+    debugPrint('[CreateOrderPage] _updateDestinationBranches called with ${destBranches.length} branches');
+    for (var i = 0; i < destBranches.length && i < 3; i++) {
+      debugPrint('[CreateOrderPage] Destination Branch $i: value="${destBranches[i].value}", label="${destBranches[i].label}", code="${destBranches[i].code}"');
+    }
+    setState(() {
+      // Filter out branches with empty values and remove duplicates
+      final seen = <String>{};
+      _allDestBranches = destBranches
+          .where((b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty)
+          .where((b) => seen.add(b.value))
+          .toList();
+      debugPrint('[CreateOrderPage] AFTER filter: ${_allDestBranches.length} destination branches remain');
+      for (var i = 0; i < _allDestBranches.length && i < 3; i++) {
+        debugPrint('[CreateOrderPage] Filtered Destination Branch $i: value="${_allDestBranches[i].value}", label="${_allDestBranches[i].label}", code="${_allDestBranches[i].code}"');
+      }
+      _filteredDestBranches = List.from(_allDestBranches);
+    });
+  }
+
   void _filterSourceBranches(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -256,13 +319,27 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
 
   void _handleSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
+      debugPrint('[CreateOrderPage] Source: $_selectedSource, Destination: $_selectedDestination');
+      
       final branchId = int.tryParse(_selectedSource ?? '');
       final destBranchId = int.tryParse(_selectedDestination ?? '');
 
+      debugPrint('[CreateOrderPage] Parsed branchId: $branchId, destBranchId: $destBranchId');
+
       if (branchId == null || destBranchId == null) {
+        String errorMsg = 'Invalid branch selection';
+        if (branchId == null) {
+          errorMsg += '\nSource branch value: "$_selectedSource" could not be parsed as integer';
+        }
+        if (destBranchId == null) {
+          errorMsg += '\nDestination branch value: "$_selectedDestination" could not be parsed as integer';
+        }
+        
+        debugPrint('[CreateOrderPage] $errorMsg');
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid branch selection'),
+          SnackBar(
+            content: Text(errorMsg),
             backgroundColor: Colors.red,
           ),
         );
@@ -406,9 +483,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please select destination branch';
-                              }
-                              if (value == _selectedSource) {
-                                return 'Destination must be different from source';
                               }
                               return null;
                             },
@@ -830,7 +904,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     required String label,
     required String? value,
     required ValueChanged<String?> onChanged,
-    required List<OrderStatusEntity> filteredBranches,
+    required List<BranchListEntity> filteredBranches,
     required ValueChanged<String> onSearchChanged,
     required IconData icon,
     String? Function(String?)? validator,
@@ -845,66 +919,73 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     final selectedBranch = value != null
         ? allBranches.firstWhere(
             (b) => b.value == value,
-            orElse: () => OrderStatusEntity(value: value, label: value, code: ''),
+            orElse: () => BranchListEntity(value: value, label: value, code: ''),
           )
         : null;
 
-    return GestureDetector(
-      onTap: () async {
-        FocusScope.of(context).unfocus();
-        
-        // Show search dialog
-        final result = await showDialog<String>(
-          context: context,
-          builder: (BuildContext dialogContext) => _BranchSearchDialog(
-            title: label,
-            branches: allBranches,
-            selectedValue: value,
+    return FormField<String>(
+      initialValue: value,
+      validator: validator,
+      builder: (FormFieldState<String> formFieldState) {
+        return GestureDetector(
+          onTap: () async {
+            FocusScope.of(context).unfocus();
+            
+            // Show search dialog
+            final result = await showDialog<String>(
+              context: context,
+              builder: (BuildContext dialogContext) => _BranchSearchDialog(
+                title: label,
+                branches: allBranches,
+                selectedValue: value,
+              ),
+            );
+            
+            if (result != null) {
+              formFieldState.didChange(result);
+              onChanged(result);
+            }
+          },
+          child: AbsorbPointer(
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: label,
+                prefixIcon: Icon(icon),
+                suffixIcon: const Icon(Icons.arrow_drop_down),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: theme.primaryColor, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.red),
+                ),
+                filled: true,
+                fillColor: isDark
+                    ? Colors.white.withValues(alpha:  0.05)
+                    : Colors.grey.shade50,
+                errorText: formFieldState.errorText,
+              ),
+              child: Text(
+                selectedBranch?.label ?? 'Select ${label.toLowerCase()}',
+                style: TextStyle(
+                  color: selectedBranch != null ? Colors.black : Colors.grey.shade600,
+                  fontSize: 16,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
         );
-        
-        if (result != null) {
-          onChanged(result);
-        }
       },
-      child: AbsorbPointer(
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: label,
-            prefixIcon: Icon(icon),
-            suffixIcon: const Icon(Icons.arrow_drop_down),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: theme.primaryColor, width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.red),
-            ),
-            filled: true,
-            fillColor: isDark
-                ? Colors.white.withValues(alpha:  0.05)
-                : Colors.grey.shade50,
-            errorText: validator != null ? validator(value) : null,
-          ),
-          child: Text(
-            selectedBranch?.label ?? 'Select ${label.toLowerCase()}',
-            style: TextStyle(
-              color: selectedBranch != null ? Colors.black : Colors.grey.shade600,
-              fontSize: 16,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ),
     );
   }
 
@@ -1005,7 +1086,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
 // Search Dialog Widget
 class _BranchSearchDialog extends StatefulWidget {
   final String title;
-  final List<OrderStatusEntity> branches;
+  final List<BranchListEntity> branches;
   final String? selectedValue;
 
   const _BranchSearchDialog({
@@ -1020,7 +1101,7 @@ class _BranchSearchDialog extends StatefulWidget {
 
 class _BranchSearchDialogState extends State<_BranchSearchDialog> {
   final TextEditingController _searchController = TextEditingController();
-  List<OrderStatusEntity> _filteredBranches = [];
+  List<BranchListEntity> _filteredBranches = [];
 
   @override
   void initState() {

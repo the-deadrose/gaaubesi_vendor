@@ -17,7 +17,7 @@ class BranchListRepoImp implements BranchListRepository {
   BranchListRepoImp({required this.remoteDatasource});
 
   @override
-  Future<Either<ServerFailure, List<OrderStatusEntity>>> getBranchList(
+  Future<Either<ServerFailure, List<BranchListEntity>>> getBranchList(
     String branch,
   ) async {
     try {
@@ -81,6 +81,28 @@ class BranchListRepoImp implements BranchListRepository {
         searchQuery: searchQuery,
       );
       return Right(redirectStations);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint(
+          '[BranchListRepo] Session expired, returning silent failure',
+        );
+        return Left(ServerFailure('Session expired'));
+      }
+      return Left(ServerFailure(e.message ?? 'Network error'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      debugPrint('[BranchListRepo] Unexpected error: $e');
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
+
+
+  @override
+  Future<Either<ServerFailure, List<BranchListEntity>>> getDestinationBranch(String branch) async {
+    try {
+      final destinationBranches = await remoteDatasource.fetchdestinationBranch(branch);
+      return Right(destinationBranches);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
         debugPrint(

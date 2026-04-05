@@ -68,12 +68,16 @@ import 'package:gaaubesi_vendor/features/branch/domain/repository/branch_list_re
     as _i684;
 import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_branch_list_usecase.dart'
     as _i681;
+import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_destination_branch_list_usecase.dart'
+    as _i948;
 import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_pickup_point_usecase.dart'
     as _i598;
 import 'package:gaaubesi_vendor/features/branch/domain/usecase/get_redirect_station_usecase.dart'
     as _i1045;
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart'
     as _i270;
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/destination_branch_bloc.dart'
+    as _i129;
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/redirect_stations/redirect_station_list_bloc.dart'
     as _i128;
 import 'package:gaaubesi_vendor/features/calculate_charge/data/datasource/calculate_delivery_charge_datasource.dart'
@@ -460,6 +464,10 @@ Future<_i174.GetIt> init(
   gh.lazySingleton<_i681.GetBranchListUsecase>(
     () => _i681.GetBranchListUsecase(gh<_i684.BranchListRepository>()),
   );
+  gh.lazySingleton<_i948.GetDestinationBranchListUsecase>(
+    () =>
+        _i948.GetDestinationBranchListUsecase(gh<_i684.BranchListRepository>()),
+  );
   gh.lazySingleton<_i598.GetPickupPointUsecase>(
     () => _i598.GetPickupPointUsecase(gh<_i684.BranchListRepository>()),
   );
@@ -545,6 +553,12 @@ Future<_i174.GetIt> init(
   gh.lazySingleton<_i523.DailyTransectionRepo>(
     () => _i11.DailyTransectionRepoImp(
       remoteDatasource: gh<_i339.DailyTransectionRemoteDatasource>(),
+    ),
+  );
+  gh.factory<_i129.DestinationBranchBloc>(
+    () => _i129.DestinationBranchBloc(
+      getDestinationBranchListUsecase:
+          gh<_i948.GetDestinationBranchListUsecase>(),
     ),
   );
   gh.lazySingleton<_i966.ExtraMileageUsecase>(

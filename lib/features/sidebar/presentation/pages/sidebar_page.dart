@@ -128,8 +128,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is SidebarLoadedState) {
                     final items = state.items
-                        .where((item) => item.hasAccess)
-                        .toList();
+                        .where((item) => item.hasAccess)                        .where((item) => !['Orders', 'Tickets', 'Messages'].contains(item.name))                        .toList();
 
                     if (items.isEmpty) {
                       return Center(

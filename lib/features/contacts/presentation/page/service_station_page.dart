@@ -616,88 +616,84 @@ class _ServiceStationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    serviceStation.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  serviceStation.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(width: 8),
-                Chip(
-                  label: Text(
-                    'Rs.${serviceStation.baseCharge.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                  backgroundColor: Theme.of(context).primaryColor,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            _buildInfoRow(
-              icon: Icons.location_on,
-              text:
-                  '${serviceStation.district} • ${serviceStation.areaCovered}',
-            ),
-
-            const SizedBox(height: 8),
-
-            _buildInfoRow(
-              icon: Icons.access_time,
-              text: 'Arrival: ${serviceStation.arrivalTime}',
-            ),
-
-            if (serviceStation.phoneNumbers.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              const Text(
-                'Contact Numbers:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: serviceStation.phoneNumbers.entries.map((entry) {
-                  return Chip(
-                    label: Text(
-                      '${entry.key}: ${entry.value}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    backgroundColor: Colors.grey[100],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  );
-                }).toList(),
+              const SizedBox(width: 8),
+              Chip(
+                label: Text(
+                  'Rs.${serviceStation.baseCharge.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                backgroundColor: Theme.of(context).primaryColor,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
               ),
             ],
+          ),
+    
+          const SizedBox(height: 12),
+    
+          _buildInfoRow(
+            icon: Icons.location_on,
+            text:
+                '${serviceStation.district} • ${serviceStation.areaCovered}',
+          ),
+    
+          const SizedBox(height: 8),
+    
+          _buildInfoRow(
+            icon: Icons.access_time,
+            text: 'Arrival: ${serviceStation.arrivalTime}',
+          ),
+    
+          if (serviceStation.phoneNumbers.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            const Text(
+              'Contact Numbers:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: serviceStation.phoneNumbers.entries.map((entry) {
+                return Chip(
+                  label: Text(
+                    '${entry.key}: ${entry.value}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  backgroundColor: Colors.grey[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                );
+              }).toList(),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

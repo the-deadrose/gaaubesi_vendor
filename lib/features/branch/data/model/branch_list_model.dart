@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'branch_list_model.g.dart';
 
 @JsonSerializable(explicitToJson: true, includeIfNull: false)
-class OrderStatusModel {
+class BranchListModel {
   @JsonKey(name: 'id', defaultValue: 0)
   final int id;
   
@@ -14,25 +14,25 @@ class OrderStatusModel {
   @JsonKey(name: 'name', defaultValue: '')
   final String name;
 
-  const OrderStatusModel({
+  const BranchListModel({
     required this.id,
     required this.code,
     required this.name,
   });
 
-  factory OrderStatusModel.fromJson(Map<String, dynamic> json) =>
-      _$OrderStatusModelFromJson(json);
+  factory BranchListModel.fromJson(Map<String, dynamic> json) =>
+      _$BranchListModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$OrderStatusModelToJson(this);
+  Map<String, dynamic> toJson() => _$BranchListModelToJson(this);
 
-  OrderStatusEntity toEntity() => OrderStatusEntity(
+  BranchListEntity toEntity() => BranchListEntity(
         value: id.toString(), // Use ID as value for backend
         label: name, // Show only name in dropdown
         code: code, // Branch code for matching
       );
 
-  factory OrderStatusModel.fromEntity(OrderStatusEntity entity) =>
-      OrderStatusModel(
+  factory BranchListModel.fromEntity(BranchListEntity entity) =>
+      BranchListModel(
         id: int.tryParse(entity.value) ?? 0,
         code: entity.code,
         name: entity.label,

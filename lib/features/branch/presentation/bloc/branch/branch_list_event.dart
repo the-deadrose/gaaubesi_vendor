@@ -39,3 +39,21 @@ class RefreshPickupPointsEvent extends BranchListEvent {
   @override
   List<Object?> get props => [];
 }
+
+class FetchDestinationBranchEvent extends BranchListEvent {
+  final String branch;
+
+  const FetchDestinationBranchEvent(this.branch);
+
+  @override
+  List<Object?> get props => [branch];
+}
+
+class RefreshDestinationBranchEvent extends BranchListEvent {
+  final String branch;
+
+  const RefreshDestinationBranchEvent(this.branch);
+
+  @override
+  List<Object?> get props => [branch];
+}

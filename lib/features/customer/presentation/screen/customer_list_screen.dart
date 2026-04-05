@@ -100,37 +100,56 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: theme.colorScheme.surface,
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search customers...',
-                prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurface.withValues(alpha:  0.6)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha:  0.3)),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onSubmitted: _onSearchChanged,
+                    decoration: InputDecoration(
+                      hintText: 'Search customers...',
+                      prefixIcon: Icon(Icons.search, color: theme.colorScheme.onSurface.withValues(alpha:  0.6)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha:  0.3)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha:  0.3)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: theme.colorScheme.primary),
+                      ),
+                      filled: true,
+                      fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha:  0.3),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: theme.colorScheme.onSurface.withValues(alpha:  0.6)),
+                              onPressed: () {
+                                _searchController.clear();
+                                context.read<CustomerListBloc>().add(const FetchCustomerList());
+                              },
+                            )
+                          : null,
+                    ),
+                  ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha:  0.3)),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.search, color: theme.colorScheme.primary),
+                  onPressed: () {
+                    _onSearchChanged(_searchController.text);
+                  },
+                  style: IconButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary.withValues(alpha:  0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.colorScheme.primary),
-                ),
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha:  0.3),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear, color: theme.colorScheme.onSurface.withValues(alpha:  0.6)),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchChanged('');
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: _onSearchChanged,
+              ],
             ),
           ),
 

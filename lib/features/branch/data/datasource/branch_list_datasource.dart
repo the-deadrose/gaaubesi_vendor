@@ -12,12 +12,14 @@ import 'package:gaaubesi_vendor/features/branch/data/model/branch_list_model.dar
 import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
 
 abstract class BranchListRemoteDatasource {
-  Future<List<OrderStatusEntity>> fetchBranchList(String branch);
+  Future<List<BranchListEntity>> fetchBranchList(String branch);
   Future<List<PickupPointEntity>> fetchPickupPoints();
   Future<RedirectStationListEntity> fetchRedirectStations({
     required String page,
     String? searchQuery,
   });
+
+  Future<List<BranchListEntity>> fetchdestinationBranch(String branch);
 }
 
 @LazySingleton(as: BranchListRemoteDatasource)
@@ -26,7 +28,7 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
   final DioClient _dioClient;
 
   @override
-  Future<List<OrderStatusEntity>> fetchBranchList(String branch) async {
+  Future<List<BranchListEntity>> fetchBranchList(String branch) async {
     debugPrint('[BRANCH_LIST_DATASOURCE] FETCHING BRANCH LIST');
 
     try {
@@ -82,12 +84,12 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         }
 
         debugPrint('[BRANCH_LIST_DATASOURCE]  Processing ${data.length} items');
-        final branchList = <OrderStatusEntity>[];
+        final branchList = <BranchListEntity>[];
 
         for (var i = 0; i < data.length; i++) {
           try {
             debugPrint('[BRANCH_LIST_DATASOURCE]  Item $i: ${data[i]}');
-            final model = OrderStatusModel.fromJson(
+            final model = BranchListModel.fromJson(
               data[i] as Map<String, dynamic>,
             );
             debugPrint(
@@ -207,6 +209,57 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         return model.toEntity();
       } else {
         throw ServerException('Failed to fetch redirect stations');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        debugPrint(
+          '[BRANCH_LIST_DATASOURCE] Session expired, user will be redirected to login',
+        );
+        rethrow;
+      }
+      debugPrint(
+        '[BRANCH_LIST_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
+      );
+      throw ServerException(
+        e.message ?? 'Unknown error',
+        statusCode: e.response?.statusCode,
+      );
+    } catch (e) {
+      debugPrint('[BRANCH_LIST_DATASOURCE] Unexpected error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<BranchListEntity>> fetchdestinationBranch(String branch) async {
+    try {
+      final response = await _dioClient.get(
+        "${ApiEndpoints.orderCreateDestinationBranchList}destination/",
+        queryParameters: {'search': branch },
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic responseData = response.data;
+        if (responseData is! Map<String, dynamic>) {
+          throw ServerException('Unexpected response format');
+        }
+        
+        // Extract results array from paginated response
+        final resultsList = responseData['results'] as List?;
+        if (resultsList == null || resultsList.isEmpty) {
+          debugPrint('[BRANCH_LIST_DATASOURCE] No results found in destination branch response');
+          return [];
+        }
+        
+        // Parse each branch from results array
+        final branches = resultsList
+            .map((item) => BranchListModel.fromJson(item as Map<String, dynamic>).toEntity())
+            .toList();
+        
+        debugPrint('[BRANCH_LIST_DATASOURCE] Parsed ${branches.length} destination branches');
+        return branches;
+      } else {
+        throw ServerException('Failed to fetch destination branch');
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {

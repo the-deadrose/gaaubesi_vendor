@@ -6,14 +6,14 @@ part of 'branch_list_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-OrderStatusModel _$OrderStatusModelFromJson(Map<String, dynamic> json) =>
-    OrderStatusModel(
+BranchListModel _$BranchListModelFromJson(Map<String, dynamic> json) =>
+    BranchListModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
       code: json['code'] as String? ?? '',
       name: json['name'] as String? ?? '',
     );
 
-Map<String, dynamic> _$OrderStatusModelToJson(OrderStatusModel instance) =>
+Map<String, dynamic> _$BranchListModelToJson(BranchListModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'code': instance.code,

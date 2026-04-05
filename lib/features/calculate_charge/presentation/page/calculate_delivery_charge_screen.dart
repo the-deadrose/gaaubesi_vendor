@@ -470,7 +470,7 @@ class CalculateChargeShimmerEffect extends StatelessWidget {
 }
 
 class _Content extends StatelessWidget {
-  final List<OrderStatusEntity> branches;
+  final List<BranchListEntity> branches;
   final TextEditingController weightController;
   final String? selectedSourceId;
   final String? selectedDestinationId;

@@ -1,13 +1,9 @@
-
 class ApiEndpoints {
   ApiEndpoints._();
 
-
   static const String login = '/token/';
 
-
   static const String refreshToken = '/token/refresh/';
-
 
   static const String logout = '/logout/';
 
@@ -35,7 +31,7 @@ class ApiEndpoints {
 
   static const String replyToComment = '/comments/reply/';
 
-  static const String  orderDetailComments = '/order/';
+  static const String orderDetailComments = '/order/';
 
   static const String createCommentOrderDetail = '/comments/create/';
 
@@ -52,7 +48,7 @@ class ApiEndpoints {
   static const String pickupPoints = '/pickup_points/';
 
   static const String warehouseOrderList = '/warehouse/';
-  
+
   static const String codTransfer = '/cod-transfer/';
 
   static const String customerList = '/customers/';
@@ -65,7 +61,8 @@ class ApiEndpoints {
 
   static const String redirectedOrdersToday = '/redirect-orders/today/';
 
-  static const String calculateDeliveryCharge = '/order/delivery-charge/calculate/';
+  static const String calculateDeliveryCharge =
+      '/order/delivery-charge/calculate/';
 
   static const String frequentlyUsedPaymentMethods = '/payment/request/';
 
@@ -110,17 +107,21 @@ class ApiEndpoints {
   static const String approveExtraMileage = '/extra-mileage/update/';
 
   static const String markMessageAsRead = '/messages/read/';
-  
+
   static const String markNoticeAsRead = '/notices/read/';
 
   static const String sidebar = '/staff/vendor-staff-sidebar-items/';
 
-  static const String todayDetails = '/analysis/today-details/'; 
+  static const String todayDetails = '/analysis/today-details/';
 
   static const String subBranches = '/services/service-station/';
 
   static const String resourcesList = '/resources-list/';
+
+  static const String orderCreateDestinationBranchList =
+      '/order/create/branch/list/';
 }
+
 class QueryParams {
   QueryParams._();
 

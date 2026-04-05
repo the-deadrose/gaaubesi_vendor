@@ -19,13 +19,13 @@ class BranchListLoading extends BranchListState {
 }
 
 class BranchListLoaded extends BranchListState {
-  final List<OrderStatusEntity> branchList;
+  final List<BranchListEntity> branchList;
   final bool isRefreshing;
 
   const BranchListLoaded({required this.branchList, this.isRefreshing = false});
 
   BranchListLoaded copyWith({
-    List<OrderStatusEntity>? branchList,
+    List<BranchListEntity>? branchList,
     bool? isRefreshing,
   }) {
     return BranchListLoaded(

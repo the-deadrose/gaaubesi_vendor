@@ -1376,7 +1376,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
   ];
   final List<String> _pickupTypeOptions = ['Pickup', 'Drop Off'];
 
-  List<OrderStatusEntity> _branchList = [];
+  List<BranchListEntity> _branchList = [];
   bool _isLoadingBranches = true;
 
   @override
@@ -1482,7 +1482,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             (b) => b.code == validSourceCode,
             orElse: () => _branchList.isNotEmpty
                 ? _branchList.first
-                : OrderStatusEntity(value: '', label: '', code: ''),
+                : BranchListEntity(value: '', label: '', code: ''),
           )
         : null;
     final destBranch = validDestCode != null
@@ -1490,7 +1490,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
             (b) => b.code == validDestCode,
             orElse: () => _branchList.isNotEmpty
                 ? _branchList.first
-                : OrderStatusEntity(value: '', label: '', code: ''),
+                : BranchListEntity(value: '', label: '', code: ''),
           )
         : null;
 
@@ -1695,7 +1695,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
                         ? _branchList
                               .firstWhere(
                                 (b) => b.value == _selectedBranch,
-                                orElse: () => OrderStatusEntity(
+                                orElse: () => BranchListEntity(
                                   value: _selectedBranch!,
                                   label: _selectedBranch!,
                                   code: '',
@@ -1777,7 +1777,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
                         ? _branchList
                               .firstWhere(
                                 (b) => b.value == _selectedDestinationBranch,
-                                orElse: () => OrderStatusEntity(
+                                orElse: () => BranchListEntity(
                                   value: _selectedDestinationBranch!,
                                   label: _selectedDestinationBranch!,
                                   code: '',
@@ -2417,7 +2417,7 @@ class __EditAdditionalInfoDialogState extends State<_EditAdditionalInfoDialog> {
 // Search Dialog Widget for Order Detail Page
 class _BranchSearchDialog extends StatefulWidget {
   final String title;
-  final List<OrderStatusEntity> branches;
+  final List<BranchListEntity> branches;
   final String? selectedValue;
 
   const _BranchSearchDialog({
@@ -2432,7 +2432,7 @@ class _BranchSearchDialog extends StatefulWidget {
 
 class _BranchSearchDialogState extends State<_BranchSearchDialog> {
   final TextEditingController _searchController = TextEditingController();
-  List<OrderStatusEntity> _filteredBranches = [];
+  List<BranchListEntity> _filteredBranches = [];
 
   @override
   void initState() {

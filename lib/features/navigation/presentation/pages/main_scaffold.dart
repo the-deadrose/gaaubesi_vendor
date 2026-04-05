@@ -19,11 +19,39 @@ class MainScaffoldPage extends StatelessWidget {
         }
       },
       child: AutoTabsRouter(
-        routes:  [const HomeRoute(), OrdersRoute()],
+        routes: [const HomeRoute(), OrdersRoute(), TicketRoute(), VendorMessagesRoute()],
         builder: (context, child) {
-          AutoTabsRouter.of(context);
+          final tabsRouter = AutoTabsRouter.of(context);
 
-          return Scaffold(drawer: const SidebarDrawer(), body: child);
+          return Scaffold(
+            drawer: const SidebarDrawer(),
+            body: child,
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: tabsRouter.activeIndex,
+              onTap: (index) {
+                tabsRouter.setActiveIndex(index);
+              },
+              type: BottomNavigationBarType.fixed,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.shopping_bag),
+                  label: 'Orders',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.support_agent),
+                  label: 'Tickets',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.message),
+                  label: 'Messages',
+                ),
+              ],
+            ),
+          );
         },
       ),
     );

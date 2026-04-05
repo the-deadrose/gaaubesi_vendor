@@ -25,13 +25,20 @@ class CustomerRemoteDatasourceImpl implements CustomerRemoteDatasource {
     String? searchQuery,
   ) async {
     try {
+      final queryParams = {'page': page, 'search': searchQuery ?? ''};
+      final queryString = queryParams.entries
+          .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+          .join('&');
+      debugPrint('🔵 Full URL: ${ApiEndpoints.customerList}?$queryString');
+
       final response = await _dioClient.get(
         ApiEndpoints.customerList,
         queryParameters: {'page': page, 'search': searchQuery},
       );
 
-      debugPrint('🔵 API Response: ${response.data}');
-      debugPrint('🔵 Response Type: ${response.data.runtimeType}');
+      // debugPrint('🔵 API Response: ${response.data}');
+      // debugPrint('🔵 Response Type: ${response.data.runtimeType}');
+      debugPrint("Search Query: ${searchQuery ?? 'None'}");
 
       final dynamic responseData = response.data;
       final Map<String, dynamic> jsonData;
@@ -77,9 +84,9 @@ class CustomerRemoteDatasourceImpl implements CustomerRemoteDatasource {
   @override
   Future<CustomerDetailEntity> getCustomerDetail(String customerId) async {
     try {
-      final response = await _dioClient.get(
-        '${ApiEndpoints.customerDetail}$customerId/',
-      );
+      final fullUrl = '${ApiEndpoints.customerDetail}$customerId/';
+      debugPrint('🔵 Full URL: $fullUrl');
+      final response = await _dioClient.get(fullUrl);
       debugPrint('🔵 API Response for Customer Detail: ${response.data}');
       final model = CustomerDetailModel.fromJson(response.data);
       return model.toEntity();

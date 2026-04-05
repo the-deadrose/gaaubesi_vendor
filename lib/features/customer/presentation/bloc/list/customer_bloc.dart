@@ -30,9 +30,9 @@ class CustomerListBloc extends Bloc<CustomerListEvent, CustomerListState> {
     Emitter<CustomerListState> emit,
   ) async {
     try {
-      if (event.isRefresh) {
+      // Only reset search if not already searching
+      if (event.isRefresh && !_isSearching) {
         _currentPage = 1;
-        _isSearching = false;
         _currentSearchQuery = '';
       }
 
