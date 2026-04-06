@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gaaubesi_vendor/features/home/domain/entities/vendor_stats_entity.dart';
@@ -26,13 +26,16 @@ class HomePage extends StatelessWidget {
         builder: (context, state) {
           final isError = state is HomeError;
           return Scaffold(
-            backgroundColor: Colors.grey.shade50,
+            backgroundColor: Colors.grey.shade100,
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
               elevation: 0,
               title: const Text(
                 'Dashboard',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               centerTitle: true,
               leading: isError
@@ -44,7 +47,10 @@ class HomePage extends StatelessWidget {
               actions: [
                 if (!isError)
                   IconButton(
-                    icon: const Icon(Icons.notifications_none, color: Colors.white),
+                    icon: const Icon(
+                      Icons.notifications_none,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       context.router.push(const NoticeListRoute());
                     },
@@ -127,18 +133,18 @@ class HomePage extends StatelessWidget {
             Text(
               'Oops! Something went wrong',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.grey.shade900,
-                  ),
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade900,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                    height: 1.5,
-                  ),
+                color: Colors.grey.shade600,
+                height: 1.5,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -205,17 +211,48 @@ class HomePage extends StatelessWidget {
             },
           ),
           const SizedBox(height: 16),
-          _StatCard(
-            title: 'Pending COD',
-            value: 'Rs. ${_formatCurrency(stats.pendingCod)}',
-            icon: Icons.account_balance_wallet,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(height: 16),
 
+          // Today's Details
           _ActivityCard(stats: stats),
           const SizedBox(height: 16),
 
+          // Pending COD & Last COD Transaction
+          _PendingCodAndLastCodCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Package Overview
+          _PackagesCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Package Value Overview
+          _PackageValueOverviewCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // COD Details
+          _CodDetailsCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Sales Statistics
+          _SalesStatisticsCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Orders in Process
+          _OrdersInProcessCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Delivery Metrics
+          _DeliveryMetricsCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Returned Packages
+          _ReturnedPackagesCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Order Status Overview
+          _OrderStatusCard(stats: stats),
+          const SizedBox(height: 16),
+
+          // Charts and Graphs
           _SuccessReturnChart(
             successRate: stats.successPercent,
             returnRate: stats.returnPercent,
@@ -224,31 +261,11 @@ class HomePage extends StatelessWidget {
 
           _ProcessingOrdersChart(processing: stats.processingOrders),
           const SizedBox(height: 16),
-
-          _PackagesCard(stats: stats),
-          const SizedBox(height: 16),
-
-          _OrdersInProcessCard(stats: stats),
-          const SizedBox(height: 16),
-
-          _DeliveryMetricsCard(stats: stats),
-          const SizedBox(height: 16),
-
-          _ReturnedPackagesCard(stats: stats),
-          const SizedBox(height: 16),
-
-          _OrderStatusCard(stats: stats),
-          const SizedBox(height: 16),
-
-          _LastCodCard(stats: stats),
-          const SizedBox(height: 16),
         ],
       ),
     );
   }
 }
-
-// ============ FL Chart Components ============
 
 class _SuccessReturnChart extends StatelessWidget {
   final double successRate;
@@ -356,8 +373,6 @@ class _SuccessReturnChart extends StatelessWidget {
   }
 }
 
-
-
 class _ProcessingOrdersChart extends StatelessWidget {
   final ProcessingOrdersEntity processing;
 
@@ -366,15 +381,27 @@ class _ProcessingOrdersChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = [
-      {'stage': 'Drop Off', 'count': processing.dropOff, 'color': AppTheme.marianBlue},
-      {'stage': 'Pickup', 'count': processing.pickup, 'color': AppTheme.marianBlue},
+      {
+        'stage': 'Drop Off',
+        'count': processing.dropOff,
+        'color': AppTheme.marianBlue,
+      },
+      {
+        'stage': 'Pickup',
+        'count': processing.pickup,
+        'color': AppTheme.marianBlue,
+      },
       {
         'stage': 'Dispatch',
         'count': processing.dispatch,
         'color': AppTheme.marianBlue,
       },
       if (processing.hold > 0)
-        {'stage': 'On Hold', 'count': processing.hold, 'color': AppTheme.marianBlue},
+        {
+          'stage': 'On Hold',
+          'count': processing.hold,
+          'color': AppTheme.marianBlue,
+        },
     ];
 
     return Container(
@@ -490,7 +517,6 @@ class _ChartLegend extends StatelessWidget {
   }
 }
 
-
 class _WelcomeCard extends StatelessWidget {
   final String vendorName;
   final VoidCallback onAddTicket;
@@ -506,7 +532,6 @@ class _WelcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -519,7 +544,6 @@ class _WelcomeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-           
                 const SizedBox(height: 4),
                 Text(
                   vendorName,
@@ -590,18 +614,20 @@ class _WelcomeCard extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
+// ============ Pending COD & Last COD Transaction Combined Card ============
 
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+class _PendingCodAndLastCodCard extends StatefulWidget {
+  final VendorStatsEntity stats;
+
+  const _PendingCodAndLastCodCard({required this.stats});
+
+  @override
+  State<_PendingCodAndLastCodCard> createState() =>
+      _PendingCodAndLastCodCardState();
+}
+
+class _PendingCodAndLastCodCardState extends State<_PendingCodAndLastCodCard> {
+  bool showValues = false;
 
   @override
   Widget build(BuildContext context) {
@@ -609,7 +635,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -617,22 +643,42 @@ class _StatCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: color, size: 24),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: color,
+              const Text(
+                'Pending COD & Last Transaction',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              IconButton(
+                icon: Icon(
+                  showValues ? Icons.visibility : Icons.visibility_off,
+                  size: 20,
+                  color: Colors.grey.shade600,
                 ),
+                onPressed: () {
+                  setState(() {
+                    showValues = !showValues;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+          const SizedBox(height: 16),
+          _ValueRow(
+            label: 'Pending COD',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.pendingCod)}'
+                : '••••••',
           ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Last COD Amount',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.lastCodAmount)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(label: 'Last COD Date', value: widget.stats.lasstCodDate),
         ],
       ),
     );
@@ -644,74 +690,64 @@ class _ActivityCard extends StatelessWidget {
 
   const _ActivityCard({required this.stats});
 
-  void _navigateToComments(BuildContext context) {
-    context.router.push(CommentsRoute(initialTab: 0));
-  }
-
-  void _navigateToDeliveries(BuildContext context) {
-    context.router.push(OrdersRoute(initialTab: 1));
-  }
-
-  void _navigateToReturns(BuildContext context) {
-    context.router.push(OrdersRoute(initialTab: 4));
-  }
-
-  void _navigateToOrders(BuildContext context) {
-    context.router.push(OrdersRoute(initialTab: 0));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Today's Activity",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            "Today's Details",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
           ),
-          const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 2.5,
+          const SizedBox(height: 10),
+          // Row 1
+          Row(
             children: [
-              GestureDetector(
-                onTap: () => _navigateToOrders(context),
-                child: _ActivityItem(
-                  label: 'Orders Created',
-                  value: stats.todayOrderCreated.toString(),
-                  color: AppTheme.marianBlue,
-                ),
-              ),
-              GestureDetector(
-                onTap: () => _navigateToDeliveries(context),
-                child: _ActivityItem(
-                  label: 'Deliveries',
+              Expanded(
+                child: _CompactMetric(
                   value: stats.todayDelivery.toString(),
-                  color: AppTheme.marianBlue,
+                  label: 'Delivered',
                 ),
               ),
-              GestureDetector(
-                onTap: () => _navigateToReturns(context),
-                child: _ActivityItem(
-                  label: 'Returns',
+              Expanded(
+                child: _CompactMetric(
                   value: stats.todaysReturnedDelivery.toString(),
-                  color: AppTheme.marianBlue,
+                  label: 'Returned',
                 ),
               ),
-              GestureDetector(
-                onTap: () => _navigateToComments(context),
-                child: _ActivityItem(
-                  label: 'Comments',
-                  value: stats.todaysComment.toString(),
-                  color: AppTheme.marianBlue,
+              Expanded(
+                child: _CompactMetric(
+                  value: stats.todayOrderCreated.toString(),
+                  label: 'Created',
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Row 2
+          Row(
+            children: [
+              Expanded(
+                child: _CompactMetric(
+                  value: stats.todaysComment.toString(),
+                  label: 'Comment',
+                ),
+              ),
+              Expanded(
+                child: _CompactMetric(value: '0', label: 'Hold'),
+              ),
+              Expanded(
+                child: _CompactMetric(value: '0', label: 'Stale'),
               ),
             ],
           ),
@@ -721,53 +757,50 @@ class _ActivityCard extends StatelessWidget {
   }
 }
 
-class _ActivityItem extends StatelessWidget {
-  final String label;
+class _CompactMetric extends StatelessWidget {
   final String value;
-  final Color color;
+  final String label;
 
-  const _ActivityItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+  const _CompactMetric({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-            ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-class _PackagesCard extends StatelessWidget {
+class _PackagesCard extends StatefulWidget {
   final VendorStatsEntity stats;
 
   const _PackagesCard({required this.stats});
+
+  @override
+  State<_PackagesCard> createState() => _PackagesCardState();
+}
+
+class _PackagesCardState extends State<_PackagesCard> {
+  bool showValues = false;
 
   @override
   Widget build(BuildContext context) {
@@ -775,64 +808,64 @@ class _PackagesCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Packages Overview',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      stats.totalPackages.toString(),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Total Packages',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
+              const Text(
+                'Packages Overview',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      stats.deliveredPackages.toString(),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.successGreen,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Delivered',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
+              IconButton(
+                icon: Icon(
+                  showValues ? Icons.visibility : Icons.visibility_off,
+                  size: 20,
+                  color: Colors.grey.shade600,
                 ),
+                onPressed: () {
+                  setState(() {
+                    showValues = !showValues;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          _ValueRow(
+            label: 'Total Packages',
+            value: showValues ? widget.stats.totalPackages.toString() : '••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Delivered',
+            value: showValues
+                ? widget.stats.deliveredPackages.toString()
+                : '••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'In Return Process',
+            value: showValues
+                ? widget.stats.ordersInReturnProcess.toString()
+                : '••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'In Delivery Process',
+            value: showValues
+                ? widget.stats.ordersInDeliveryProcess.toString()
+                : '••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Stale Orders',
+            value: showValues ? widget.stats.staleOrders.toString() : '••••',
           ),
         ],
       ),
@@ -862,7 +895,7 @@ class _OrdersInProcessCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -872,54 +905,14 @@ class _OrdersInProcessCard extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      stats.ordersInProcess.toString(),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Total Orders',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Rs. ${_formatCurrency(stats.ordersInProcessVal)}',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.marianBlue,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Total Value',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          _ValueRow(
+            label: 'Total Orders',
+            value: stats.ordersInProcess.toString(),
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Total Value',
+            value: 'Rs ${_formatCurrency(stats.ordersInProcessVal)}',
           ),
         ],
       ),
@@ -1021,7 +1014,7 @@ class _ReturnedPackagesCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1031,76 +1024,271 @@ class _ReturnedPackagesCard extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      stats.trueReturnedPackages.count.toString(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.marianBlue,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Successfully Returned',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Rs. ${stats.trueReturnedPackages.value.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.marianBlue,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      stats.falseReturnedPackages.count.toString(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.marianBlue,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Failed Returns',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Rs. ${stats.falseReturnedPackages.value.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.marianBlue,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          _ValueRow(
+            label: 'Successfully Returned (Count)',
+            value: stats.trueReturnedPackages.count.toString(),
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Successfully Returned (Value)',
+            value: 'Rs ${stats.trueReturnedPackages.value.toStringAsFixed(0)}',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Failed Returns (Count)',
+            value: stats.falseReturnedPackages.count.toString(),
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Failed Returns (Value)',
+            value: 'Rs ${stats.falseReturnedPackages.value.toStringAsFixed(0)}',
           ),
         ],
       ),
+    );
+  }
+}
+
+class _PackageValueOverviewCard extends StatefulWidget {
+  final VendorStatsEntity stats;
+
+  const _PackageValueOverviewCard({required this.stats});
+
+  @override
+  State<_PackageValueOverviewCard> createState() =>
+      _PackageValueOverviewCardState();
+}
+
+class _PackageValueOverviewCardState extends State<_PackageValueOverviewCard> {
+  bool showValues = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Packages Value',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              IconButton(
+                icon: Icon(
+                  showValues ? Icons.visibility : Icons.visibility_off,
+                  size: 20,
+                  color: Colors.grey.shade600,
+                ),
+                onPressed: () {
+                  setState(() {
+                    showValues = !showValues;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _ValueRow(
+            label: 'Total',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.totalPackagesValue)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Delivered',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.deliveredPackagesValue)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Actual Returned',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.trueReturnedPackages.value)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Total Redirects',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.totalRedirectPercent)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Processing',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.ordersInProcessVal)}'
+                : '••••••',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CodDetailsCard extends StatefulWidget {
+  final VendorStatsEntity stats;
+
+  const _CodDetailsCard({required this.stats});
+
+  @override
+  State<_CodDetailsCard> createState() => _CodDetailsCardState();
+}
+
+class _CodDetailsCardState extends State<_CodDetailsCard> {
+  bool showValues = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'COD Details',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              IconButton(
+                icon: Icon(
+                  showValues ? Icons.visibility : Icons.visibility_off,
+                  size: 20,
+                  color: Colors.grey.shade600,
+                ),
+                onPressed: () {
+                  setState(() {
+                    showValues = !showValues;
+                  });
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _ValueRow(
+            label: 'Pending',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.pendingCod)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Last COD amount',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.lastCodAmount)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Delivery Charges',
+            value: showValues
+                ? 'Rs ${_formatCurrency(widget.stats.totalDelvCharge)}'
+                : '••••••',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Last COD Transfer',
+            value: widget.stats.lasstCodDate,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SalesStatisticsCard extends StatelessWidget {
+  final VendorStatsEntity stats;
+
+  const _SalesStatisticsCard({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Sales Statistics',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
+          _ValueRow(
+            label: 'Successful Delivered',
+            value: '${stats.successPercent.toStringAsFixed(2)}%',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Returned Delivered',
+            value: '${stats.returnPercent.toStringAsFixed(2)}%',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Total Redirects',
+            value: '${stats.redirectPercentage.toStringAsFixed(2)}%',
+          ),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Redirect Returned',
+            value: '${stats.redirectOrderReturnedPercent.toStringAsFixed(2)}%',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ValueRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _ValueRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade700,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1116,7 +1304,7 @@ class _OrderStatusCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1126,154 +1314,18 @@ class _OrderStatusCard extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 2.2,
-            children: [
-              _StatusItem(
-                label: 'Total RTV',
-                value: stats.totalRtvOrder.toString(),
-                color: AppTheme.marianBlue,
-              ),
-              _StatusItem(
-                label: 'On Hold',
-                value: stats.totalHoldOrder.toString(),
-                color: AppTheme.marianBlue,
-              ),
-              _StatusItem(
-                label: 'Redirect %',
-                value: '${stats.redirectPercentage.toStringAsFixed(1)}%',
-                color: AppTheme.marianBlue,
-              ),
-              _StatusItem(
-                label: 'Incoming Returns',
-                value: stats.incomingReturns.toString(),
-                color: AppTheme.marianBlue,
-              ),
-            ],
+          _ValueRow(label: 'Total RTV', value: stats.totalRtvOrder.toString()),
+          const SizedBox(height: 12),
+          _ValueRow(label: 'On Hold', value: stats.totalHoldOrder.toString()),
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Redirect %',
+            value: '${stats.redirectPercentage.toStringAsFixed(1)}%',
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatusItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LastCodCard extends StatelessWidget {
-  final VendorStatsEntity stats;
-
-  const _LastCodCard({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Last COD Transaction',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Amount',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Rs. ${_formatCurrency(stats.lastCodAmount)}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.marianBlue,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Date',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    stats.lasstCodDate,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          const SizedBox(height: 12),
+          _ValueRow(
+            label: 'Incoming Returns',
+            value: stats.incomingReturns.toString(),
           ),
         ],
       ),

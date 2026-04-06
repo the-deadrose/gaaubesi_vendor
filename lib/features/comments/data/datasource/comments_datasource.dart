@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/comments/data/model/comments_model.dart';

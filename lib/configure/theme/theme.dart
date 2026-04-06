@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gaaubesi_vendor/core/theme/text_styles.dart';
+import 'package:gaaubesi_vendor/configure/theme/text_styles.dart';
 
 ///this is made according to the brand guidelines provided by the client don't change the colors unless you have permission from the client
 

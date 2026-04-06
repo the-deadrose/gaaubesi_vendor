@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 
 /// Visual indicator for source-to-destination route.
 /// Shows a vertical line with dots at start and end points.

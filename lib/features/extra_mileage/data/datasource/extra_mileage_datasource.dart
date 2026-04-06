@@ -1,5 +1,5 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/extra_mileage/data/model/extra_mileage_list_model.dart';

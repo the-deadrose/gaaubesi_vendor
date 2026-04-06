@@ -1,4 +1,4 @@
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/message/data/model/vendor_message_list_model.dart';
 import 'package:gaaubesi_vendor/features/message/domain/entity/vendor_message_list_entity.dart';

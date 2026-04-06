@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 
 /// Mixin providing common actions for order cards.
 /// Includes phone calling, map opening, and sharing functionality.

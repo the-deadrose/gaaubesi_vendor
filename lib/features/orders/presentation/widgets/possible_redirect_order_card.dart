@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/possible_redirect_order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_card_actions.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/common/status_badge.dart';

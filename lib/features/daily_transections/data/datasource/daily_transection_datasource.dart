@@ -1,4 +1,4 @@
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/data/model/daily_transections_model.dart';
 import 'package:gaaubesi_vendor/features/daily_transections/domain/entity/daily_transections_entity.dart';

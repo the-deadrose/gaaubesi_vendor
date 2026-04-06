@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
-import 'package:gaaubesi_vendor/core/constants/constants.dart';
+import 'package:gaaubesi_vendor/configure/constants/constants.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/features/auth/data/models/user_model.dart';
 

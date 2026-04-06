@@ -1,4 +1,4 @@
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/payment_request/data/model/frequently_used_and_payment_method_model.dart';
 import 'package:gaaubesi_vendor/features/payment_request/data/model/payment_request_list_model.dart';

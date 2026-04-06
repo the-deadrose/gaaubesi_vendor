@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart';
@@ -48,6 +49,9 @@ import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_inf
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final environment = const String.fromEnvironment('ENVIRONMENT', defaultValue: 'local');
+  await dotenv.load(fileName: '.env.$environment');
 
   await configureDependencies();
 

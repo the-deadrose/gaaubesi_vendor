@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'dart:async';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/entity/comments_entity.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_bloc.dart';
 import 'package:gaaubesi_vendor/features/comments/presentation/bloc/comments_event.dart';

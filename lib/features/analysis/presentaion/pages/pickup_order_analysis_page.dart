@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/analysis/domain/entity/pickup_order_analysis_entity.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_event.dart';

@@ -7,7 +7,7 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/redirected_order
 import 'package:gaaubesi_vendor/features/orders/domain/entities/today_redirect_order_entity.dart';
 import 'package:gaaubesi_vendor/features/orders/domain/entities/ware_house_orders_entity.dart';
 import 'package:injectable/injectable.dart';
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/orders/data/models/paginated_order_response_model.dart';

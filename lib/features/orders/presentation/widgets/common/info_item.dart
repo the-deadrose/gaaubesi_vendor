@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 
 /// Reusable info item widget for displaying labeled data with an icon.
 /// Used across all order card types for consistent information display.

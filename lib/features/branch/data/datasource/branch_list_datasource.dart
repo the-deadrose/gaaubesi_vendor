@@ -5,7 +5,7 @@ import 'package:gaaubesi_vendor/features/branch/data/model/redirect_station_list
 import 'package:gaaubesi_vendor/features/branch/domain/entity/pickup_point_entity.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/redirect_station_list_entity.dart';
 import 'package:injectable/injectable.dart';
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/branch/data/model/branch_list_model.dart';

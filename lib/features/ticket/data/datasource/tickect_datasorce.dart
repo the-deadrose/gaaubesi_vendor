@@ -1,4 +1,4 @@
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/ticket/data/model/pending_ticket_list_model.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';

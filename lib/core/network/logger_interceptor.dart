@@ -40,7 +40,14 @@ class LoggerInterceptor extends Interceptor {
       stackTrace: err.stackTrace,
     );
     if (err.response != null) {
-      _logger.e('Error Data: ${err.response?.data}');
+      final errorData = err.response?.data;
+      if (errorData is Map<String, dynamic>) {
+        _logger.e(
+          'Error Response: {success: false, message: ${errorData['message'] ?? err.message}, data: null}',
+        );
+      } else {
+        _logger.e('Error Data: $errorData');
+      }
     }
     super.onError(err, handler);
   }

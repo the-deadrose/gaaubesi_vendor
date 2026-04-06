@@ -98,17 +98,14 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     try {
       final branchBloc = context.read<BranchListBloc>();
       
-      // Check current state first
       final currentState = branchBloc.state;
       if (currentState is BranchListLoaded) {
         _updateBranches(currentState.branchList);
         return;
       }
 
-      // If not loaded, fetch branches
       branchBloc.add(FetchBranchListEvent(''));
 
-      // Listen to branch list state
       await for (final state in branchBloc.stream) {
         if (state is BranchListLoaded) {
           if (mounted) {
@@ -161,7 +158,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     try {
       final branchBloc = context.read<BranchListBloc>();
 
-      // Check current state first
       final currentState = branchBloc.state;
       if (currentState is PickUpPointLoaded) {
         setState(() {
@@ -173,10 +169,8 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
         return;
       }
 
-      // If not loaded, fetch pickup points
       branchBloc.add(FetchPickupPointsEvent());
 
-      // Listen to pickup points state
       await for (final state in branchBloc.stream) {
         if (state is PickUpPointLoaded) {
           if (mounted) {
@@ -211,17 +205,14 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     try {
       final destBranchBloc = context.read<DestinationBranchBloc>();
 
-      // Check current state first
       final currentState = destBranchBloc.state;
       if (currentState is DestinationBranchLoaded) {
         _updateDestinationBranches(currentState.destinationBranch);
         return;
       }
 
-      // If not loaded, fetch destination branches
       destBranchBloc.add(FetchDestinationBranchEvent(''));
 
-      // Listen to destination branch state
       await for (final state in destBranchBloc.stream) {
         if (state is DestinationBranchLoaded) {
           if (mounted) {
@@ -251,7 +242,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
       debugPrint('[CreateOrderPage] Destination Branch $i: value="${destBranches[i].value}", label="${destBranches[i].label}", code="${destBranches[i].code}"');
     }
     setState(() {
-      // Filter out branches with empty values and remove duplicates
       final seen = <String>{};
       _allDestBranches = destBranches
           .where((b) => b.value.isNotEmpty && b.label.isNotEmpty && b.code.isNotEmpty)
@@ -912,10 +902,8 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
-    // Determine which branch list to use
     final allBranches = label.contains('Destination') ? _allDestBranches : _allBranches;
     
-    // Find the selected branch to display its label
     final selectedBranch = value != null
         ? allBranches.firstWhere(
             (b) => b.value == value,
@@ -931,7 +919,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
           onTap: () async {
             FocusScope.of(context).unfocus();
             
-            // Show search dialog
             final result = await showDialog<String>(
               context: context,
               builder: (BuildContext dialogContext) => _BranchSearchDialog(
@@ -1083,7 +1070,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
   }
 }
 
-// Search Dialog Widget
 class _BranchSearchDialog extends StatefulWidget {
   final String title;
   final List<BranchListEntity> branches;
@@ -1140,7 +1126,6 @@ class _BranchSearchDialogState extends State<_BranchSearchDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -1171,7 +1156,6 @@ class _BranchSearchDialogState extends State<_BranchSearchDialog> {
                 ],
               ),
             ),
-            // Search Field
             Padding(
               padding: const EdgeInsets.all(16),
               child: TextField(
@@ -1199,7 +1183,6 @@ class _BranchSearchDialogState extends State<_BranchSearchDialog> {
               ),
             ),
             const Divider(height: 1),
-            // Branch List
             Expanded(
               child: _filteredBranches.isEmpty
                   ? Center(

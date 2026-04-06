@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gaaubesi_vendor/core/theme/theme.dart';
+import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_bloc.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_event.dart';
 import 'package:gaaubesi_vendor/features/message/presetantion/bloc/vendor_message_state.dart';

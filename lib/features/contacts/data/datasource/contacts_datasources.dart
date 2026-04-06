@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gaaubesi_vendor/core/constants/api_endpoints.dart';
+import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
 import 'package:gaaubesi_vendor/features/contacts/data/model/head_office_contact_model.dart';
 import 'package:gaaubesi_vendor/features/contacts/data/model/service_station_model.dart';
