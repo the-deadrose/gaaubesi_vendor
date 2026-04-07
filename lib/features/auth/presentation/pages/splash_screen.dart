@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gaaubesi_vendor/configure/theme/theme.dart';
-import 'package:gaaubesi_vendor/core/update/app_update_service.dart';
+import 'package:gaaubesi_vendor/core/update/app_upgrader_service.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
@@ -17,11 +17,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final AppUpdateService _appUpdateService = const AppUpdateService();
+  // final AppUpdateService _appUpdateService = const AppUpdateService();
 
-  bool _checkingUpdate = true;
-  bool _forceUpdateRequired = false;
-  bool _openingStore = false;
+  // bool _checkingUpdate = true;
+  // bool _forceUpdateRequired = false;
+  // bool _openingStore = false;
   bool _navigationHandled = false;
   String _message = 'Checking for updates...';
   int _routeRetryCount = 0;
@@ -30,132 +30,130 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForMandatoryUpdate();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _checkForMandatoryUpdate();
+    // });
   }
 
-  Future<void> _checkForMandatoryUpdate() async {
-    final result = await _appUpdateService.ensureLatestVersionAtStartup();
+  // Future<void> _checkForMandatoryUpdate() async {
+  //   final result = await _appUpdateService.ensureLatestVersionAtStartup();
 
-    if (!mounted) {
-      return;
-    }
+  //   if (!mounted) {
+  //     return;
+  //   }
 
-    if (result == AppUpdateGateResult.continueApp) {
-      setState(() {
-        _checkingUpdate = false;
-        _forceUpdateRequired = false;
-        _message = 'Loading your account...';
-      });
-      // Give the widget tree time to rebuild and ensure dependencies are initialized
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _routeIfAuthReady();
-        }
-      });
-      return;
-    }
+  //   if (result == AppUpdateGateResult.continueApp) {
+  //     setState(() {
+  //       _checkingUpdate = false;
+  //       _forceUpdateRequired = false;
+  //       _message = 'Loading your account...';
+  //     });
+  //     // Give the widget tree time to rebuild and ensure dependencies are initialized
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       if (mounted) {
+  //         _routeIfAuthReady();
+  //       }
+  //     });
+  //     return;
+  //   }
 
-    // For any other result (updateRequired or checkFailed), show the update screen
-    setState(() {
-      _checkingUpdate = false;
-      _forceUpdateRequired = true;
-      _message = result == AppUpdateGateResult.updateRequired
-          ? 'A new version is required before you can continue.'
-          : 'Unable to verify the app version. Please try again.';
-    });
-  }
+  //   // For any other result (updateRequired or checkFailed), show the update screen
+  //   setState(() {
+  //     _checkingUpdate = false;
+  //     _forceUpdateRequired = true;
+  //     _message = result == AppUpdateGateResult.updateRequired
+  //         ? 'A new version is required before you can continue.'
+  //         : 'Unable to verify the app version. Please try again.';
+  //   });
+  // }
 
-  void _routeIfAuthReady() {
-    if (_navigationHandled || _checkingUpdate || _forceUpdateRequired) {
-      return;
-    }
+  // void _routeIfAuthReady() {
+  //   if (_navigationHandled || _checkingUpdate || _forceUpdateRequired) {
+  //     return;
+  //   }
 
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthAuthenticated) {
-      _navigationHandled = true;
-      _routeRetryCount = 0;
-      context.router.replace(const MainScaffoldRoute());
-    } else if (authState is AuthUnauthenticated) {
-      _navigationHandled = true;
-      _routeRetryCount = 0;
-      context.router.replace(const LoginRoute());
-    } else {
-      if (mounted && _routeRetryCount < _maxRetries) {
-        _routeRetryCount++;
-        Future.delayed(const Duration(milliseconds: 100)).then((_) {
-          if (mounted && !_navigationHandled) {
-            _routeIfAuthReady();
-          }
-        });
-      }
-    }
-  }
+  //   final authState = context.read<AuthBloc>().state;
+  //   if (authState is AuthAuthenticated) {
+  //     _navigationHandled = true;
+  //     _routeRetryCount = 0;
+  //     context.router.replace(const MainScaffoldRoute());
+  //   } else if (authState is AuthUnauthenticated) {
+  //     _navigationHandled = true;
+  //     _routeRetryCount = 0;
+  //     context.router.replace(const LoginRoute());
+  //   } else {
+  //     if (mounted && _routeRetryCount < _maxRetries) {
+  //       _routeRetryCount++;
+  //       Future.delayed(const Duration(milliseconds: 100)).then((_) {
+  //         if (mounted && !_navigationHandled) {
+  //           _routeIfAuthReady();
+  //         }
+  //       });
+  //     }
+  //   }
+  // }
 
-  Future<void> _openStoreOrRetry() async {
-    if (!mounted) {
-      return;
-    }
+  // Future<void> _openStoreOrRetry() async {
+  //   if (!mounted) {
+  //     return;
+  //   }
 
-    if (_message.startsWith('Unable to verify')) {
-      setState(() {
-        _checkingUpdate = true;
-        _forceUpdateRequired = false;
-        _message = 'Checking for updates...';
-      });
-      await _checkForMandatoryUpdate();
-      return;
-    }
+  //   if (_message.startsWith('Unable to verify')) {
+  //     setState(() {
+  //       _checkingUpdate = true;
+  //       _forceUpdateRequired = false;
+  //       _message = 'Checking for updates...';
+  //     });
+  //     await _checkForMandatoryUpdate();
+  //     return;
+  //   }
 
-    setState(() {
-      _openingStore = true;
-    });
+  //   setState(() {
+  //     _openingStore = true;
+  //   });
 
-    final opened = await _appUpdateService.openPlayStore();
+  //   final opened = await _appUpdateService.openPlayStore();
 
-    if (!mounted) {
-      return;
-    }
+  //   if (!mounted) {
+  //     return;
+  //   }
 
-    setState(() {
-      _openingStore = false;
-    });
+  //   setState(() {
+  //     _openingStore = false;
+  //   });
 
-    if (!opened) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Open the Play Store to update the app.'),
-        ),
-      );
-    }
-  }
+  //   if (!opened) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Open the Play Store to update the app.')),
+  //     );
+  //   }
+  // }
 
-  Future<void> _skipUpdateCheck() async {
-    if (!mounted) {
-      return;
-    }
+  // Future<void> _skipUpdateCheck() async {
+  //   if (!mounted) {
+  //     return;
+  //   }
 
-    setState(() {
-      _checkingUpdate = false;
-      _forceUpdateRequired = false;
-      _message = 'Loading your account...';
-    });
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _routeIfAuthReady();
-      }
-    });
-  }
+  //   setState(() {
+  //     _checkingUpdate = false;
+  //     _forceUpdateRequired = false;
+  //     _message = 'Loading your account...';
+  //   });
+
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (mounted) {
+  //       _routeIfAuthReady();
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (_checkingUpdate || _forceUpdateRequired || _navigationHandled) {
-          return;
-        }
+        // if (_checkingUpdate || _forceUpdateRequired || _navigationHandled) {
+        //   return;
+        // }
 
         if (state is AuthAuthenticated) {
           _navigationHandled = true;
@@ -172,37 +170,43 @@ class _SplashScreenState extends State<SplashScreen> {
           body: SafeArea(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
-              child: _forceUpdateRequired
-                  ? _ForceUpdateView(
-                      key: const ValueKey('force-update-view'),
-                      message: _message,
-                      isWorking: _openingStore,
-                      onPrimaryAction: _openStoreOrRetry,
-                      onSecondaryAction: _message.startsWith('Unable to verify') ? _skipUpdateCheck : null,
-                      isVerificationFailure: _message.startsWith('Unable to verify'),
-                    )
-                  : _SplashLoadingView(
-                      key: const ValueKey('splash-loading-view'),
-                      message: _message,
-                    ),
-            ),
+              child:
+                  //  _forceUpdateRequired
+                  //     ? _ForceUpdateView(
+                  //         key: const ValueKey('force-update-view'),
+                  //         message: _message,
+                  //         isWorking: _openingStore,
+                  //         onPrimaryAction: _openStoreOrRetry,
+                  //         onSecondaryAction: _message.startsWith('Unable to verify')
+                  //             ? _skipUpdateCheck
+                  //             : null,
+                  //         isVerificationFailure: _message.startsWith(
+                  //           'Unable to verify',
+                  //         ),
+                  //       )
+                  //     :
+                  _SplashLoadingView(
+                    key: const ValueKey('splash-loading-view'),
+                    message: _message,
+                  ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_checkingUpdate && !_forceUpdateRequired) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _routeIfAuthReady();
-        }
-      });
-    }
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   if (!_checkingUpdate && !_forceUpdateRequired) {
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       if (mounted) {
+  //         _routeIfAuthReady();
+  //       }
+  //     });
+  //   }
+  // }
 }
 
 class _SplashLoadingView extends StatelessWidget {
@@ -244,27 +248,27 @@ class _SplashLoadingView extends StatelessWidget {
             child: Text(
               'Gaaubesi',
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Seller Application',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 32),
           const CircularProgressIndicator(),
           const SizedBox(height: 16),
           Text(
             message,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[700],
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
           ),
         ],
       ),
@@ -319,17 +323,17 @@ class _ForceUpdateView extends StatelessWidget {
                 'Update required',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.blackBean,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.blackBean,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[700],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -362,5 +366,3 @@ class _ForceUpdateView extends StatelessWidget {
     );
   }
 }
-
-

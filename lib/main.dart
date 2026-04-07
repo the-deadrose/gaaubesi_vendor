@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gaaubesi_vendor/core/di/injection.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/configure/theme/theme.dart';
+import 'package:gaaubesi_vendor/core/update/upgrader_alert_wrapper.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/branch/branch_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/delivery/delivery_report_analysis_bloc.dart';
 import 'package:gaaubesi_vendor/features/analysis/presentaion/bloc/pickup/pickup_order_analysis_bloc.dart';
@@ -50,7 +51,10 @@ import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_inf
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final environment = const String.fromEnvironment('ENV', defaultValue: 'local');
+  final environment = const String.fromEnvironment(
+    'ENV',
+    defaultValue: 'local',
+  );
   await dotenv.load(fileName: '.env.$environment');
 
   await configureDependencies();
@@ -123,12 +127,18 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Gaaubesi Vendor',
         theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
+        // darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
         routerConfig: router.config(
           navigatorObservers: () => [commentsRouteObserver],
         ),
         debugShowCheckedModeBanner: false,
+        builder: (context, child) {
+          return UpgradeAlertWrapper(
+            navigatorKey: router.navigatorKey,
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
       ),
     );
   }
