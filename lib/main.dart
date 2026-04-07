@@ -50,7 +50,7 @@ import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_inf
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final environment = const String.fromEnvironment('ENVIRONMENT', defaultValue: 'local');
+  final environment = const String.fromEnvironment('ENV', defaultValue: 'local');
   await dotenv.load(fileName: '.env.$environment');
 
   await configureDependencies();

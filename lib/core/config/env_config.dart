@@ -26,6 +26,6 @@ class EnvConfig {
   }
 
   static String getEnvironment() {
-    return const String.fromEnvironment('ENVIRONMENT', defaultValue: 'local');
+    return const String.fromEnvironment('ENV', defaultValue: 'local');
   }
 }
