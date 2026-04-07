@@ -13,6 +13,9 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+fun keystoreProp(name: String): String? =
+    (keystoreProperties[name] as? String)?.trim()?.removeSurrounding("\"")
+
 
 android {
     namespace = "com.vendor.gaaubesi"
@@ -40,10 +43,10 @@ android {
     }
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProp("keyAlias")
+            keyPassword = keystoreProp("keyPassword")
+            storeFile = keystoreProp("storeFile")?.let { file(it) }
+            storePassword = keystoreProp("storePassword")
         }
     }
     buildTypes {
