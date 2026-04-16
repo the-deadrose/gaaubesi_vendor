@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gaaubesi_vendor/configure/theme/theme.dart';
-import 'package:gaaubesi_vendor/core/update/app_upgrader_service.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
@@ -22,10 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // bool _checkingUpdate = true;
   // bool _forceUpdateRequired = false;
   // bool _openingStore = false;
-  bool _navigationHandled = false;
-  String _message = 'Checking for updates...';
-  int _routeRetryCount = 0;
-  static const int _maxRetries = 10;
+  final String _message = 'Checking for updates...';
 
   @override
   void initState() {
@@ -156,10 +152,8 @@ class _SplashScreenState extends State<SplashScreen> {
         // }
 
         if (state is AuthAuthenticated) {
-          _navigationHandled = true;
           context.router.replace(const MainScaffoldRoute());
         } else if (state is AuthUnauthenticated) {
-          _navigationHandled = true;
           context.router.replace(const LoginRoute());
         }
       },
@@ -276,93 +270,90 @@ class _SplashLoadingView extends StatelessWidget {
   }
 }
 
-class _ForceUpdateView extends StatelessWidget {
-  const _ForceUpdateView({
-    super.key,
-    required this.message,
-    required this.isWorking,
-    required this.onPrimaryAction,
-    this.onSecondaryAction,
-    this.isVerificationFailure = false,
-  });
+// class _ForceUpdateView extends StatelessWidget {
+//   const _ForceUpdateView({
+//     required this.message,
+//     required this.isWorking,
+//     required this.onPrimaryAction,
+//     // this.isVerificationFailure = false,
+//   });
 
-  final String message;
-  final bool isWorking;
-  final Future<void> Function() onPrimaryAction;
-  final Future<void> Function()? onSecondaryAction;
-  final bool isVerificationFailure;
+//   final String message;
+//   final bool isWorking;
+//   final Future<void> Function() onPrimaryAction;
+//   // final bool isVerificationFailure;
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Hero(
-                tag: 'app-logo-update',
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-                  child: SvgPicture.asset(
-                    'assets/gaaubesi.svg',
-                    height: 96,
-                    width: 96,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 28),
-              Text(
-                'Update required',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.blackBean,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isWorking ? null : onPrimaryAction,
-                  child: isWorking
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Update now'),
-                ),
-              ),
-              if (isVerificationFailure && onSecondaryAction != null) ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: onSecondaryAction,
-                    child: const Text('Continue without update'),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 24),
+//         child: ConstrainedBox(
+//           constraints: const BoxConstraints(maxWidth: 420),
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               Hero(
+//                 tag: 'app-logo-update',
+//                 child: Container(
+//                   padding: const EdgeInsets.all(20),
+//                   decoration: BoxDecoration(
+//                     shape: BoxShape.circle,
+//                     color: Colors.white.withValues(alpha: 0.9),
+//                   ),
+//                   child: SvgPicture.asset(
+//                     'assets/gaaubesi.svg',
+//                     height: 96,
+//                     width: 96,
+//                   ),
+//                 ),
+//               ),
+//               const SizedBox(height: 28),
+//               Text(
+//                 'Update required',
+//                 textAlign: TextAlign.center,
+//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+//                   fontWeight: FontWeight.bold,
+//                   color: AppTheme.blackBean,
+//                 ),
+//               ),
+//               const SizedBox(height: 12),
+//               Text(
+//                 message,
+//                 textAlign: TextAlign.center,
+//                 style: Theme.of(
+//                   context,
+//                 ).textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
+//               ),
+//               const SizedBox(height: 24),
+//               SizedBox(
+//                 width: double.infinity,
+//                 child: ElevatedButton(
+//                   onPressed: isWorking ? null : onPrimaryAction,
+//                   child: isWorking
+//                       ? const SizedBox(
+//                           height: 20,
+//                           width: 20,
+//                           child: CircularProgressIndicator(strokeWidth: 2),
+//                         )
+//                       : const Text('Update now'),
+//                 ),
+//               ),
+//               // if (isVerificationFailure && onSecondaryAction != null) ...[
+//               //   const SizedBox(height: 12),
+//               //   SizedBox(
+//               //     width: double.infinity,
+//               //     child: OutlinedButton(
+//               //       onPressed: onSecondaryAction,
+//               //       child: const Text('Continue without update'),
+//               //     ),
+//               //   ),
+//               // ],
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

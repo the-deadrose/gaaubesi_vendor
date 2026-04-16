@@ -69,13 +69,16 @@ class TodayRedirectedOrderListSliver extends StatelessWidget {
           delegate: SliverChildBuilderDelegate((context, index) {
             if (index < orders.length) {
               final order = orders[index];
-              return TodayRedirectedOrderCard(
-                order: order,
-                onTap: () {
-                  context.router.push(
-                    OrderDetailRoute(orderId: order.childOrderId),
-                  );
-                },
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: TodayRedirectedOrderCard(
+                  order: order,
+                  onTap: () {
+                    context.router.push(
+                      OrderDetailRoute(orderId: order.childOrderId),
+                    );
+                  },
+                ),
               );
             }
             return null;

@@ -72,11 +72,14 @@ class StaleOrderListSliver extends StatelessWidget {
             (context, index) {
               if (index < orders.length) {
                 final order = orders[index];
-                return StaleOrderCard(
-                  order: order,
-                  onTap: () {
-                    context.router.push(OrderDetailRoute(orderId: order.orderId));
-                  },
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  child: StaleOrderCard(
+                    order: order,
+                    onTap: () {
+                      context.router.push(OrderDetailRoute(orderId: order.orderId));
+                    },
+                  ),
                 );
               } else if (isLoadingMore) {
                 return const Padding(

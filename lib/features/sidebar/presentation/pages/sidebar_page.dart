@@ -23,15 +23,6 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
   final Map<String, bool> _expandedItems = {};
 
   @override
-  void initState() {
-    super.initState();
-    // Load cached data first for instant UI
-    context.read<SidebarBloc>().add(LoadCachedSidebarDataEvent());
-    // Then fetch fresh data from server
-    context.read<SidebarBloc>().add(FetchSidebarDataEvent());
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;

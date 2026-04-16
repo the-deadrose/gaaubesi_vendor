@@ -68,11 +68,14 @@ class RedirectedOrderListSliver extends StatelessWidget {
             (context, index) {
               if (index < orders.length) {
                 final order = orders[index];
-                return RedirectedOrderCard(
-                  order: order,
-                  onTap: () {
-                    context.router.push(OrderDetailRoute(orderId: order.childOrderId));
-                  },
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  child: RedirectedOrderCard(
+                    order: order,
+                    onTap: () {
+                      context.router.push(OrderDetailRoute(orderId: order.childOrderId));
+                    },
+                  ),
                 );
               }
               return null;

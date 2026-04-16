@@ -22,158 +22,241 @@ class _WarehouseOrderScreenState extends State<WarehouseOrderScreen> {
   void initState() {
     super.initState();
     context.read<WarehouseOrderBloc>().add(
-      const FetchWarehouseOrderEvent(page: "1"),
+      const FetchWarehouseOrderEvent(page: '1'),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocBuilder<WarehouseOrderBloc, WarehouseOrderState>(
-        builder: (context, state) {
-          if (state is WarehouseOrderLoadingState) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-          if (state is WarehouseOrderErrorState) {
-            return Center(
+    return BlocBuilder<WarehouseOrderBloc, WarehouseOrderState>(
+      builder: (context, state) {
+        if (state is WarehouseOrderLoadingState) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is WarehouseOrderErrorState) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
+                  Icon(Icons.error_outline, color: colorScheme.error, size: 48),
+                  const SizedBox(height: 12),
                   Text(
                     state.message,
-                    style: const TextStyle(fontSize: 16),
+                    style: theme.textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
+                  OutlinedButton(
                     onPressed: () {
                       context.read<WarehouseOrderBloc>().add(
-                        const FetchWarehouseOrderEvent(page: "1"),
+                        const FetchWarehouseOrderEvent(page: '1'),
                       );
                     },
                     child: const Text('Retry'),
                   ),
                 ],
               ),
-            );
-          }
+            ),
+          );
+        }
 
-          if (state is WarehouseOrderLoadedState) {
-            final warehouses = state.warehouseOrdersListEntity.warehouses;
+        if (state is! WarehouseOrderLoadedState) {
+          return const SizedBox();
+        }
 
-            if (_isFirstLoad && warehouses.isNotEmpty) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                setState(() {
-                  _expandedWarehouseId = warehouses.first.id;
-                  _isFirstLoad = false;
-                });
-              });
-            }
+        final warehouses = state.warehouseOrdersListEntity.warehouses;
 
-            WareHouseOrdersEntity? selectedWarehouse;
-            if (_expandedWarehouseId != null) {
-              try {
-                selectedWarehouse = warehouses.firstWhere(
-                  (w) => w.id == _expandedWarehouseId,
-                );
-              } catch (e) {
-                if (warehouses.isNotEmpty) {
-                  selectedWarehouse = warehouses.first;
-                  _expandedWarehouseId = warehouses.first.id;
-                }
-              }
-            }
+        if (_isFirstLoad && warehouses.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() {
+              _expandedWarehouseId = warehouses.first.id;
+              _isFirstLoad = false;
+            });
+          });
+        }
 
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.grey[50],
+        final selectedWarehouse = _resolveSelectedWarehouse(warehouses);
+
+        return ColoredBox(
+          color: colorScheme.surface,
+          child: Column(
+            children: [
+              _buildTopHeader(warehouses.length, theme, colorScheme),
+              _buildWarehouseSelector(warehouses, colorScheme),
+              Expanded(
+                child: selectedWarehouse == null
+                    ? _buildEmptyState()
+                    : _buildWarehouseDetails(selectedWarehouse),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  WareHouseOrdersEntity? _resolveSelectedWarehouse(
+    List<WareHouseOrdersEntity> warehouses,
+  ) {
+    if (_expandedWarehouseId == null || warehouses.isEmpty) {
+      return null;
+    }
+
+    for (final warehouse in warehouses) {
+      if (warehouse.id == _expandedWarehouseId) {
+        return warehouse;
+      }
+    }
+
+    _expandedWarehouseId = warehouses.first.id;
+    return warehouses.first;
+  }
+
+  Widget _buildTopHeader(
+    int warehouseCount,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.15),
+          ),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Warehouses',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Text(
+            '$warehouseCount total',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWarehouseSelector(
+    List<WareHouseOrdersEntity> warehouses,
+    ColorScheme colorScheme,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: colorScheme.outline.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: warehouses.map((warehouse) {
+            final isSelected = _expandedWarehouseId == warehouse.id;
+            return Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () {
+                  setState(() {
+                    _expandedWarehouseId = warehouse.id;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  padding: const EdgeInsets.fromLTRB(12, 9, 10, 9),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? colorScheme.primary.withValues(alpha: 0.12)
+                        : colorScheme.surface,
+                    border: Border.all(
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Select Warehouse:',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOut,
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.outline.withValues(alpha: 0.45),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
-                        'Total Warehouses: ${warehouses.length}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
+                        warehouse.name,
+                        style: TextStyle(
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.onSurface,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '${warehouse.ordersCount}',
+                          style: TextStyle(
+                            color: isSelected
+                                ? colorScheme.onPrimary
+                                : colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  color: Colors.grey[50],
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: warehouses.map((warehouse) {
-                        final isSelected = _expandedWarehouseId == warehouse.id;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(
-                              '${warehouse.name} (${warehouse.ordersCount})',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.black87,
-                              ),
-                            ),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setState(() {
-                                _expandedWarehouseId = selected
-                                    ? warehouse.id
-                                    : null;
-                              });
-                            },
-                            selectedColor: Theme.of(context).primaryColor,
-                            backgroundColor: Colors.white,
-                            side: BorderSide(
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey[300]!,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-
-                const Divider(height: 1),
-
-                Expanded(
-                  child: selectedWarehouse != null
-                      ? _buildWarehouseDetails(selectedWarehouse)
-                      : _buildEmptyState(),
-                ),
-              ],
+              ),
             );
-          }
-
-          return const SizedBox();
-        },
+          }).toList(),
+        ),
       ),
     );
   }
@@ -195,101 +278,117 @@ class _WarehouseOrderScreenState extends State<WarehouseOrderScreen> {
   }
 
   Widget _buildWarehouseDetails(WareHouseOrdersEntity warehouse) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.inventory_2_outlined,
+                size: 18,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  warehouse.name,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                '${warehouse.orderIds.length} orders',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.65),
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
-          child: warehouse.orderIds.isNotEmpty
-              ? Column(
-                  children: [
-                    Expanded(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: warehouse.orderIds.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 5),
-                        itemBuilder: (context, index) {
-                          final orderId = warehouse.orderIds[index];
-
-                          return ListTile(
-                            onTap: () {
-                              // Navigate to order detail when tapping on the title/whole tile
-                              context.router.push(OrderDetailRoute(orderId: orderId));
-                            },
-                            leading: Container(
-                              width: 40,
-                              height: 40,
+          child: warehouse.orderIds.isEmpty
+              ? _buildNoOrdersSection()
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 2, 16, 16),
+                  itemCount: warehouse.orderIds.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final orderId = warehouse.orderIds[index];
+                    return InkWell(
+                      onTap: () {
+                        context.router.push(OrderDetailRoute(orderId: orderId));
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          border: Border.all(
+                            color: colorScheme.outline.withValues(alpha: 0.22),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 34,
+                              height: 34,
+                              alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).primaryColor.withValues(alpha: 0.1),
+                                color: colorScheme.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Center(
-                                child: Text(
-                                  '${index + 1}',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            title: GestureDetector(
-                              onTap: () {
-                                // Navigate to order detail when tapping on title
-                                context.router.push(OrderDetailRoute(orderId: orderId));
-                              },
                               child: Text(
-                                'ORD-$orderId',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                                '${index + 1}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: colorScheme.primary,
                                 ),
                               ),
                             ),
-                            trailing: GestureDetector(
-                              onTap: () {
-                                // Navigate to order detail when tapping on view button
-                                context.router.push(OrderDetailRoute(orderId: orderId));
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.local_shipping_outlined,
-                                      size: 14,
-                                      color: Theme.of(context).primaryColor,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'ORD-$orderId',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
                                     ),
-                                    const SizedBox(width: 4),
-                                    const Text(
-                                      'View',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Tap to view details',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.62,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        },
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: colorScheme.onSurface.withValues(alpha: 0.45),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                )
-              : _buildNoOrdersSection(),
+                    );
+                  },
+                ),
         ),
       ],
     );

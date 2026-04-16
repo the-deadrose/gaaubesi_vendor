@@ -46,7 +46,7 @@ class _UpgradeAlertWrapperState extends State<UpgradeAlertWrapper> {
   void _showUpgradeDialog(Upgrader upgrader) {
     final navigatorContext = widget.navigatorKey.currentContext;
     if (navigatorContext == null) {
-      print('⚠️ Navigator context is null, cannot show dialog');
+      debugPrint(' Navigator context is null, cannot show dialog');
       return;
     }
 

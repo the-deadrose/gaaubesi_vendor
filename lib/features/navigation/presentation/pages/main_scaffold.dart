@@ -4,11 +4,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_bloc.dart';
+import 'package:gaaubesi_vendor/features/sidebar/presentation/bloc/sidebar_event.dart';
 import 'package:gaaubesi_vendor/features/sidebar/presentation/pages/sidebar_page.dart';
 
 @RoutePage()
-class MainScaffoldPage extends StatelessWidget {
+class MainScaffoldPage extends StatefulWidget {
   const MainScaffoldPage({super.key});
+
+  @override
+  State<MainScaffoldPage> createState() => _MainScaffoldPageState();
+}
+
+class _MainScaffoldPageState extends State<MainScaffoldPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<SidebarBloc>().add(LoadCachedSidebarDataEvent());
+    context.read<SidebarBloc>().add(FetchSidebarDataEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
