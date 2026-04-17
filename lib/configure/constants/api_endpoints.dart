@@ -23,7 +23,7 @@ class ApiEndpoints {
 
   static const String staleOrders = '/stale-orders/';
 
-  static const String orderDetail = '/order/detail/';
+  static const String orderDetail = '/order/detail';
 
   static const String commentsTodays = '/comments/today/';
 

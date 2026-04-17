@@ -370,39 +370,44 @@ class CodTransferCard extends StatelessWidget {
 
             /// ORDER IDS
             if (item.orderIds.isNotEmpty) ...[
-              const Divider(),
               const SizedBox(height: 8),
-              Text(
-                'Order IDs',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: Theme.of(context).colorScheme.onSurface,
+              ExpansionTile(
+                key: PageStorageKey<String>('order_ids_${item.paymentId}'),
+                initiallyExpanded: false,
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(top: 8),
+                title: Text(
+                  'Order IDs',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
+                children: [
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: item.orderIds.map((id) {
+                      return Chip(
+                        label: Text(
+                          id.toString(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: item.orderIds.map((id) {
-                  return Chip(
-                    label: Text(
-                      id.toString(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 8),
             ],
 
             const Divider(),

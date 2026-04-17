@@ -141,10 +141,13 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                               item.name,
                               context,
                             );
-                            
-                            final hasSubItems = item.subItems != null && item.subItems!.isNotEmpty;
+                            final visibleSubItems =
+                                (item.subItems ?? [])
+                                    .where((subItem) => subItem.hasAccess)
+                                    .toList();
+                            final hasSubItems = visibleSubItems.isNotEmpty;
                             final isExpanded = _expandedItems[item.name] ?? false;
-                            
+
                             if (hasSubItems) {
                               return Column(
                                 children: [
@@ -162,7 +165,7 @@ class _SidebarDrawerState extends State<SidebarDrawer> {
                                   ),
                                   if (isExpanded)
                                     ..._buildSubItems(
-                                      item.subItems!,
+                                      visibleSubItems,
                                       colorScheme,
                                     ),
                                 ],
@@ -439,12 +442,6 @@ class _NavTile extends StatelessWidget {
                     isExpanded
                         ? Icons.expand_less_rounded
                         : Icons.expand_more_rounded,
-                    color: colorScheme.onSurface.withValues(alpha: 0.3),
-                    size: 20,
-                  )
-                else
-                  Icon(
-                    Icons.chevron_right_rounded,
                     color: colorScheme.onSurface.withValues(alpha: 0.3),
                     size: 20,
                   ),

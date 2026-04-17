@@ -398,7 +398,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<OrderDetailModel> fetchOrderDetail({required int orderId}) async {
     try {
       final response = await _dioClient.get(
-        '${ApiEndpoints.orderDetail}/$orderId',
+        '${ApiEndpoints.orderDetail}/$orderId/',
       );
 
       if (response.statusCode == 200) {

@@ -154,12 +154,13 @@ class _OrdersViewState extends State<_OrdersView>
 
   PreferredSizeWidget _buildAppBar(BuildContext context, ThemeData theme) {
     return AppBar(
-      leading: IconButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-      ),
+      automaticallyImplyLeading: false,
+      // leading: IconButton(
+      //   onPressed: () {
+      //     Navigator.pop(context);
+      //   },
+      //   icon: const Icon(Icons.arrow_back, color: Colors.white),
+      // ),
       title: Text(
         'My Orders',
         style: theme.textTheme.headlineSmall?.copyWith(

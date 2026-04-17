@@ -26,6 +26,8 @@ class _OrderDetailPageState extends State<OrderDetailPage>
   bool _isMessagesExpanded = true;
   bool _isCommentsExpanded = true;
   bool _isStatusUpdatesExpanded = true;
+  bool _isDeliveryAddressExpanded = false;
+  bool _isDeliveryInstructionExpanded = false;
   final TextEditingController _newCommentController = TextEditingController();
   String _selectedCommentType = 'Information';
 
@@ -274,6 +276,14 @@ class _OrderDetailPageState extends State<OrderDetailPage>
                       'Delivery Address:',
                       order.receiverAddress,
                       theme,
+                      allowExpand: true,
+                      isExpanded: _isDeliveryAddressExpanded,
+                      onToggleExpand: () {
+                        setState(
+                          () => _isDeliveryAddressExpanded =
+                              !_isDeliveryAddressExpanded,
+                        );
+                      },
                     ),
                     _buildField('Created On:', order.createdOnFormatted, theme),
                     _buildField('Created By:', 'Demo Vendor', theme),
@@ -281,135 +291,146 @@ class _OrderDetailPageState extends State<OrderDetailPage>
                 ),
               ),
               const SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: ColoredBox(
-                      color: Colors.white,
-                      child: Image.memory(
-                        base64Decode(order.qrCode),
-                        width: 160,
-                        height: 90,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const SizedBox(
-                              width: 160,
-                              height: 90,
-                              child: Center(
-                                child: Icon(
-                                  Icons.qr_code_2,
-                                  size: 80,
-                                  color: Colors.grey,
+              SizedBox(
+                width: 180,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: ColoredBox(
+                        color: Colors.white,
+                        child: Image.memory(
+                          base64Decode(order.qrCode),
+                          width: 160,
+                          height: 90,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const SizedBox(
+                                width: 160,
+                                height: 90,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.qr_code_2,
+                                    size: 80,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ),
-                            ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Additional Info',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (order.getIsEditable) ...[
-                            const SizedBox(width: 6),
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
                             Text(
-                              '|',
-                              style: TextStyle(
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.3,
+                              'Additional Info',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (order.getIsEditable) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                '|',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.3,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            GestureDetector(
-                              onTap: () {
-                                EditOrderDialog.show(
-                                  context,
-                                  order: order,
-                                  onUpdate: (data) {
-                                    debugPrint('Updated data: $data');
-                                    context.read<OrderDetailBloc>().add(
-                                      OrderEditRequested(
-                                        orderId: order.orderId,
-                                        request: OrderEditEntity(
-                                          branch: data['branch'] as int,
-                                          destinationBranch:
-                                              data['destinationBranch'] as int,
-                                          weight: data['weight'] as double,
-                                          codCharge: data['codCharge'] as int,
-                                          packageAccess:
-                                              data['packageAccess'] as String,
-                                          packageType:
-                                              data['packageType'] as String,
-                                          remarks: data['remarks'] as String,
-                                          receiverName:
-                                              data['receiverName'] as String,
-                                          receiverPhoneNumber:
-                                              data['receiverPhoneNumber']
-                                                  as String,
-                                          pickupType:
-                                              data['pickupType'] as String,
-                                          altReceiverPhoneNumber:
-                                              data['altReceiverPhoneNumber']
-                                                  as String,
-                                          receiverFullAddress:
-                                              data['receiverFullAddress']
-                                                  as String,
+                              const SizedBox(width: 6),
+                              GestureDetector(
+                                onTap: () {
+                                  EditOrderDialog.show(
+                                    context,
+                                    order: order,
+                                    onUpdate: (data) {
+                                      debugPrint('Updated data: $data');
+                                      context.read<OrderDetailBloc>().add(
+                                        OrderEditRequested(
+                                          orderId: order.orderId,
+                                          request: OrderEditEntity(
+                                            branch: data['branch'] as int,
+                                            destinationBranch:
+                                                data['destinationBranch'] as int,
+                                            weight: data['weight'] as double,
+                                            codCharge: data['codCharge'] as int,
+                                            packageAccess:
+                                                data['packageAccess'] as String,
+                                            packageType:
+                                                data['packageType'] as String,
+                                            remarks: data['remarks'] as String,
+                                            receiverName:
+                                                data['receiverName'] as String,
+                                            receiverPhoneNumber:
+                                                data['receiverPhoneNumber']
+                                                    as String,
+                                            pickupType:
+                                                data['pickupType'] as String,
+                                            altReceiverPhoneNumber:
+                                                data['altReceiverPhoneNumber']
+                                                    as String,
+                                            receiverFullAddress:
+                                                data['receiverFullAddress']
+                                                    as String,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Icon(
-                                Icons.edit_outlined,
-                                size: 15,
-                                color: theme.colorScheme.primary,
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.edit_outlined,
+                                  size: 15,
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
-                            ),
+                            ],
                           ],
-                        ],
-                      ),
-                      const SizedBox(height: 10),
+                        ),
+                        const SizedBox(height: 10),
 
-                      _buildSmallField(
-                        'Tracking Code:',
-                        order.orderId.toString(),
-                        theme,
-                      ),
-                      _buildSmallField('Package Access:', 'none', theme),
-                      _buildSmallField(
-                        'Delivery Instruction:',
-                        order.deliveryInstruction.isEmpty
-                            ? '-'
-                            : order.deliveryInstruction,
-                        theme,
-                      ),
-                      _buildSmallField(
-                        'Vendor Ref. ID:',
-                        order.vendorReferenceId.isEmpty
-                            ? 'None'
-                            : order.vendorReferenceId,
-                        theme,
-                      ),
-                      _buildSmallField(
-                        'Description:',
-                        order.orderDescription,
-                        theme,
-                      ),
-                    ],
-                  ),
-                ],
+                        _buildSmallField(
+                          'Tracking Code:',
+                          order.orderId.toString(),
+                          theme,
+                        ),
+                        _buildSmallField('Package Access:', 'none', theme),
+                        _buildSmallField(
+                          'Delivery Instruction:',
+                          order.deliveryInstruction.isEmpty
+                              ? '-'
+                              : order.deliveryInstruction,
+                          theme,
+                          allowExpandToggle: true,
+                          isExpanded: _isDeliveryInstructionExpanded,
+                          onToggleExpand: () {
+                            setState(
+                              () => _isDeliveryInstructionExpanded =
+                                  !_isDeliveryInstructionExpanded,
+                            );
+                          },
+                        ),
+                        _buildSmallField(
+                          'Vendor Ref. ID:',
+                          order.vendorReferenceId.isEmpty
+                              ? 'None'
+                              : order.vendorReferenceId,
+                          theme,
+                        ),
+                        _buildSmallField(
+                          'Description:',
+                          order.orderDescription,
+                          theme,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -418,7 +439,19 @@ class _OrderDetailPageState extends State<OrderDetailPage>
     );
   }
 
-  Widget _buildField(String label, String value, ThemeData theme) {
+  Widget _buildField(
+    String label,
+    String value,
+    ThemeData theme, {
+    bool allowExpand = false,
+    bool isExpanded = false,
+    VoidCallback? onToggleExpand,
+  }) {
+    final valueStyle = theme.textTheme.bodySmall?.copyWith(
+      fontWeight: FontWeight.w600,
+      fontSize: 15,
+    );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Column(
@@ -433,21 +466,86 @@ class _OrderDetailPageState extends State<OrderDetailPage>
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (!allowExpand) {
+                return Text(
+                  value,
+                  style: valueStyle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                );
+              }
+
+              final textPainter = TextPainter(
+                text: TextSpan(text: value, style: valueStyle),
+                textDirection: Directionality.of(context),
+                maxLines: 2,
+              )..layout(maxWidth: constraints.maxWidth);
+
+              final hasOverflow = textPainter.didExceedMaxLines;
+
+              if (onToggleExpand == null) {
+                return Text(
+                  value,
+                  style: valueStyle,
+                  maxLines: hasOverflow ? null : 2,
+                  overflow: hasOverflow
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
+                  softWrap: true,
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: valueStyle,
+                    maxLines: isExpanded ? null : 2,
+                    overflow: isExpanded
+                        ? TextOverflow.visible
+                        : TextOverflow.ellipsis,
+                    softWrap: true,
+                  ),
+                  if (hasOverflow)
+                    GestureDetector(
+                      onTap: onToggleExpand,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          isExpanded ? 'Show less' : 'Show more',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSmallField(String label, String value, ThemeData theme) {
+  Widget _buildSmallField(
+    String label,
+    String value,
+    ThemeData theme, {
+    bool allowExpandToggle = false,
+    bool isExpanded = false,
+    VoidCallback? onToggleExpand,
+  }) {
+    final valueStyle = theme.textTheme.bodySmall?.copyWith(
+      fontWeight: FontWeight.w600,
+      fontSize: 14,
+    );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
       child: Column(
@@ -461,14 +559,67 @@ class _OrderDetailPageState extends State<OrderDetailPage>
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (!allowExpandToggle) {
+                return Text(
+                  value,
+                  style: valueStyle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                );
+              }
+
+              final textPainter = TextPainter(
+                text: TextSpan(text: value, style: valueStyle),
+                textDirection: Directionality.of(context),
+                maxLines: 2,
+              )..layout(maxWidth: constraints.maxWidth);
+
+              final hasOverflow = textPainter.didExceedMaxLines;
+
+              if (onToggleExpand == null) {
+                return Text(
+                  value,
+                  style: valueStyle,
+                  maxLines: hasOverflow ? null : 2,
+                  overflow: hasOverflow
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
+                  softWrap: true,
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: valueStyle,
+                    maxLines: isExpanded ? null : 2,
+                    overflow: isExpanded
+                        ? TextOverflow.visible
+                        : TextOverflow.ellipsis,
+                    softWrap: true,
+                  ),
+                  if (hasOverflow)
+                    GestureDetector(
+                      onTap: onToggleExpand,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          isExpanded ? 'Show less' : 'Show more',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
