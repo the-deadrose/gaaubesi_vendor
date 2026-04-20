@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
+import 'package:gaaubesi_vendor/core/network/dio_exception_mapper.dart';
 import 'package:gaaubesi_vendor/features/comments/data/model/comments_model.dart';
 import 'package:gaaubesi_vendor/features/comments/domain/entity/comments_entity.dart';
 
@@ -55,22 +56,8 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         throw ServerException('Failed to fetch today\'s comments');
       }
     } on DioException catch (e) {
-      // If this is a session expiry cancellation, rethrow silently
-      // The auth listener will handle navigation to login
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
-        rethrow;
-      }
-      debugPrint(
-        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -89,21 +76,8 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         throw ServerException('Failed to fetch all comments');
       }
     } on DioException catch (e) {
-      // If this is a session expiry cancellation, rethrow silently
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
-        rethrow;
-      }
-      debugPrint(
-        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -143,21 +117,8 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         throw ServerException('Failed to fetch filtered comments');
       }
     } on DioException catch (e) {
-      // If this is a session expiry cancellation, rethrow silently
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
-        rethrow;
-      }
-      debugPrint(
-        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -195,25 +156,8 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         );
       }
     } on DioException catch (e) {
-      // If this is a session expiry cancellation, rethrow silently
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
-        rethrow;
-      }
-      debugPrint(
-        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } on ServerException {
-      // Re-throw ServerException without wrapping
-      rethrow;
-    } catch (e) {
-      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
-      // Don't rethrow the exception, instead convert it to a ServerException
-      throw ServerException('An unexpected error occurred: ${e.toString()}');
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -266,24 +210,8 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         );
       }
     } on DioException catch (e) {
-      // If this is a session expiry cancellation, rethrow silently
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
-        rethrow;
-      }
-      debugPrint(
-        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } on ServerException {
-      // Re-throw ServerException without wrapping
-      rethrow;
-    } catch (e) {
-      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
-      throw ServerException('An unexpected error occurred: ${e.toString()}');
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -326,25 +254,8 @@ class CommentsDatasourceImpl implements CommentsRemoteDatasource {
         );
       }
     } on DioException catch (e) {
-      // If this is a session expiry cancellation, rethrow silently
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint('[COMMENTS_DATASOURCE] Session expired, user will be redirected to login');
-        rethrow;
-      }
-      debugPrint(
-        '[COMMENTS_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } on ServerException {
-      // Re-throw ServerException without wrapping
-      rethrow;
-    } catch (e) {
-      debugPrint('[COMMENTS_DATASOURCE] Unexpected error: $e');
-      // Don't rethrow the exception, instead convert it to a ServerException
-      throw ServerException('An unexpected error occurred: ${e.toString()}');
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 }

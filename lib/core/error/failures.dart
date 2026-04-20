@@ -46,5 +46,14 @@ class UnauthorizedFailure extends Failure {
 }
 
 class ValidationFailure extends Failure {
-  const ValidationFailure(super.message, {super.data});
+  final Map<String, List<String>>? fieldErrors;
+
+  const ValidationFailure(
+    super.message, {
+    this.fieldErrors,
+    super.data,
+  });
+
+  @override
+  List<Object?> get props => [...super.props, fieldErrors];
 }

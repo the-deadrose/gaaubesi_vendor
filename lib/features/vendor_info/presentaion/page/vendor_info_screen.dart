@@ -8,7 +8,8 @@ import 'package:gaaubesi_vendor/features/vendor_info/domain/entity/vendor_info_e
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_event.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_state.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 @RoutePage()
 class VendorInfoScreen extends StatefulWidget {
@@ -19,9 +20,6 @@ class VendorInfoScreen extends StatefulWidget {
 }
 
 class _VendorInfoScreenState extends State<VendorInfoScreen> {
-  late GoogleMapController _mapController;
-  Set<Marker> _markers = {};
-
   @override
   void initState() {
     super.initState();
@@ -67,27 +65,6 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
           if (state is VendorInfoLoadedState) {
             final vendor = state.vendorInfo;
             final location = vendor.vendorLocation;
-
-            if (location.coordinates.length >= 2) {
-              final latLng = LatLng(
-                location.coordinates[1],
-                location.coordinates[0],
-              );
-
-              _markers = {
-                Marker(
-                  markerId: const MarkerId('vendor_location'),
-                  position: latLng,
-                  infoWindow: InfoWindow(
-                    title: vendor.fullName,
-                    snippet: vendor.address,
-                  ),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueBlue,
-                  ),
-                ),
-              };
-            }
 
             return RefreshIndicator(
               color: theme.colorScheme.primary,
@@ -477,36 +454,49 @@ class _VendorInfoScreenState extends State<VendorInfoScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: GoogleMap(
-                  onMapCreated: (controller) {
-                    _mapController = controller;
-                  },
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: LatLng(
                       location.coordinates[1],
                       location.coordinates[0],
                     ),
-                    zoom: 15,
+                    initialZoom: 15,
                   ),
-                  markers: _markers,
-                  zoomControlsEnabled: true,
-                  myLocationButtonEnabled: true,
-                  myLocationEnabled: true,
-                  mapType: MapType.normal,
-                  onTap: (latLng) {
-                    // Handle map taps if needed
-                  },
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName:
+                          'com.vendor.gaaubesi.gaaubesiVendor',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: LatLng(
+                            location.coordinates[1],
+                            location.coordinates[0],
+                          ),
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.location_pin,
+                            color: Colors.red,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const RichAttributionWidget(
+                      attributions: [
+                        TextSourceAttribution('OpenStreetMap contributors'),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    super.dispose();
   }
 }

@@ -6,6 +6,7 @@ import 'package:gaaubesi_vendor/core/router/app_router.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gaaubesi_vendor/core/presentation/utils/snackbar.dart';
 import 'package:gaaubesi_vendor/core/widgets/input_field.dart';
 import 'package:gaaubesi_vendor/core/widgets/primary_button.dart';
 
@@ -89,31 +90,7 @@ class _LoginPageState extends State<LoginPage>
         },
         listener: (context, state) {
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: colorScheme.onErrorContainer,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        state.message,
-                        style: TextStyle(color: colorScheme.onErrorContainer),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: colorScheme.errorContainer,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                margin: const EdgeInsets.all(16),
-              ),
-            );
+            showErrorSnack(context, state.message);
           } else if (state is AuthAuthenticated) {
             context.router.pushAndPopUntil(
               const MainScaffoldRoute(children: [HomeRoute()]),

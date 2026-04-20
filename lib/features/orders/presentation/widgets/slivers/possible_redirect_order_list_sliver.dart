@@ -6,8 +6,9 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/possible_redirec
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/possible_redirect_order/possible_redirect_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_entity_adapters.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/base_order_list_sliver.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/possible_redirect_order_card.dart';
 
 class PossibleRedirectOrderListSliver extends StatelessWidget {
   const PossibleRedirectOrderListSliver({super.key});
@@ -32,8 +33,8 @@ class PossibleRedirectOrderListSliver extends StatelessWidget {
         if (state is PossibleRedirectOrderLoadingMore) return state.orders;
         return [];
       },
-      buildCard: (order) => PossibleRedirectOrderCard(
-        order: order,
+      buildCard: (order) => OrderCard(
+        order: order.toOrderEntity(),
         onTap: () {
           final orderIdInt = int.tryParse(order.orderId);
           if (orderIdInt != null) {

@@ -49,10 +49,10 @@ class ServiceStationModel extends Equatable {
   @JsonKey(name: 'base_charge')
   final double baseCharge;
 
-  @JsonKey(name: 'area_covered')
+  @JsonKey(name: 'area_covered', defaultValue: '')
   final String areaCovered;
 
-  @JsonKey(name: 'arrival_time')
+  @JsonKey(name: 'arrival_time', defaultValue: '')
   final String arrivalTime;
 
   const ServiceStationModel({

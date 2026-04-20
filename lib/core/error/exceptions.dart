@@ -64,3 +64,19 @@ class NetworkException implements Exception {
     };
   }
 }
+
+class ValidationException implements Exception {
+  final String message;
+  final Map<String, List<String>>? fieldErrors;
+  final dynamic data;
+
+  ValidationException(this.message, {this.fieldErrors, this.data});
+
+  Map<String, dynamic> toErrorResponse() {
+    return {
+      'success': false,
+      'message': message,
+      'data': data ?? fieldErrors,
+    };
+  }
+}

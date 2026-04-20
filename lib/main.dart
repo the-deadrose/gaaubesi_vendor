@@ -80,7 +80,6 @@ class MyApp extends StatelessWidget {
         BlocProvider<HomeBloc>.value(value: getIt<HomeBloc>()),
         BlocProvider(create: (_) => getIt<CommentsBloc>()),
         BlocProvider(create: (context) => getIt<OrderDetailBloc>()),
-        BlocProvider(create: (context) => getIt<CommentsBloc>()),
         BlocProvider(create: (context) => getIt<TicketBloc>()),
         BlocProvider(create: (context) => getIt<BranchListBloc>()),
         BlocProvider(create: (context) => getIt<WarehouseOrderBloc>()),
