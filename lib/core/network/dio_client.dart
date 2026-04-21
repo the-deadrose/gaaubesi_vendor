@@ -1,475 +1,286 @@
 import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+
 import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/configure/constants/constants.dart';
-import 'package:gaaubesi_vendor/core/di/injection.dart';
+import 'package:gaaubesi_vendor/core/error/exceptions.dart';
+import 'package:gaaubesi_vendor/core/network/connectivity_service.dart';
+import 'package:gaaubesi_vendor/core/network/dio_exception_mapper.dart';
 import 'package:gaaubesi_vendor/core/network/logger_interceptor.dart';
+import 'package:gaaubesi_vendor/core/network/session_handler.dart';
 import 'package:gaaubesi_vendor/core/services/secure_storage_service.dart';
-import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:gaaubesi_vendor/features/auth/presentation/bloc/auth_event.dart';
 
 @lazySingleton
 class DioClient {
   final Dio _dio;
   final SecureStorageService _secureStorageService;
-  bool _isRefreshing = false;
-  final List<Function> _refreshCallbacks = [];
+  final SessionHandler _sessionHandler;
+  final ConnectivityService _connectivity;
 
-  DioClient(this._dio, this._secureStorageService) {
+  /// Single in-flight refresh. Completes with a new access token, or `null`
+  /// if refresh failed (caller should treat the request as unauthorized).
+  Completer<String?>? _refreshCompleter;
+
+  DioClient(
+    this._dio,
+    this._secureStorageService,
+    this._sessionHandler,
+    this._connectivity,
+  ) {
     _dio
       ..options.baseUrl = AppConstants.baseUrl
-      ..options.connectTimeout = Duration(
-        milliseconds: AppConstants.connectTimeout,
-      )
-      ..options.receiveTimeout = Duration(
-        milliseconds: AppConstants.receiveTimeout,
-      )
+      ..options.connectTimeout =
+          Duration(milliseconds: AppConstants.connectTimeout)
+      ..options.receiveTimeout =
+          Duration(milliseconds: AppConstants.receiveTimeout)
       ..options.responseType = ResponseType.json
       ..interceptors.add(
         InterceptorsWrapper(
-          onRequest: (options, handler) async {
-            final fullUrl = '${_dio.options.baseUrl}${options.path}';
-            debugPrint('📤 [DioClient] ${options.method} Request');
-            debugPrint('   Full Path: $fullUrl');
-            debugPrint(
-              '   Query Params: ${options.queryParameters.isNotEmpty ? options.queryParameters : "none"}',
-            );
-
-            // Skip adding token for auth endpoints
-            final isAuthEndpoint =
-                options.path == ApiEndpoints.login ||
-                options.path == ApiEndpoints.refreshToken ||
-                options.path.contains('/register');
-
-            if (!isAuthEndpoint) {
-              final token = await _secureStorageService.read(
-                key: AppConstants.tokenKey,
-              );
-              if (token != null) {
-                try {
-                  final isExpired = JwtDecoder.isExpired(token);
-                  if (isExpired) {
-                    debugPrint(
-                      '⚠️  [DioClient] Access token expired, will refresh',
-                    );
-                  }
-                } catch (e) {
-                  debugPrint('⚠️  [DioClient] Failed to decode JWT: $e');
-                }
-                options.headers['Authorization'] = 'Bearer $token';
-                debugPrint(
-                  '✅ [DioClient] Authorization header added (token length: ${token.length})',
-                );
-              } else {
-                debugPrint(
-                  '⚠️  [DioClient] No token found for non-auth endpoint',
-                );
-              }
-            } else {
-              debugPrint('⏭️  [DioClient] Skipping token for auth endpoint');
-            }
-            return handler.next(options);
-          },
-          onError: (DioException e, handler) async {
-            final fullUrl = '${_dio.options.baseUrl}${e.requestOptions.path}';
-            debugPrint('❌ [DioClient] Error Response');
-            debugPrint('   Full Path: $fullUrl');
-            debugPrint('   Method: ${e.requestOptions.method}');
-            debugPrint('   Status: ${e.response?.statusCode}');
-            debugPrint('   Message: ${e.message}');
-
-            // Handle 401 Unauthorized - Try to refresh token
-            if (e.response?.statusCode == 401 &&
-                e.requestOptions.path != ApiEndpoints.refreshToken) {
-              debugPrint('🔄 [DioClient] Attempting token refresh...');
-              return _handleTokenRefresh(e, handler);
-            }
-
-            // If refresh token is invalid/expired, logout user and don't propagate error
-            if (e.response?.statusCode == 401 &&
-                e.requestOptions.path == ApiEndpoints.refreshToken) {
-              debugPrint(
-                '🚪 [DioClient] Refresh token expired, logging out user',
-              );
-              await _logoutUser();
-              // Return cancelled error to prevent error screens from showing
-              // The BlocListener will handle navigation to login
-              return handler.reject(
-                DioException(
-                  requestOptions: e.requestOptions,
-                  type: DioExceptionType.cancel,
-                  error: 'Session expired. Please login again.',
-                ),
-              );
-            }
-
-            // Global Error Parsing
-            String errorMessage = e.message ?? 'An unexpected error occurred';
-            dynamic errorData;
-            
-            if (e.response?.data != null) {
-              final data = e.response?.data;
-              if (data is Map<String, dynamic>) {
-                // Try to extract message from various possible formats
-                if (data.containsKey('message')) {
-                  errorMessage = data['message'].toString();
-                } else if (data.containsKey('non_field_errors')) {
-                  final errors = data['non_field_errors'];
-                  if (errors is List && errors.isNotEmpty) {
-                    errorMessage = errors.first.toString();
-                  }
-                } else if (data.containsKey('detail')) {
-                  errorMessage = data['detail'].toString();
-                } else if (data.isNotEmpty) {
-                  final firstValue = data.values.first;
-                  if (firstValue is List && firstValue.isNotEmpty) {
-                    errorMessage = firstValue.first.toString();
-                  } else {
-                    errorMessage = firstValue.toString();
-                  }
-                }
-                // Format as API response
-                errorData = {
-                  'success': false,
-                  'message': errorMessage,
-                  'data': null,
-                };
-              } else if (data is String) {
-                errorMessage = data;
-                errorData = {
-                  'success': false,
-                  'message': errorMessage,
-                  'data': null,
-                };
-              }
-            }
-
-            final newError = DioException(
-              requestOptions: e.requestOptions,
-              response: e.response,
-              type: e.type,
-              error: errorData ?? {'success': false, 'message': errorMessage, 'data': null},
-              message: errorMessage,
-            );
-
-            return handler.next(newError);
-          },
+          onRequest: _onRequest,
+          onError: _onError,
         ),
       );
-    // Add logging interceptor in debug mode
+
     if (kDebugMode) {
       _dio.interceptors.add(LoggerInterceptor());
     }
   }
 
-  Future<dynamic> _handleTokenRefresh(
-    DioException error,
-    ErrorInterceptorHandler handler,
+  Dio get dio => _dio;
+
+  // ────────────────────────── Interceptor handlers ──────────────────────────
+
+  Future<void> _onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
   ) async {
-    debugPrint('🔄 [DioClient] Handling 401 - Token refresh needed');
+    // Short-circuit obvious offline state so the user gets instant feedback
+    // instead of a 30-second connect timeout.
+    if (!await _connectivity.hasConnection) {
+      return handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.connectionError,
+          error: NetworkException('No internet connection'),
+        ),
+      );
+    }
 
-    // If already refreshing, queue this request
-    if (_isRefreshing) {
-      debugPrint('⏳ [DioClient] Already refreshing, queuing request');
-      final completer = Completer<Response>();
-      _refreshCallbacks.add((newToken) {
-        if (newToken != null) {
-          // Retry with new token
-          error.requestOptions.headers['Authorization'] = 'Bearer $newToken';
-          _dio
-              .request<dynamic>(
-                error.requestOptions.path,
-                data: error.requestOptions.data,
-                queryParameters: error.requestOptions.queryParameters,
-                options: Options(
-                  method: error.requestOptions.method,
-                  headers: error.requestOptions.headers,
-                ),
-              )
-              .then(completer.complete)
-              .catchError(completer.completeError);
-        } else {
-          completer.completeError(error);
-        }
-      });
-
-      try {
-        final response = await completer.future;
-        return handler.resolve(response);
-      } catch (e) {
-        return handler.reject(error);
+    if (!_isAuthEndpoint(options.path)) {
+      final token =
+          await _secureStorageService.read(key: AppConstants.tokenKey);
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
       }
     }
 
-    _isRefreshing = true;
+    return handler.next(options);
+  }
 
-    try {
-      final refreshToken = await _secureStorageService.read(
-        key: 'refresh_token',
-      );
+  Future<void> _onError(
+    DioException e,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final status = e.response?.statusCode;
+    final path = e.requestOptions.path;
 
-      if (refreshToken == null || refreshToken.isEmpty) {
-        debugPrint('❌ [DioClient] No refresh token available');
-        await _logoutUser();
-        _isRefreshing = false;
-        _notifyRefreshCallbacks(null);
-        // Return cancelled error to prevent error screens
-        return handler.reject(
-          DioException(
-            requestOptions: error.requestOptions,
-            type: DioExceptionType.cancel,
-            error: 'Session expired. Please login again.',
-          ),
-        );
-      }
+    // 401 on a protected endpoint → try to refresh once and replay.
+    if (status == 401 && !_isAuthEndpoint(path)) {
+      return _handleUnauthorized(e, handler);
+    }
 
-      // Check if refresh token is expired
-      try {
-        final isRefreshExpired = JwtDecoder.isExpired(refreshToken);
-        if (isRefreshExpired) {
-          debugPrint('❌ [DioClient] Refresh token is expired');
-          await _logoutUser();
-          _isRefreshing = false;
-          _notifyRefreshCallbacks(null);
-          // Return cancelled error to prevent error screens
-          return handler.reject(
-            DioException(
-              requestOptions: error.requestOptions,
-              type: DioExceptionType.cancel,
-              error: 'Session expired. Please login again.',
-            ),
-          );
-        }
-      } catch (e) {
-        debugPrint('⚠️  [DioClient] Failed to decode refresh token: $e');
-      }
+    // Everything else: map to a typed domain exception and forward.
+    final mapped = mapDioException(e);
+    if (mapped is DioException) {
+      return handler.next(mapped);
+    }
+    return handler.reject(
+      DioException(
+        requestOptions: e.requestOptions,
+        response: e.response,
+        type: e.type,
+        error: mapped,
+        message: _messageOf(mapped) ?? e.message,
+      ),
+    );
+  }
 
-      debugPrint('🔄 [DioClient] Attempting to refresh access token...');
-      // Attempt to refresh the access token
-      final newAccessToken = await _refreshAccessToken(refreshToken);
+  // ───────────────────────────── Refresh flow ──────────────────────────────
 
-      if (newAccessToken.isNotEmpty) {
-        debugPrint('✅ [DioClient] Successfully refreshed access token');
+  Future<void> _handleUnauthorized(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final newToken = await _acquireFreshToken();
 
-        // Update the token in storage
-        await _secureStorageService.write(
-          key: AppConstants.tokenKey,
-          value: newAccessToken,
-        );
-
-        // Update the original request with new token
-        error.requestOptions.headers['Authorization'] =
-            'Bearer $newAccessToken';
-
-        // Notify queued requests
-        _notifyRefreshCallbacks(newAccessToken);
-        _isRefreshing = false;
-
-        // Retry the original request
-        try {
-          final response = await _dio.request<dynamic>(
-            error.requestOptions.path,
-            data: error.requestOptions.data,
-            queryParameters: error.requestOptions.queryParameters,
-            options: Options(
-              method: error.requestOptions.method,
-              headers: error.requestOptions.headers,
-            ),
-          );
-          return handler.resolve(response);
-        } catch (e) {
-          debugPrint('❌ [DioClient] Failed to retry request after refresh: $e');
-          return handler.reject(error);
-        }
-      } else {
-        debugPrint('❌ [DioClient] Failed to refresh token');
-        // Failed to get new token, logout user
-        await _logoutUser();
-        _notifyRefreshCallbacks(null);
-        _isRefreshing = false;
-        // Return cancelled error to prevent error screens
-        return handler.reject(
-          DioException(
-            requestOptions: error.requestOptions,
-            type: DioExceptionType.cancel,
-            error: 'Session expired. Please login again.',
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('❌ [DioClient] Error during token refresh: $e');
-      // Error during refresh, logout user
-      await _logoutUser();
-      _notifyRefreshCallbacks(null);
-      _isRefreshing = false;
-      // Return cancelled error to prevent error screens
+    if (newToken == null) {
+      // Refresh failed — surface as unauthorized and kick off session cleanup.
+      await _sessionHandler.onUnauthorized();
       return handler.reject(
         DioException(
           requestOptions: error.requestOptions,
+          response: error.response,
           type: DioExceptionType.cancel,
-          error: 'Session expired. Please login again.',
+          error: UnauthorizedException('Session expired. Please log in again.'),
+          message: 'Session expired. Please log in again.',
+        ),
+      );
+    }
+
+    // Retry the original request with the fresh token.
+    try {
+      final retryOptions = error.requestOptions
+        ..headers['Authorization'] = 'Bearer $newToken';
+      final response = await _dio.fetch<dynamic>(retryOptions);
+      return handler.resolve(response);
+    } on DioException catch (retryError) {
+      // Propagate the *real* retry failure, not the stale 401.
+      final mapped = mapDioException(retryError);
+      if (mapped is DioException) {
+        return handler.next(mapped);
+      }
+      return handler.reject(
+        DioException(
+          requestOptions: retryError.requestOptions,
+          response: retryError.response,
+          type: retryError.type,
+          error: mapped,
+          message: _messageOf(mapped) ?? retryError.message,
         ),
       );
     }
   }
 
-  void _notifyRefreshCallbacks(String? newToken) {
-    for (final callback in _refreshCallbacks) {
-      callback(newToken);
-    }
-    _refreshCallbacks.clear();
+  /// Returns a fresh access token, coalescing concurrent callers onto a
+  /// single refresh request. Returns `null` if refresh is not possible.
+  Future<String?> _acquireFreshToken() {
+    final existing = _refreshCompleter;
+    if (existing != null) return existing.future;
+
+    final completer = Completer<String?>();
+    _refreshCompleter = completer;
+
+    _runRefresh().then((token) {
+      if (!completer.isCompleted) completer.complete(token);
+    }).catchError((Object error) {
+      if (!completer.isCompleted) completer.complete(null);
+    }).whenComplete(() {
+      _refreshCompleter = null;
+    });
+
+    return completer.future;
   }
 
-  Future<String> _refreshAccessToken(String refreshToken) async {
+  Future<String?> _runRefresh() async {
+    final refreshToken =
+        await _secureStorageService.read(key: 'refresh_token');
+    if (refreshToken == null || refreshToken.isEmpty) return null;
+
     try {
-      debugPrint('📡 [DioClient] Calling refresh token API...');
+      if (JwtDecoder.isExpired(refreshToken)) return null;
+    } catch (_) {
+      // Token isn't a JWT we can decode — let the server reject it.
+    }
+
+    try {
       final response = await _dio.post(
         ApiEndpoints.refreshToken,
-        data: {
-          'refresh': refreshToken, // Django typically uses 'refresh' field
-        },
+        data: {'refresh': refreshToken},
       );
 
-      if (response.statusCode == 200) {
-        final data = response.data as Map<String, dynamic>;
-        debugPrint('✅ [DioClient] Refresh token API successful');
+      if (response.statusCode != 200 || response.data is! Map) return null;
 
-        // Try multiple possible field names for the new access token
-        final newToken =
-            data['access'] ?? data['access_token'] ?? data['accessToken'] ?? '';
+      final data = response.data as Map<String, dynamic>;
+      final newAccess = (data['access'] ??
+              data['access_token'] ??
+              data['accessToken'] ??
+              '') as String;
+      if (newAccess.isEmpty) return null;
 
-        if (newToken.isNotEmpty) {
-          debugPrint(
-            '✅ [DioClient] New access token received (length: ${(newToken as String).length})',
-          );
+      await _secureStorageService.write(
+        key: AppConstants.tokenKey,
+        value: newAccess,
+      );
 
-          // If a new refresh token is provided, update it too
-          final newRefreshToken =
-              data['refresh'] ?? data['refresh_token'] ?? data['refreshToken'];
-          if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
-            await _secureStorageService.write(
-              key: 'refresh_token',
-              value: newRefreshToken,
-            );
-            debugPrint('✅ [DioClient] New refresh token also updated');
-          }
-        }
-
-        return newToken;
+      final newRefresh = data['refresh'] ??
+          data['refresh_token'] ??
+          data['refreshToken'];
+      if (newRefresh is String && newRefresh.isNotEmpty) {
+        await _secureStorageService.write(
+          key: 'refresh_token',
+          value: newRefresh,
+        );
       }
-      debugPrint(
-        '❌ [DioClient] Refresh token API returned status: ${response.statusCode}',
-      );
-      return '';
-    } on DioException catch (e) {
-      debugPrint('❌ [DioClient] DioException during refresh: ${e.message}');
-      debugPrint('   Status: ${e.response?.statusCode}');
-      debugPrint('   Data: ${e.response?.data}');
-      return '';
-    } catch (e) {
-      debugPrint('❌ [DioClient] Unexpected error during refresh: $e');
-      return '';
+
+      return newAccess;
+    } on DioException {
+      return null;
     }
   }
 
-  Future<void> _logoutUser() async {
-    try {
-      debugPrint('🚪 [DioClient] Logging out user - clearing all tokens');
+  // ───────────────────────────── Helpers ──────────────────────────────
 
-      // Clear tokens from storage
-      await _secureStorageService.delete(key: AppConstants.tokenKey);
-      await _secureStorageService.delete(key: 'refresh_token');
-      await _secureStorageService.delete(key: 'user_data');
-
-      debugPrint('✅ [DioClient] All tokens cleared successfully');
-
-      // Trigger AuthBloc logout to update UI state and navigate to login
-      try {
-        final authBloc = getIt<AuthBloc>();
-        authBloc.add(AuthLogoutRequested());
-        debugPrint('✅ [DioClient] AuthBloc logout event triggered');
-      } catch (e) {
-        debugPrint('⚠️  [DioClient] Failed to trigger AuthBloc logout: $e');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ [DioClient] Error during logout: $e');
-      }
-    }
+  bool _isAuthEndpoint(String path) {
+    return path == ApiEndpoints.login ||
+        path == ApiEndpoints.refreshToken ||
+        path.contains('/register');
   }
 
-  Dio get dio => _dio;
+  String? _messageOf(Object e) {
+    if (e is ServerException) return e.message;
+    if (e is UnauthorizedException) return e.message;
+    if (e is ValidationException) return e.message;
+    if (e is NetworkException) return e.message;
+    if (e is CacheException) return e.message;
+    return null;
+  }
 
-  // Expose common methods if needed, or just use dio directly in repositories
+  // ───────────────────────── Thin request facade ───────────────────────────
+
   Future<Response> get(
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) async {
-    return await _dio.get(
-      path,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
+  }) =>
+      _dio.get(path, queryParameters: queryParameters, options: options);
 
   Future<Response> post(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) async {
-    return await _dio.post(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
+  }) =>
+      _dio.post(path,
+          data: data, queryParameters: queryParameters, options: options);
 
   Future<Response> put(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) async {
-    return await _dio.put(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
+  }) =>
+      _dio.put(path,
+          data: data, queryParameters: queryParameters, options: options);
 
-  //patch method
   Future<Response> patch(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) async {
-    return await _dio.patch(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
+  }) =>
+      _dio.patch(path,
+          data: data, queryParameters: queryParameters, options: options);
 
   Future<Response> delete(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) async {
-    return await _dio.delete(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
-  }
+  }) =>
+      _dio.delete(path,
+          data: data, queryParameters: queryParameters, options: options);
 }

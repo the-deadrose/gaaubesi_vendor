@@ -6,8 +6,9 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/rtv_order_entity
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/rtv_order/rtv_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_entity_adapters.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/base_order_list_sliver.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/rtv_order_card.dart';
 
 class RtvOrderListSliver extends StatelessWidget {
   const RtvOrderListSliver({super.key});
@@ -27,8 +28,8 @@ class RtvOrderListSliver extends StatelessWidget {
         if (state is RtvOrderLoadingMore) return state.orders;
         return [];
       },
-      buildCard: (order) => RtvOrderCard(
-        order: order,
+      buildCard: (order) => OrderCard(
+        order: order.toOrderEntity(),
         onTap: () {
           final orderIdInt = int.tryParse(order.orderId);
           if (orderIdInt != null) {

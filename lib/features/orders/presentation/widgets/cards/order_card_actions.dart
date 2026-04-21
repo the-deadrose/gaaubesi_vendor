@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:gaaubesi_vendor/configure/theme/theme.dart';
 
 /// Mixin providing common actions for order cards.
-/// Includes phone calling, map opening, and sharing functionality.
+/// Includes phone calling and sharing functionality.
 mixin OrderCardActionsMixin<T extends StatefulWidget> on State<T> {
   /// Makes a phone call to the given number
   Future<void> makePhoneCall(String phoneNumber) async {
@@ -12,18 +12,6 @@ mixin OrderCardActionsMixin<T extends StatefulWidget> on State<T> {
     final uri = Uri.parse('tel:$phoneNumber');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
-    }
-  }
-
-  /// Opens Google Maps with the given address
-  Future<void> openMaps(String address) async {
-    HapticFeedback.mediumImpact();
-    final encodedAddress = Uri.encodeComponent(address);
-    final uri = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=$encodedAddress',
-    );
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 

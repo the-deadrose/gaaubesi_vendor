@@ -82,8 +82,8 @@ class GenericOrderListSliver<B extends StateStreamable<S>, S, T>
               return Padding(
                 key: ValueKey(orders[index]),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                  horizontal: 8,
+                  vertical: 4,
                 ),
                 child: buildCard(orders[index]),
               );
@@ -100,7 +100,7 @@ class GenericOrderListSliver<B extends StateStreamable<S>, S, T>
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) => const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: OrderCardShimmer(),
         ),
         childCount: 5,

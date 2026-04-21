@@ -5,8 +5,9 @@ import 'package:gaaubesi_vendor/features/vendor_info/domain/entity/vendor_info_e
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_bloc.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_event.dart';
 import 'package:gaaubesi_vendor/features/vendor_info/presentaion/bloc/vendor_info_state.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'dart:io';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
 import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
@@ -1022,18 +1023,21 @@ class MapSelectionScreen extends StatefulWidget {
 }
 
 class _MapSelectionScreenState extends State<MapSelectionScreen> {
-  late GoogleMapController _mapController;
+  final MapController _mapController = MapController();
   LatLng _selectedLocation = LatLng(0, 0);
-  late CameraPosition _initialCameraPosition;
 
   @override
   void initState() {
     super.initState();
     _selectedLocation = widget.initialPosition;
-    _initialCameraPosition = CameraPosition(
-      target: widget.initialPosition,
-      zoom: 15,
-    );
+  }
+
+  void _updateSelection(LatLng latLng) {
+    setState(() {
+      _selectedLocation = latLng;
+    });
+    widget.onLocationSelected(latLng);
+    _mapController.move(latLng, _mapController.camera.zoom);
   }
 
   @override
@@ -1046,47 +1050,43 @@ class _MapSelectionScreenState extends State<MapSelectionScreen> {
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        
+
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: _initialCameraPosition,
-            onMapCreated: (controller) {
-              _mapController = controller;
-            },
-            onTap: (latLng) {
-              setState(() {
-                _selectedLocation = latLng;
-              });
-              _mapController.animateCamera(CameraUpdate.newLatLng(latLng));
-            },
-            markers: {
-              Marker(
-                markerId: const MarkerId('selected_location'),
-                position: _selectedLocation,
-                draggable: true,
-                onDragEnd: (latLng) {
-                  setState(() {
-                    _selectedLocation = latLng;
-                  });
-                },
-                icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueRed,
-                ),
-                // ignore: deprecated_member_use
-                zIndex: 2,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: widget.initialPosition,
+              initialZoom: 15,
+              onTap: (_, latLng) => _updateSelection(latLng),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.vendor.gaaubesi.gaaubesiVendor',
               ),
-            },
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            mapToolbarEnabled: false,
-            zoomControlsEnabled: false,
-            buildingsEnabled: true,
-            indoorViewEnabled: true,
-            trafficEnabled: true,
-            mapType: MapType.normal,
-            padding: const EdgeInsets.only(bottom: 180),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: _selectedLocation,
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.topCenter,
+                    child: const Icon(
+                      Icons.location_pin,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                  ),
+                ],
+              ),
+              const RichAttributionWidget(
+                attributions: [
+                  TextSourceAttribution('OpenStreetMap contributors'),
+                ],
+              ),
+            ],
           ),
           Positioned(
             bottom: 0,
@@ -1221,11 +1221,7 @@ class _MapSelectionScreenState extends State<MapSelectionScreen> {
         child: FloatingActionButton(
           onPressed: () async {
             Position position = await Geolocator.getCurrentPosition();
-            final latLng = LatLng(position.latitude, position.longitude);
-            setState(() {
-              _selectedLocation = latLng;
-            });
-            _mapController.animateCamera(CameraUpdate.newLatLng(latLng));
+            _updateSelection(LatLng(position.latitude, position.longitude));
           },
           backgroundColor: isDarkMode ? Colors.grey[900]! : Colors.white,
           child: Icon(

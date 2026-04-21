@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:gaaubesi_vendor/core/error/exceptions.dart';
+
+import 'package:gaaubesi_vendor/core/data/failure_mapper.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:gaaubesi_vendor/features/home/domain/entities/vendor_stats_entity.dart';
@@ -17,10 +18,8 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       final stats = await _remoteDataSource.getVendorStats();
       return Right(stats);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(ServerFailure('An unexpected error occurred'));
+      return Left(toFailure(e));
     }
   }
 }

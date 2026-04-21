@@ -7,7 +7,8 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/redirected_order
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_orders_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/redirected_order/redirect_order_state.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/redirected_order_card.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_entity_adapters.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 
 class RedirectedOrderListSliver extends StatelessWidget {
   const RedirectedOrderListSliver({super.key});
@@ -69,9 +70,9 @@ class RedirectedOrderListSliver extends StatelessWidget {
               if (index < orders.length) {
                 final order = orders[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: RedirectedOrderCard(
-                    order: order,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: OrderCard(
+                    order: order.toOrderEntity(),
                     onTap: () {
                       context.router.push(OrderDetailRoute(orderId: order.childOrderId));
                     },
@@ -92,7 +93,7 @@ class RedirectedOrderListSliver extends StatelessWidget {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(

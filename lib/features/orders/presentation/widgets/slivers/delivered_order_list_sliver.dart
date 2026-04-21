@@ -6,8 +6,9 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/delivered_order_
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/delivered_order/delivered_order_state.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_entity_adapters.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/slivers/base_order_list_sliver.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/delivered_order_card.dart';
 
 class DeliveredOrderListSliver extends StatelessWidget {
   const DeliveredOrderListSliver({super.key});
@@ -32,10 +33,12 @@ class DeliveredOrderListSliver extends StatelessWidget {
         return [];
       },
       buildCard: (deliveredOrder) {
-        return DeliveredOrderCard(
-          order: deliveredOrder,
+        return OrderCard(
+          order: deliveredOrder.toOrderEntity(),
           onTap: () {
-            context.router.push(OrderDetailRoute(orderId: deliveredOrder.orderId));
+            context.router.push(
+              OrderDetailRoute(orderId: deliveredOrder.orderId),
+            );
           },
         );
       },

@@ -46,16 +46,16 @@ class PendingTicketEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        subject,
-        description,
-        reply,
-        isActive,
-        createdOn,
-        createdOnFormatted,
-        closedOn,
-        closedOnFormatted,
-        closedByName,
-        status,
-      ];
+    id,
+    subject,
+    description,
+    reply,
+    isActive,
+    createdOn,
+    createdOnFormatted,
+    closedOn,
+    closedOnFormatted,
+    closedByName,
+    status,
+  ];
 }

@@ -73,7 +73,6 @@ class _CommentsPageState extends State<CommentsPage>
 
   @override
   void didPopNext() {
- 
     debugPrint('[CommentsPage] didPopNext - User navigated back to this page');
     if (_hasLoadedOnce) {
       _refreshCurrentTab();
@@ -120,7 +119,6 @@ class _CommentsPageState extends State<CommentsPage>
 
   void _refreshCurrentTab() {
     debugPrint('[CommentsPage] Refreshing current tab: $_currentTabIndex');
-    // Refresh the current tab's data
     if (_currentTabIndex == 0) {
       context.read<CommentsBloc>().add(
         const RefreshCommentsEvent(isTodays: true),
@@ -186,6 +184,15 @@ class _CommentsPageState extends State<CommentsPage>
     context.read<CommentsBloc>().add(
       FetchCommentsEvent(page: '1', isTodays: _currentTabIndex == 0),
     );
+  }
+
+  int get _activeFilterCount {
+    int count = 0;
+    if (_searchController.text.isNotEmpty) count++;
+    if (_startDate != null) count++;
+    if (_endDate != null) count++;
+    if (_statusFilter != 'all') count++;
+    return count;
   }
 
   void _setupScrollListeners() {
@@ -324,94 +331,43 @@ class _CommentsPageState extends State<CommentsPage>
 
     return PopScope(
       canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
-        // This is called when navigating away from this page
-        // We don't need to do anything here
-      },
+      onPopInvokedWithResult: (didPop, result) {},
       child: Scaffold(
+        backgroundColor: AppTheme.whiteSmoke,
         appBar: AppBar(
-          leading: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white),
-              shape: BoxShape.circle,
-            ),
-            margin: const EdgeInsets.all(12.0),
-            padding: const EdgeInsets.all(2.0),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              iconSize: 20,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              onPressed: () {
-                context.router.pop();
-              },
-            ),
+          leading: IconButton(
+            tooltip: 'Back',
+            icon: const Icon(Icons.arrow_back_rounded),
+            onPressed: () => context.router.pop(),
           ),
           title: const Text(
             'Comments',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              letterSpacing: 0.2,
+            ),
           ),
           centerTitle: true,
           backgroundColor: AppTheme.marianBlue,
           foregroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          actions: [
+            IconButton(
+              tooltip: 'Refresh',
+              icon: const Icon(Icons.refresh_rounded),
+              onPressed: _refreshCurrentTab,
+            ),
+            const SizedBox(width: 4),
+          ],
         ),
         body: Column(
           children: [
+            const SizedBox(height: 12),
             _buildFilterSection(),
-            const SizedBox(height: 8),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16.0),
-              padding: const EdgeInsets.all(4.0),
-              decoration: BoxDecoration(
-                color: AppTheme.lightGray,
-                borderRadius: BorderRadius.circular(16.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                labelColor: AppTheme.marianBlue,
-                unselectedLabelColor: AppTheme.darkGray,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                ),
-                dividerHeight: 0,
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.today, size: 20),
-                    text: 'Today\'s',
-                    height: 46,
-                  ),
-                  Tab(
-                    icon: Icon(Icons.list, size: 20),
-                    text: 'All',
-                    height: 46,
-                  ),
-                ],
-              ),
-            ),
+            const SizedBox(height: 12),
+            _buildTabBar(),
             const SizedBox(height: 8),
             Expanded(
               child: TabBarView(
@@ -425,37 +381,84 @@ class _CommentsPageState extends State<CommentsPage>
     );
   }
 
+  Widget _buildTabBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14.0),
+        border: Border.all(color: AppTheme.powerBlue.withValues(alpha: 0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.marianBlue.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          color: AppTheme.marianBlue,
+          borderRadius: BorderRadius.circular(10.0),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.marianBlue.withValues(alpha: 0.25),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: AppTheme.darkGray,
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
+          letterSpacing: 0.2,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+        dividerHeight: 0,
+        indicatorSize: TabBarIndicatorSize.tab,
+        splashBorderRadius: BorderRadius.circular(10.0),
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.today_rounded, size: 18),
+            iconMargin: EdgeInsets.only(bottom: 2),
+            text: "Today's",
+            height: 48,
+          ),
+          Tab(
+            icon: Icon(Icons.forum_rounded, size: 18),
+            iconMargin: EdgeInsets.only(bottom: 2),
+            text: 'All',
+            height: 48,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTodayTab() {
     return BlocConsumer<CommentsBloc, CommentsState>(
       listener: (context, state) {
         if (state is TodaysCommentsError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          _showSnack(state.message, isError: true);
         } else if (state is TodaysCommentsLoaded && _isFiltering) {
           setState(() {});
         } else if (state is CommentReplySuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Comment replied and closed successfully'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          _showSnack('Comment replied and closed successfully');
           _onRefresh(isToday: true);
         } else if (state is CommentReplyError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to reply: ${state.message}'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          _showSnack('Failed to reply: ${state.message}', isError: true);
         }
       },
       builder: (context, state) {
         return RefreshIndicator(
+          color: AppTheme.marianBlue,
           onRefresh: () => _onRefresh(isToday: true),
           child: _buildCommentsList(
             scrollController: _todayScrollController,
@@ -487,27 +490,12 @@ class _CommentsPageState extends State<CommentsPage>
             });
           }
         } else if (state is AllCommentsError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          _showSnack(state.message, isError: true);
         } else if (state is CommentReplySuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Comment replied and closed successfully'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          _showSnack('Comment replied and closed successfully');
           _onRefresh(isToday: false);
         } else if (state is CommentReplyError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to reply: ${state.message}'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
+          _showSnack('Failed to reply: ${state.message}', isError: true);
         }
       },
       builder: (context, state) {
@@ -516,6 +504,7 @@ class _CommentsPageState extends State<CommentsPage>
             : _allScrollController;
 
         return RefreshIndicator(
+          color: AppTheme.marianBlue,
           onRefresh: () => _onRefresh(isToday: false),
           child: _buildCommentsList(
             scrollController: scrollController,
@@ -524,6 +513,36 @@ class _CommentsPageState extends State<CommentsPage>
           ),
         );
       },
+    );
+  }
+
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_outline_rounded : Icons.check_circle_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: isError ? AppTheme.rojo : AppTheme.successGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: const EdgeInsets.all(12),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
@@ -671,10 +690,14 @@ class _CommentsPageState extends State<CommentsPage>
     }
 
     return RefreshIndicator(
+      color: AppTheme.marianBlue,
       onRefresh: () => _onRefresh(isToday: isToday),
       child: ListView.builder(
         controller: scrollController,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
         itemCount:
             filteredComments.length +
             (isLoadingMore ? 1 : 0) +
@@ -700,157 +723,331 @@ class _CommentsPageState extends State<CommentsPage>
   }
 
   Widget _buildEnhancedCommentCard(CommentEntity comment) {
-    return InkWell(
-      onTap: () {
-        final orderIdInt = int.tryParse(comment.orderId);
-        if (orderIdInt != null) {
-          context.router.push(OrderDetailRoute(orderId: orderIdInt));
-        }
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: comment.isImportant
-                ? AppTheme.rojo.withValues(alpha: 0.3)
-                : AppTheme.lightGray,
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with order ID and timestamp
-            Row(
-              children: [
-                Text(
-                  '#${comment.orderId}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.marianBlue,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  comment.createdOnFormatted,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.darkGray.withValues(alpha: 0.8),
-                  ),
+    final bool isImportant = comment.isImportant;
+    final bool canReply = comment.canReply;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            final orderIdInt = int.tryParse(comment.orderId);
+            if (orderIdInt != null) {
+              context.router.push(OrderDetailRoute(orderId: orderIdInt));
+            }
+          },
+          splashColor: AppTheme.marianBlue.withValues(alpha: 0.06),
+          highlightColor: AppTheme.marianBlue.withValues(alpha: 0.03),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isImportant
+                    ? AppTheme.rojo.withValues(alpha: 0.35)
+                    : AppTheme.powerBlue.withValues(alpha: 0.25),
+                width: isImportant ? 1.2 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.marianBlue.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
-
-            const SizedBox(height: 12),
-
-            // Comment text
-            Text(
-              comment.comments,
-              style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
-                color: AppTheme.blackBean,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Footer with branch info and action buttons
-            Row(
-              children: [
-                Icon(
-                  Icons.store_outlined,
-                  size: 16,
-                  color: AppTheme.marianBlue.withValues(alpha: 0.7),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    comment.branchName,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.blackBean.withValues(alpha: 0.8),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Priority accent stripe
+                  Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: isImportant
+                            ? [
+                                AppTheme.rojo,
+                                AppTheme.rojo.withValues(alpha: 0.6),
+                              ]
+                            : [
+                                AppTheme.marianBlue,
+                                AppTheme.marianBlue.withValues(alpha: 0.7),
+                              ],
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                if (comment.canReply) ...[
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () {
-                      _showCloseCommentDialog(comment);
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppTheme.marianBlue.withValues(
-                        alpha: 0.1,
-                      ),
-                      foregroundColor: AppTheme.marianBlue,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: const Text(
-                      'Reply',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header row: avatar + order id + status + chevron
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              _buildOrderAvatar(comment.orderId, isImportant),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            'Order #${comment.orderId}',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppTheme.blackBean,
+                                              letterSpacing: 0.2,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (isImportant) ...[
+                                          const SizedBox(width: 6),
+                                          _buildImportantBadge(),
+                                        ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.schedule_rounded,
+                                          size: 12,
+                                          color: AppTheme.darkGray
+                                              .withValues(alpha: 0.7),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            comment.createdOnFormatted,
+                                            style: TextStyle(
+                                              fontSize: 11.5,
+                                              color: AppTheme.darkGray,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              _buildStatusPill(canReply),
+                            ],
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Comment body
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.whiteSmoke,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppTheme.powerBlue
+                                    .withValues(alpha: 0.18),
+                              ),
+                            ),
+                            child: Text(
+                              comment.comments,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: AppTheme.blackBean,
+                                letterSpacing: 0.1,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Footer: branch + actions
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.storefront_rounded,
+                                size: 15,
+                                color: AppTheme.marianBlue
+                                    .withValues(alpha: 0.75),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  comment.branchName,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppTheme.blackBean,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (canReply) ...[
+                                const SizedBox(width: 8),
+                                _buildReplyButton(comment),
+                              ] else
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  size: 20,
+                                  color: AppTheme.darkGray
+                                      .withValues(alpha: 0.6),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
-              ],
+              ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
 
-            // Important indicator (if applicable)
-            if (comment.isImportant) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.rojo.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.priority_high_outlined,
-                      size: 14,
-                      color: AppTheme.rojo.withValues(alpha: 0.8),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Important',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.rojo.withValues(alpha: 0.9),
-                      ),
-                    ),
-                  ],
+  Widget _buildOrderAvatar(String orderId, bool isImportant) {
+    final Color base =
+        isImportant ? AppTheme.rojo : AppTheme.marianBlue;
+    final String initials = orderId.length >= 2
+        ? orderId.substring(orderId.length - 2)
+        : orderId;
+
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            base.withValues(alpha: 0.15),
+            base.withValues(alpha: 0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: base.withValues(alpha: 0.25)),
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: base,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusPill(bool isPending) {
+    final Color color =
+        isPending ? AppTheme.warningYellow : AppTheme.successGreen;
+    final String label = isPending ? 'Pending' : 'Closed';
+    final IconData icon = isPending
+        ? Icons.hourglass_empty_rounded
+        : Icons.check_circle_rounded;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w600,
+              color: color,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImportantBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppTheme.rojo.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.priority_high_rounded,
+            size: 10,
+            color: AppTheme.rojo,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            'URGENT',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.rojo,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReplyButton(CommentEntity comment) {
+    return Material(
+      color: AppTheme.marianBlue,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: () => _showCloseCommentDialog(comment),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.reply_rounded, size: 14, color: Colors.white),
+              SizedBox(width: 4),
+              Text(
+                'Reply',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  letterSpacing: 0.2,
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -858,107 +1055,11 @@ class _CommentsPageState extends State<CommentsPage>
 
   Widget _buildLoading() {
     return ListView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: 5,
       itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.lightGray, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header skeleton
-              Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightGray,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 80,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightGray,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Comment text skeleton
-              Container(
-                width: double.infinity,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: AppTheme.lightGray,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Container(
-                width: double.infinity * 0.8,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: AppTheme.lightGray,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Footer skeleton
-              Row(
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightGray,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    width: 100,
-                    height: 13,
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightGray,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 40,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightGray,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
+        return const _ShimmerCommentCard();
       },
     );
   }
@@ -971,38 +1072,58 @@ class _CommentsPageState extends State<CommentsPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
-                color: AppTheme.rojo.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppTheme.rojo.withValues(alpha: 0.12),
+                    AppTheme.rojo.withValues(alpha: 0.02),
+                  ],
+                ),
               ),
-              child: Icon(
-                Icons.error_outline,
-                size: 64,
-                color: AppTheme.rojo.withValues(alpha: 0.7),
+              child: Center(
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.rojo.withValues(alpha: 0.12),
+                  ),
+                  child: Icon(
+                    Icons.cloud_off_rounded,
+                    size: 34,
+                    color: AppTheme.rojo,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 24),
-            Text(
+            const Text(
               'Something went wrong',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
                 color: AppTheme.blackBean,
+                letterSpacing: 0.2,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: AppTheme.darkGray.withValues(alpha: 0.8),
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: AppTheme.darkGray,
               ),
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Try Again'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.marianBlue,
                 foregroundColor: Colors.white,
@@ -1011,10 +1132,10 @@ class _CommentsPageState extends State<CommentsPage>
                   vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                elevation: 0,
               ),
-              child: const Text('Try Again'),
             ),
           ],
         ),
@@ -1024,17 +1145,24 @@ class _CommentsPageState extends State<CommentsPage>
 
   Widget _buildErrorBanner(String message) {
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       padding: const EdgeInsets.all(12),
-      color: Theme.of(context).colorScheme.errorContainer,
+      decoration: BoxDecoration(
+        color: AppTheme.rojo.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppTheme.rojo.withValues(alpha: 0.25)),
+      ),
       child: Row(
         children: [
-          Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-          const SizedBox(width: 8),
+          Icon(Icons.error_outline_rounded, color: AppTheme.rojo, size: 20),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onErrorContainer,
+              style: const TextStyle(
+                color: AppTheme.blackBean,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -1044,40 +1172,96 @@ class _CommentsPageState extends State<CommentsPage>
   }
 
   Widget _buildEmpty() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.55,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppTheme.marianBlue.withValues(alpha: 0.12),
+                          AppTheme.marianBlue.withValues(alpha: 0.02),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 76,
+                        height: 76,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.marianBlue.withValues(alpha: 0.12),
+                        ),
+                        child: Icon(
+                          Icons.forum_outlined,
+                          size: 38,
+                          color: AppTheme.marianBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'No comments yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.blackBean,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "You're all caught up!\nNew comments will appear here.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: AppTheme.darkGray,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppTheme.marianBlue.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.comment_outlined,
-                size: 64,
-                color: AppTheme.marianBlue.withValues(alpha: 0.4),
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppTheme.marianBlue,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(width: 10),
             Text(
-              'No comments yet',
+              'Loading more...',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.blackBean,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Comments will appear here when added',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: AppTheme.darkGray.withValues(alpha: 0.8),
+                fontSize: 12.5,
+                color: AppTheme.darkGray,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -1086,334 +1270,411 @@ class _CommentsPageState extends State<CommentsPage>
     );
   }
 
-  Widget _buildLoadMoreIndicator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildEndOfList() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppTheme.lightGray,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            'You\'ve reached the end',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppTheme.darkGray.withValues(alpha: 0.8),
-              fontWeight: FontWeight.w500,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 30,
+              height: 1,
+              color: AppTheme.powerBlue.withValues(alpha: 0.4),
             ),
-          ),
+            const SizedBox(width: 10),
+            Icon(
+              Icons.check_circle_outline_rounded,
+              size: 14,
+              color: AppTheme.darkGray,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              "You've reached the end",
+              style: TextStyle(
+                fontSize: 12,
+                color: AppTheme.darkGray,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.2,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              width: 30,
+              height: 1,
+              color: AppTheme.powerBlue.withValues(alpha: 0.4),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildFilterSection() {
+    final int activeCount = _activeFilterCount;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(14.0),
+        border: Border.all(
+          color: _isFilterExpanded
+              ? AppTheme.marianBlue.withValues(alpha: 0.25)
+              : AppTheme.powerBlue.withValues(alpha: 0.25),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: AppTheme.marianBlue.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: AppTheme.lightGray, width: 1),
       ),
       child: Column(
         children: [
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isFilterExpanded = !_isFilterExpanded;
-              });
-            },
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16.0),
-              topRight: Radius.circular(16.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.marianBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.filter_list,
-                      color: AppTheme.marianBlue,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Filters',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.blackBean,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (_hasSearched)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _isFilterExpanded = !_isFilterExpanded;
+                });
+              },
+              borderRadius: BorderRadius.circular(14.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
                     Container(
-                      margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.rojo.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppTheme.marianBlue.withValues(alpha: 0.15),
+                            AppTheme.marianBlue.withValues(alpha: 0.08),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        'Active',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      child: Icon(
+                        Icons.tune_rounded,
+                        color: AppTheme.marianBlue,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Filters',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.blackBean,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    if (activeCount > 0) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
                           color: AppTheme.rojo,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$activeCount',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
+                    ],
+                    const Spacer(),
+                    if (_hasSearched && !_isFilterExpanded)
+                      TextButton(
+                        onPressed: _clearFilters,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 0,
+                          ),
+                          minimumSize: const Size(0, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          foregroundColor: AppTheme.rojo,
+                        ),
+                        child: const Text(
+                          'Clear',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    AnimatedRotation(
+                      turns: _isFilterExpanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 250),
+                      child: Icon(
+                        Icons.expand_more_rounded,
+                        color: AppTheme.marianBlue,
+                        size: 22,
+                      ),
                     ),
-                  AnimatedRotation(
-                    turns: _isFilterExpanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 300),
-                    child: Icon(
-                      Icons.expand_more,
-                      color: AppTheme.marianBlue,
-                      size: 24,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
 
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: _isFilterExpanded
-                ? const EdgeInsets.symmetric(horizontal: 16.0)
-                : EdgeInsets.zero,
-            height: _isFilterExpanded ? null : 0,
             child: _isFilterExpanded
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (_currentTabIndex != 0) ...[
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppTheme.powerBlue.withValues(alpha: 0.25),
+                          height: 8,
+                        ),
+                        const SizedBox(height: 10),
+                        if (_currentTabIndex != 0) ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDateSelector(
+                                  label: 'Start Date',
+                                  date: _startDate,
+                                  onTap: () =>
+                                      _selectDate(context, isStartDate: true),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: _buildDateSelector(
+                                  label: 'End Date',
+                                  date: _endDate,
+                                  onTap: () =>
+                                      _selectDate(context, isStartDate: false),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+
                         Row(
                           children: [
                             Expanded(
-                              child: _buildDateSelector(
-                                label: 'Start Date',
-                                date: _startDate,
-                                onTap: () =>
-                                    _selectDate(context, isStartDate: true),
+                              flex: 2,
+                              child: SizedBox(
+                                height: 48,
+                                child: TextField(
+                                  controller: _searchController,
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    color: AppTheme.blackBean,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'Search by Order ID',
+                                    hintStyle: TextStyle(
+                                      color: AppTheme.darkGray,
+                                      fontSize: 13,
+                                    ),
+                                    prefixIcon: Icon(
+                                      Icons.search_rounded,
+                                      color: AppTheme.marianBlue,
+                                      size: 20,
+                                    ),
+                                    filled: true,
+                                    fillColor: AppTheme.whiteSmoke,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.powerBlue
+                                            .withValues(alpha: 0.3),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: AppTheme.powerBlue
+                                            .withValues(alpha: 0.3),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: AppTheme.marianBlue,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Expanded(
-                              child: _buildDateSelector(
-                                label: 'End Date',
-                                date: _endDate,
-                                onTap: () =>
-                                    _selectDate(context, isStartDate: false),
+                              child: Container(
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.whiteSmoke,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: AppTheme.powerBlue
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _statusFilter,
+                                    isExpanded: true,
+                                    icon: Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      color: AppTheme.marianBlue,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                    style: const TextStyle(
+                                      fontSize: 13.5,
+                                      color: AppTheme.blackBean,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'all',
+                                        child: Text(
+                                          'All Status',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'pending',
+                                        child: Text(
+                                          'Pending',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'closed',
+                                        child: Text(
+                                          'Closed',
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _statusFilter = value!;
+                                      });
+                                    },
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                      ],
+                        const SizedBox(height: 14),
 
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Search by Order ID...',
-                                hintStyle: TextStyle(
-                                  color: AppTheme.darkGray.withValues(
-                                    alpha: 0.7,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 44,
+                                child: OutlinedButton.icon(
+                                  onPressed:
+                                      _hasSearched ? _clearFilters : null,
+                                  icon: const Icon(
+                                    Icons.clear_rounded,
+                                    size: 16,
                                   ),
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: AppTheme.marianBlue,
-                                ),
-                                filled: true,
-                                fillColor: AppTheme.lightGray,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: AppTheme.powerBlue.withValues(
-                                      alpha: 0.3,
+                                  label: const Text('Clear'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: _hasSearched
+                                        ? AppTheme.rojo
+                                        : AppTheme.darkGray,
+                                    side: BorderSide(
+                                      color: _hasSearched
+                                          ? AppTheme.rojo
+                                              .withValues(alpha: 0.6)
+                                          : AppTheme.powerBlue
+                                              .withValues(alpha: 0.4),
+                                      width: 1.2,
                                     ),
-                                    width: 1,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 0,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    textStyle: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(
-                                    color: AppTheme.marianBlue,
-                                    width: 2,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppTheme.lightGray,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: AppTheme.powerBlue.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  width: 1,
-                                ),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: _statusFilter,
-                                  isExpanded: true,
-                                  icon: Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: AppTheme.marianBlue,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: 'all',
-                                      child: Text(
-                                        'All Status',
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'pending',
-                                      child: Text(
-                                        'Pending',
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: 'closed',
-                                      child: Text(
-                                        'Closed',
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _statusFilter = value!;
-                                    });
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 2,
+                              child: SizedBox(
+                                height: 44,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    _currentFilterPage = 1;
+                                    _isFilterAtBottom = false;
+                                    _applyCurrentFilter();
                                   },
+                                  icon: const Icon(
+                                    Icons.search_rounded,
+                                    size: 16,
+                                  ),
+                                  label: const Text('Apply Filters'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.marianBlue,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 0,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    elevation: 0,
+                                    textStyle: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                _currentFilterPage = 1;
-                                _isFilterAtBottom = false;
-                                _applyCurrentFilter();
-                              },
-                              icon: const Icon(Icons.search, size: 18),
-                              label: const Text('Apply Filters'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.marianBlue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _hasSearched ? _clearFilters : null,
-                              icon: const Icon(Icons.clear, size: 18),
-                              label: const Text('Clear All'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: _hasSearched
-                                    ? AppTheme.rojo
-                                    : AppTheme.darkGray,
-                                side: BorderSide(
-                                  color: _hasSearched
-                                      ? AppTheme.rojo
-                                      : AppTheme.darkGray.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                  width: 1.5,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   )
-                : null,
+                : const SizedBox.shrink(),
           ),
         ],
       ),
@@ -1425,60 +1686,67 @@ class _CommentsPageState extends State<CommentsPage>
     required DateTime? date,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppTheme.lightGray,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: date != null
-                ? AppTheme.marianBlue.withValues(alpha: 0.5)
-                : AppTheme.powerBlue.withValues(alpha: 0.3),
-            width: date != null ? 1.5 : 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: AppTheme.darkGray,
-                fontWeight: FontWeight.w500,
-              ),
+    final bool hasDate = date != null;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppTheme.whiteSmoke,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: hasDate
+                  ? AppTheme.marianBlue.withValues(alpha: 0.45)
+                  : AppTheme.powerBlue.withValues(alpha: 0.3),
+              width: hasDate ? 1.4 : 1,
             ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 16,
-                  color: date != null ? AppTheme.marianBlue : AppTheme.darkGray,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.darkGray,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.3,
                 ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    date != null
-                        ? '${date.day}/${date.month}/${date.year}'
-                        : 'Select date',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: date != null
-                          ? AppTheme.blackBean
-                          : AppTheme.darkGray,
-                      fontWeight: date != null
-                          ? FontWeight.w500
-                          : FontWeight.normal,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    size: 14,
+                    color: hasDate ? AppTheme.marianBlue : AppTheme.darkGray,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      hasDate
+                          ? '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}'
+                          : 'Select',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: hasDate
+                            ? AppTheme.blackBean
+                            : AppTheme.darkGray,
+                        fontWeight: hasDate
+                            ? FontWeight.w600
+                            : FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1493,6 +1761,18 @@ class _CommentsPageState extends State<CommentsPage>
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 30)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppTheme.marianBlue,
+              onPrimary: Colors.white,
+              onSurface: AppTheme.blackBean,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {
@@ -1535,72 +1815,107 @@ class _CommentsPageState extends State<CommentsPage>
   }
 
   Widget _buildNoResultsFound() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppTheme.lightGray,
-                shape: BoxShape.circle,
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.55,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppTheme.darkGray.withValues(alpha: 0.12),
+                          AppTheme.darkGray.withValues(alpha: 0.02),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 68,
+                        height: 68,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.lightGray,
+                        ),
+                        child: Icon(
+                          Icons.search_off_rounded,
+                          size: 34,
+                          color: AppTheme.darkGray,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'No results found',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.blackBean,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Try adjusting your filters or\nsearch terms',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.darkGray,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _searchController.clear();
+                        _startDate = null;
+                        _endDate = null;
+                        _statusFilter = 'all';
+                        _isFiltering = false;
+                        _hasSearched = false;
+                        _currentFilterPage = 1;
+                      });
+                      context.read<CommentsBloc>().add(
+                        const FetchCommentsEvent(page: '1', isTodays: false),
+                      );
+                    },
+                    icon: const Icon(Icons.refresh_rounded, size: 16),
+                    label: const Text('Reset Filters'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.marianBlue,
+                      side: BorderSide(
+                        color: AppTheme.marianBlue.withValues(alpha: 0.6),
+                        width: 1.2,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: Icon(Icons.search_off, size: 50, color: AppTheme.darkGray),
             ),
-            const SizedBox(height: 24),
-            Text(
-              'No results found',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.blackBean,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Try adjusting your filters or search terms',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: AppTheme.darkGray,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 32),
-            OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _searchController.clear();
-                  _startDate = null;
-                  _endDate = null;
-                  _statusFilter = 'all';
-                  _isFiltering = false;
-                  _hasSearched = false;
-                  _currentFilterPage = 1;
-                });
-                context.read<CommentsBloc>().add(
-                  const FetchCommentsEvent(page: '1', isTodays: false),
-                );
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Reset Filters'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.marianBlue,
-                side: const BorderSide(color: AppTheme.marianBlue, width: 1.5),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -1609,161 +1924,295 @@ class _CommentsPageState extends State<CommentsPage>
 
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          elevation: 8,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: StatefulBuilder(
+              builder: (context, setDialogState) {
+                final int charCount = _replyController.text.length;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.fromLTRB(20, 18, 12, 16),
                       decoration: BoxDecoration(
-                        color: AppTheme.marianBlue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppTheme.marianBlue.withValues(alpha: 0.06),
+                            AppTheme.marianBlue.withValues(alpha: 0.02),
+                          ],
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.reply,
-                        color: AppTheme.marianBlue,
-                        size: 20,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(9),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppTheme.marianBlue,
+                                  AppTheme.marianBlue.withValues(alpha: 0.8),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.marianBlue
+                                      .withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.reply_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Reply to Comment',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.blackBean,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Closes this comment when sent',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    color: AppTheme.darkGray,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(
+                              Icons.close_rounded,
+                              size: 20,
+                            ),
+                            color: AppTheme.darkGray,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Reply to Comment',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.blackBean,
+
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Original comment preview
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.whiteSmoke,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppTheme.powerBlue
+                                    .withValues(alpha: 0.25),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.receipt_long_rounded,
+                                      size: 14,
+                                      color: AppTheme.marianBlue,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Order #${comment.orderId}',
+                                      style: const TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.marianBlue,
+                                        letterSpacing: 0.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  comment.comments,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppTheme.blackBean,
+                                    height: 1.5,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Your reply',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.blackBean,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                              Text(
+                                '$charCount/500',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.darkGray,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _replyController,
+                            maxLines: 4,
+                            maxLength: 500,
+                            onChanged: (_) => setDialogState(() {}),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              color: AppTheme.blackBean,
+                              height: 1.4,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Type your reply message...',
+                              hintStyle: TextStyle(
+                                color: AppTheme.darkGray.withValues(alpha: 0.7),
+                                fontSize: 13,
+                              ),
+                              filled: true,
+                              fillColor: AppTheme.whiteSmoke,
+                              counterText: '',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppTheme.powerBlue
+                                      .withValues(alpha: 0.3),
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppTheme.powerBlue
+                                      .withValues(alpha: 0.3),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: AppTheme.marianBlue,
+                                  width: 1.5,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.all(12),
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppTheme.darkGray,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  _closeComment(
+                                    comment.id.toString(),
+                                    _replyController.text,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.send_rounded,
+                                  size: 15,
+                                ),
+                                label: const Text('Send Reply'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.marianBlue,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 10,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  elevation: 0,
+                                  textStyle: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                      color: AppTheme.darkGray,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightGray,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Order #${comment.orderId}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.marianBlue,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        comment.comments,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.blackBean,
-                          height: 1.4,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Your reply (optional):',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.blackBean,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _replyController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Type your reply...',
-                    hintStyle: TextStyle(
-                      color: AppTheme.darkGray.withValues(alpha: 0.6),
-                    ),
-                    filled: true,
-                    fillColor: AppTheme.lightGray,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppTheme.marianBlue),
-                    ),
-                    contentPadding: const EdgeInsets.all(12),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                      ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: AppTheme.darkGray,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _closeComment(
-                          comment.id.toString(),
-                          _replyController.text,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.marianBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Send Reply',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                );
+              },
             ),
           ),
         );
@@ -1777,12 +2226,139 @@ class _CommentsPageState extends State<CommentsPage>
         ReplyToCommentEvent(commentId: commentId, comment: reply),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Comment closed'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      _showSnack('Comment closed');
     }
+  }
+}
+
+class _ShimmerCommentCard extends StatefulWidget {
+  const _ShimmerCommentCard();
+
+  @override
+  State<_ShimmerCommentCard> createState() => _ShimmerCommentCardState();
+}
+
+class _ShimmerCommentCardState extends State<_ShimmerCommentCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppTheme.powerBlue.withValues(alpha: 0.2),
+            ),
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.powerBlue.withValues(alpha: 0.2),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            _shimmerBox(40, 40, radius: 12),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _shimmerBox(110, 12),
+                                  const SizedBox(height: 6),
+                                  _shimmerBox(80, 10),
+                                ],
+                              ),
+                            ),
+                            _shimmerBox(58, 20, radius: 10),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _shimmerBox(double.infinity, 50, radius: 10),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _shimmerBox(14, 14, radius: 4),
+                            const SizedBox(width: 6),
+                            _shimmerBox(120, 10),
+                            const Spacer(),
+                            _shimmerBox(60, 24, radius: 8),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _shimmerBox(double width, double height, {double radius = 4}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: Stack(
+        children: [
+          Container(
+            width: width,
+            height: height,
+            color: AppTheme.lightGray,
+          ),
+          Positioned.fill(
+            child: FractionalTranslation(
+              translation: Offset(-1.0 + _controller.value * 2.0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      AppTheme.lightGray.withValues(alpha: 0),
+                      Colors.white.withValues(alpha: 0.6),
+                      AppTheme.lightGray.withValues(alpha: 0),
+                    ],
+                    stops: const [0.3, 0.5, 0.7],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

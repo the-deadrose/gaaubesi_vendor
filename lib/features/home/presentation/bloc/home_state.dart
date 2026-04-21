@@ -25,6 +25,15 @@ class HomeLoaded extends HomeState {
   List<Object> get props => [stats];
 }
 
+class HomeRefreshing extends HomeState {
+  final VendorStatsEntity stats;
+
+  const HomeRefreshing(this.stats);
+
+  @override
+  List<Object> get props => [stats];
+}
+
 class HomeError extends HomeState {
   final String message;
 

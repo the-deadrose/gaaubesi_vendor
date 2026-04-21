@@ -58,17 +58,16 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
     if (state is OrderDetailLoaded) {
       final currentState = state as OrderDetailLoaded;
       final currentOrder = currentState.order;
-      
-      debugPrint('[BLOC] Current comments count: ${currentOrder.comments?.length ?? 0}');
-      
+
+      debugPrint(
+        '[BLOC] Current comments count: ${currentOrder.comments?.length ?? 0}',
+      );
+
       // Create updated comments list with the new comment at the beginning
-      final updatedComments = [
-        event.comment,
-        ...?currentOrder.comments,
-      ];
-      
+      final updatedComments = [event.comment, ...?currentOrder.comments];
+
       debugPrint('[BLOC] Updated comments count: ${updatedComments.length}');
-      
+
       // Create new order entity with updated comments
       final updatedOrder = OrderDetailEntity(
         orderId: currentOrder.orderId,
@@ -109,8 +108,10 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
         messages: currentOrder.messages,
         comments: updatedComments,
       );
-      
-      debugPrint('[BLOC] Emitting new OrderDetailLoaded state with ${updatedComments.length} comments');
+
+      debugPrint(
+        '[BLOC] Emitting new OrderDetailLoaded state with ${updatedComments.length} comments',
+      );
       emit(OrderDetailLoaded(order: updatedOrder));
     }
   }
@@ -119,29 +120,37 @@ class OrderDetailBloc extends Bloc<OrderDetailEvent, OrderDetailState> {
     OrderEditRequested event,
     Emitter<OrderDetailState> emit,
   ) async {
-    debugPrint('[BLOC] OrderEditRequested event received for order ${event.orderId}');
-    
+    debugPrint(
+      '[BLOC] OrderEditRequested event received for order ${event.orderId}',
+    );
+
     // Show loading if needed
     final currentState = state;
-    
-    final result = await editOrderUseCase(
-      EditOrderParams(
-        orderId: event.orderId,
-        request: event.request,
-      ),
+
+    final result = await editOrderUseCase.call(
+      EditOrderParams(orderId: event.orderId, request: event.request),
     );
 
     result.fold(
       (failure) {
         debugPrint('[BLOC] Edit order failed: ${failure.message}');
-        emit(OrderDetailError(message: failure.message));
-        // Restore previous state after showing error
+        emit(
+          OrderEditFailure(
+            message: failure.message,
+            order: currentState is OrderDetailLoaded ? currentState.order : null,
+          ),
+        );
+        // Restore previous state so UI keeps rendering the form/data.
         if (currentState is OrderDetailLoaded) {
           emit(currentState);
         }
       },
       (_) {
         debugPrint('[BLOC] Edit order successful, refreshing order details');
+        if (currentState is OrderDetailLoaded) {
+          emit(OrderEditSuccess(order: currentState.order));
+          emit(currentState);
+        }
         // Refresh order details to show updated data
         add(OrderDetailRefreshRequested(orderId: event.orderId));
       },

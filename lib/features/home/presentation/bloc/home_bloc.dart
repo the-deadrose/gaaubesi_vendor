@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/core/usecase/base_usecase.dart';
@@ -19,7 +20,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     emit(const HomeLoading());
-    final result = await _getVendorStatsUseCase(NoParams());
+    final result = await _getVendorStatsUseCase.call(NoParams());
     result.fold(
       (failure) => emit(HomeError(failure.message)),
       (stats) => emit(HomeLoaded(stats)),
@@ -30,11 +31,38 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeRefreshStats event,
     Emitter<HomeState> emit,
   ) async {
-    // Optionally keep showing the current stats while refreshing
-    final result = await _getVendorStatsUseCase(NoParams());
-    result.fold(
-      (failure) => emit(HomeError(failure.message)),
-      (stats) => emit(HomeLoaded(stats)),
+    try {
+      final current = state;
+      if (current is HomeLoaded) {
+        emit(HomeRefreshing(current.stats));
+      } else if (current is HomeRefreshing) {
+        // already refreshing — no-op
+      } else {
+        emit(const HomeLoading());
+      }
+      final result = await _getVendorStatsUseCase.call(NoParams());
+      result.fold((failure) => emit(HomeError(failure.message)), (stats) {
+        debugPrint(
+          '[HomeBloc] emitting HomeLoaded — todayOrderCreated=${stats.todayOrderCreated}, instance=${identityHashCode(this)}',
+        );
+        emit(HomeLoaded(stats));
+      });
+    } finally {
+      event.completer?.complete();
+    }
+  }
+
+  @override
+  void onChange(Change<HomeState> change) {
+    super.onChange(change);
+    final next = change.nextState;
+    final nextCreated = next is HomeLoaded
+        ? next.stats.todayOrderCreated
+        : next is HomeRefreshing
+        ? next.stats.todayOrderCreated
+        : null;
+    debugPrint(
+      '[HomeBloc] onChange: ${change.currentState.runtimeType} -> ${next.runtimeType}  todayOrderCreated=$nextCreated',
     );
   }
 }

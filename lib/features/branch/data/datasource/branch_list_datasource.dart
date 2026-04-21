@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
 import 'package:gaaubesi_vendor/core/error/exceptions.dart';
 import 'package:gaaubesi_vendor/core/network/dio_client.dart';
+import 'package:gaaubesi_vendor/core/network/dio_exception_mapper.dart';
 import 'package:gaaubesi_vendor/features/branch/data/model/branch_list_model.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/branch_list_entity.dart';
 
@@ -115,22 +116,8 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         throw ServerException('Failed to fetch branch list');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint(
-          '[BRANCH_LIST_DATASOURCE] Session expired, user will be redirected to login',
-        );
-        rethrow;
-      }
-      debugPrint(
-        '[BRANCH_LIST_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[BRANCH_LIST_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -166,22 +153,8 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         throw ServerException('Failed to fetch pickup points');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint(
-          '[BRANCH_LIST_DATASOURCE] Session expired, user will be redirected to login',
-        );
-        rethrow;
-      }
-      debugPrint(
-        '[BRANCH_LIST_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[BRANCH_LIST_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -211,22 +184,8 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         throw ServerException('Failed to fetch redirect stations');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint(
-          '[BRANCH_LIST_DATASOURCE] Session expired, user will be redirected to login',
-        );
-        rethrow;
-      }
-      debugPrint(
-        '[BRANCH_LIST_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[BRANCH_LIST_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 
@@ -262,22 +221,8 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         throw ServerException('Failed to fetch destination branch');
       }
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        debugPrint(
-          '[BRANCH_LIST_DATASOURCE] Session expired, user will be redirected to login',
-        );
-        rethrow;
-      }
-      debugPrint(
-        '[BRANCH_LIST_DATASOURCE] DioException: ${e.message}, StatusCode: ${e.response?.statusCode}',
-      );
-      throw ServerException(
-        e.message ?? 'Unknown error',
-        statusCode: e.response?.statusCode,
-      );
-    } catch (e) {
-      debugPrint('[BRANCH_LIST_DATASOURCE] Unexpected error: $e');
-      rethrow;
+      if (e.type == DioExceptionType.cancel) rethrow;
+      throw mapDioException(e);
     }
   }
 }

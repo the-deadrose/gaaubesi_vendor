@@ -38,8 +38,8 @@ ServiceStationModel _$ServiceStationModelFromJson(Map<String, dynamic> json) =>
           ) ??
           {},
       baseCharge: (json['base_charge'] as num).toDouble(),
-      areaCovered: json['area_covered'] as String,
-      arrivalTime: json['arrival_time'] as String,
+      areaCovered: json['area_covered'] as String? ?? '',
+      arrivalTime: json['arrival_time'] as String? ?? '',
     );
 
 Map<String, dynamic> _$ServiceStationModelToJson(

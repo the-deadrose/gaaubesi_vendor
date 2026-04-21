@@ -12,7 +12,10 @@
 import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:gaaubesi_vendor/core/di/register_module.dart' as _i769;
+import 'package:gaaubesi_vendor/core/network/connectivity_service.dart'
+    as _i232;
 import 'package:gaaubesi_vendor/core/network/dio_client.dart' as _i619;
+import 'package:gaaubesi_vendor/core/network/session_handler.dart' as _i764;
 import 'package:gaaubesi_vendor/core/router/app_router.dart' as _i694;
 import 'package:gaaubesi_vendor/core/services/secure_storage_service.dart'
     as _i14;
@@ -48,6 +51,8 @@ import 'package:gaaubesi_vendor/features/auth/data/datasources/auth_remote_data_
     as _i311;
 import 'package:gaaubesi_vendor/features/auth/data/repositories/auth_repository_impl.dart'
     as _i635;
+import 'package:gaaubesi_vendor/features/auth/data/services/auth_session_handler.dart'
+    as _i427;
 import 'package:gaaubesi_vendor/features/auth/domain/repositories/auth_repository.dart'
     as _i40;
 import 'package:gaaubesi_vendor/features/auth/domain/usecases/change_password_usecase.dart'
@@ -379,11 +384,22 @@ Future<_i174.GetIt> init(
   gh.lazySingleton<_i558.FlutterSecureStorage>(
     () => registerModule.secureStorage,
   );
+  gh.lazySingleton<_i232.ConnectivityService>(
+    () => _i232.ConnectivityService(),
+  );
   gh.lazySingleton<_i14.SecureStorageService>(
     () => _i14.SecureStorageServiceImpl(gh<_i558.FlutterSecureStorage>()),
   );
+  gh.lazySingleton<_i764.SessionHandler>(
+    () => _i427.AuthSessionHandler(gh<_i14.SecureStorageService>()),
+  );
   gh.lazySingleton<_i619.DioClient>(
-    () => _i619.DioClient(gh<_i361.Dio>(), gh<_i14.SecureStorageService>()),
+    () => _i619.DioClient(
+      gh<_i361.Dio>(),
+      gh<_i14.SecureStorageService>(),
+      gh<_i764.SessionHandler>(),
+      gh<_i232.ConnectivityService>(),
+    ),
   );
   gh.lazySingleton<_i433.BranchListRemoteDatasource>(
     () => _i433.BranchListDatasourceImpl(gh<_i619.DioClient>()),

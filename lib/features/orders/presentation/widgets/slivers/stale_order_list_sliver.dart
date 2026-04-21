@@ -7,7 +7,8 @@ import 'package:gaaubesi_vendor/features/orders/domain/entities/stale_orders_ent
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_bloc.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_event.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/bloc/stale_order/stale_order_state.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/stale_order_card.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/cards/order_entity_adapters.dart';
+import 'package:gaaubesi_vendor/features/orders/presentation/widgets/order_card.dart';
 
 class StaleOrderListSliver extends StatelessWidget {
   const StaleOrderListSliver({super.key});
@@ -73,9 +74,9 @@ class StaleOrderListSliver extends StatelessWidget {
               if (index < orders.length) {
                 final order = orders[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: StaleOrderCard(
-                    order: order,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: OrderCard(
+                    order: order.toOrderEntity(),
                     onTap: () {
                       context.router.push(OrderDetailRoute(orderId: order.orderId));
                     },
@@ -101,7 +102,7 @@ class StaleOrderListSliver extends StatelessWidget {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
