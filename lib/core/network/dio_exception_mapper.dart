@@ -27,7 +27,11 @@ Object mapDioException(DioException e) {
       if (e.error is SocketException) {
         return NetworkException('No internet connection');
       }
-      return ServerException(e.message ?? 'Unknown error');
+      return ServerException(
+        e.message ?? 'Unknown error',
+        statusCode: e.response?.statusCode,
+        data: e.response?.data,
+      );
     case DioExceptionType.badResponse:
       return _mapBadResponse(e);
   }

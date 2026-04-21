@@ -7,7 +7,6 @@ class CreateOrderRequestEntity extends Equatable {
   final String receiverPhoneNumber;
   final String? altReceiverPhoneNumber;
   final String receiverFullAddress;
-  final double weight;
   final double codCharge;
   final String packageAccess;
   final String? referenceId;
@@ -23,7 +22,6 @@ class CreateOrderRequestEntity extends Equatable {
     required this.receiverPhoneNumber,
     this.altReceiverPhoneNumber,
     required this.receiverFullAddress,
-    required this.weight,
     required this.codCharge,
     required this.packageAccess,
     this.referenceId,
@@ -41,7 +39,6 @@ class CreateOrderRequestEntity extends Equatable {
     receiverPhoneNumber,
     altReceiverPhoneNumber,
     receiverFullAddress,
-    weight,
     codCharge,
     packageAccess,
     referenceId,

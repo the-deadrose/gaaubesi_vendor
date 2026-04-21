@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/core/error/failures.dart';
 import 'package:gaaubesi_vendor/features/ticket/domain/entity/pending_ticket_list_entity.dart';
@@ -128,7 +129,8 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
 
   String _mapFailureToMessage(Failure failure) {
     if (failure is ServerFailure) {
-      return 'Server error. Please try again.';
+      debugPrint(" ServerFailure: ${failure.message}");
+      return failure.message;
     } else if (failure is NetworkFailure) {
       return 'No internet connection. Please check your network.';
     } else if (failure is CacheFailure) {

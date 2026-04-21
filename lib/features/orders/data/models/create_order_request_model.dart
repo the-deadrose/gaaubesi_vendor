@@ -12,7 +12,6 @@ class CreateOrderRequestModel extends CreateOrderRequestEntity {
     required super.receiverPhoneNumber,
     super.altReceiverPhoneNumber,
     required super.receiverFullAddress,
-    required super.weight,
     required super.codCharge,
     required super.packageAccess,
     super.referenceId,
@@ -45,10 +44,6 @@ class CreateOrderRequestModel extends CreateOrderRequestEntity {
   @JsonKey(name: 'receiver_full_address')
   @override
   String get receiverFullAddress => super.receiverFullAddress;
-
-  @JsonKey(name: 'weight')
-  @override
-  double get weight => super.weight;
 
 
   @JsonKey(name: 'cod_charge')

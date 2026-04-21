@@ -18,6 +18,10 @@ class ServerException implements Exception {
       'data': data,
     };
   }
+
+  @override
+  String toString() =>
+      'ServerException(message: $message, statusCode: $statusCode, data: $data)';
 }
 
 class CacheException implements Exception {

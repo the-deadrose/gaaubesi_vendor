@@ -75,7 +75,7 @@ class _TicketScreenState extends State<TicketScreen>
       ],
     },
     {
-      'label': 'CSR Inquiry',
+      'label': 'Csr Inquiry',
       'value': 'csr_inqury',
       'color': Colors.purple,
       'keywords': [

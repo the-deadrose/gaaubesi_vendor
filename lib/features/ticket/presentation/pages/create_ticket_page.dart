@@ -18,12 +18,13 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   String? _selectedSubject;
+  bool _isSubmitting = false;
   final List<String> _subjects = [
     'General Inquiry',
     'Orders Inquiry',
     'Return Order Inquiry',
     'Pickup Inquiry',
-    'CSR Inquiry',
+    'Csr Inquiry',
   ];
 
   @override
@@ -36,8 +37,26 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
     setState(() {
       _selectedSubject = null;
       _descriptionController.clear();
+      _isSubmitting = false;
     });
     context.read<TicketBloc>().add(CreateTicketReset());
+  }
+
+  Future<void> _handleCreateTicketSuccess(String message) async {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.successGreen,
+      ),
+    );
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    _clearForm();
+    context.router.pop();
   }
 
   void _submitForm() {
@@ -58,6 +77,10 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
           description: _descriptionController.text.trim(),
         ),
       );
+
+      setState(() {
+        _isSubmitting = true;
+      });
     }
   }
 
@@ -76,14 +99,23 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
       ),
       body: BlocListener<TicketBloc, TicketState>(
         listener: (context, state) {
+          if (state is CreateTicketLoading) {
+            if (!_isSubmitting) {
+              setState(() {
+                _isSubmitting = true;
+              });
+            }
+          } else if (state is CreateTicketSuccess ||
+              state is CreateTicketFailure) {
+            if (_isSubmitting) {
+              setState(() {
+                _isSubmitting = false;
+              });
+            }
+          }
+
           if (state is CreateTicketSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppTheme.successGreen,
-              ),
-            );
-            Future.delayed(const Duration(milliseconds: 500), _clearForm);
+            _handleCreateTicketSuccess(state.message);
           } else if (state is CreateTicketFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -191,7 +223,8 @@ class _CreateTicketScreenState extends State<CreateTicketScreen> {
 
                 BlocBuilder<TicketBloc, TicketState>(
                   builder: (context, state) {
-                    final isLoading = state is CreateTicketLoading;
+                    final isLoading = _isSubmitting ||
+                        state is CreateTicketLoading;
 
                     return Row(
                       children: [

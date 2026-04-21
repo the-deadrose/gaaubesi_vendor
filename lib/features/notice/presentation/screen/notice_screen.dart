@@ -90,7 +90,6 @@ class _NoticeListScreenState extends State<NoticeListScreen>
               state is NoticeListSearchLoaded) {
             _isInitialLoad = false;
             _isLoadingMore = false;
-            // Cache the response for mark as read states
             if (state is NoticeListLoaded) {
               _lastLoadedResponse = state.noticeListResponse;
             } else if (state is NoticeListPaginated) {
@@ -101,10 +100,10 @@ class _NoticeListScreenState extends State<NoticeListScreen>
           }
 
           if (state is NoticeListError || state is NoticeListPaginationError) {
+            debugPrint('Error loading notice list');
             _isLoadingMore = false;
           }
 
-          // Handle mark as read success
           if (state is NoticeMarkAsReadSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -132,7 +131,11 @@ class _NoticeListScreenState extends State<NoticeListScreen>
   }
 
   Widget _buildContent(NoticeState state, BuildContext context) {
-    if (_isInitialLoad && state is! NoticeListLoaded) {
+    if (_isInitialLoad &&
+        state is! NoticeListLoaded &&
+        state is! NoticeListPaginated &&
+        state is! NoticeListError &&
+        state is! NoticeListPaginationError) {
       return _buildShimmerLoading();
     }
 
@@ -447,36 +450,39 @@ class _NoticeListScreenState extends State<NoticeListScreen>
       onRefresh: _refreshData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.8,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.notifications_off,
-                size: 80,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'No notices available',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+        child: Center(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.notifications_off,
+                  size: 80,
+                  color: Colors.grey.shade400,
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'You will see notices here once available',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _refreshData,
-                child: const Text('Refresh'),
-              ),
-            ],
+                const SizedBox(height: 20),
+                const Text(
+                  'No notices available',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'You will see notices here once available',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _refreshData,
+                  child: const Text('Refresh'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

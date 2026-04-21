@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_event.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/branch_list_state.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/destination_branch_bloc.dart';
+import 'package:gaaubesi_vendor/features/branch/presentation/bloc/branch/destination_branch_state.dart';
 import 'package:gaaubesi_vendor/features/orders/presentation/widgets/filters/date_range_filter.dart';
-import 'package:gaaubesi_vendor/features/orders/presentation/widgets/filters/dropdown_filter.dart';
 
 /// Filter configuration for bottom sheet
 class OrderFilterConfig {
@@ -139,32 +144,23 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
   final TextEditingController _minChargeController = TextEditingController();
   final TextEditingController _maxChargeController = TextEditingController();
 
-  static const _branchItems = [
-    'Kathmandu',
-    'Pokhara',
-    'Chitwan',
-    'Butwal',
-    'Biratnagar',
-  ];
-
-  static const _statusItems = [
-    'Pending',
-    'In Transit',
-    'Delivered',
-    'Cancelled',
-    'Returned',
-  ];
-
-  static const _destinationItems = [
-    'Kathmandu',
-    'Pokhara',
-    'Chitwan',
-    'Butwal',
-    'Biratnagar',
-    'Dharan',
-    'Birgunj',
-    'Hetauda',
-  ];
+  static const Map<String, String> _statusLabelByValue = {
+    'dropoff_order_created': 'Drop-off Order',
+    'pickup_order_created': 'Pickup Order',
+    'send_for_pickup': 'Send for Pickup',
+    'pickup_complete': 'Pickup Complete',
+    'dispatched': 'Dispatch',
+    'arrived':'Arrived',
+    'send_for_delivery': 'Out for Delivery',
+    'delivered': 'Delivered',
+    'return_deliverd': 'Return Delivered',
+    'send_to_vendor': 'Send to Vendor',
+    'order_created': 'Order Created',
+    'hold': 'Hold',
+    'cancelled': 'Cancelled',
+    'rtv_branch': 'RTV Branch',
+    'rtv_all': 'RTV All',
+  };
 
   @override
   void initState() {
@@ -173,6 +169,113 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
     _receiverController.text = _currentConfig.receiverSearch ?? '';
     _minChargeController.text = _currentConfig.minCharge?.toString() ?? '';
     _maxChargeController.text = _currentConfig.maxCharge?.toString() ?? '';
+    _loadBranchFilters();
+  }
+
+  void _loadBranchFilters() {
+    final branchBloc = context.read<BranchListBloc>();
+    if (branchBloc.state is! BranchListLoaded) {
+      branchBloc.add(const FetchBranchListEvent(''));
+    }
+
+    final destinationBranchBloc = context.read<DestinationBranchBloc>();
+    if (destinationBranchBloc.state is! DestinationBranchLoaded) {
+      destinationBranchBloc.add(const FetchDestinationBranchEvent(''));
+    }
+  }
+
+  List<String> _extractBranchLabels(List<dynamic> branches) {
+    final seen = <String>{};
+    return branches
+        .map((branch) => (branch.label as String).trim())
+        .where((label) => label.isNotEmpty)
+        .where((label) => seen.add(label))
+        .toList();
+  }
+
+  String? _statusLabelFromValue(String? value) {
+    if (value == null || value.isEmpty) return null;
+    return _statusLabelByValue[value];
+  }
+
+  String? _statusValueFromLabel(String? label) {
+    if (label == null || label.isEmpty) return null;
+    for (final entry in _statusLabelByValue.entries) {
+      if (entry.value == label) return entry.key;
+    }
+    return null;
+  }
+
+  Widget _buildSearchableDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    required IconData icon,
+    required bool isDark,
+    String searchHint = 'Search...',
+  }) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      onTap: () async {
+        FocusScope.of(context).unfocus();
+        final selected = await showDialog<String?>(
+          context: context,
+          builder: (dialogContext) => _SearchableOptionsDialog(
+            title: label,
+            options: items,
+            selectedValue: value,
+            searchHint: searchHint,
+          ),
+        );
+
+        if (!mounted) return;
+        onChanged(selected);
+      },
+      child: AbsorbPointer(
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: Icon(icon, size: 18),
+            suffixIcon: const Icon(Icons.arrow_drop_down),
+            filled: true,
+            fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: theme.primaryColor, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+          ),
+          child: Text(
+            value ?? 'All $label',
+            style: TextStyle(
+              color: value == null
+                  ? (isDark ? Colors.grey[400] : Colors.grey[600])
+                  : (isDark ? Colors.white : Colors.black87),
+              fontSize: 13,
+              fontWeight: value == null ? FontWeight.w400 : FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -287,7 +390,7 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: theme.primaryColor.withValues(alpha:  0.1),
+                color: theme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -339,34 +442,57 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
         if (widget.filterType == OrderFilterType.all) ...[
           _buildSectionTitle('Branch Filters', Icons.account_tree),
           const SizedBox(height: 8),
-          DropdownFilter(
-            label: 'Source Branch',
-            value: _currentConfig.sourceBranch,
-            items: _branchItems,
-            onChanged: (value) {
-              _updateConfig(
-                _currentConfig.copyWith(
-                  sourceBranch: value,
-                  clearSourceBranch: value == null,
-                ),
+          BlocBuilder<BranchListBloc, BranchListState>(
+            builder: (context, branchState) {
+              final sourceBranchItems = branchState is BranchListLoaded
+                  ? _extractBranchLabels(branchState.branchList)
+                  : <String>[];
+
+              return _buildSearchableDropdown(
+                label: 'Source Branch',
+                value: _currentConfig.sourceBranch,
+                items: sourceBranchItems,
+                onChanged: (value) {
+                  _updateConfig(
+                    _currentConfig.copyWith(
+                      sourceBranch: value,
+                      clearSourceBranch: value == null,
+                    ),
+                  );
+                },
+                icon: Icons.location_on_outlined,
+                isDark: isDark,
+                searchHint: 'Search source branch...',
               );
             },
-            icon: Icons.location_on_outlined,
           ),
           const SizedBox(height: 12),
-          DropdownFilter(
-            label: 'Destination Branch',
-            value: _currentConfig.destinationBranch,
-            items: _branchItems,
-            onChanged: (value) {
-              _updateConfig(
-                _currentConfig.copyWith(
-                  destinationBranch: value,
-                  clearDestinationBranch: value == null,
-                ),
+          BlocBuilder<DestinationBranchBloc, DestinationBranchState>(
+            builder: (context, destinationBranchState) {
+              final destinationBranchItems =
+                  destinationBranchState is DestinationBranchLoaded
+                  ? _extractBranchLabels(
+                      destinationBranchState.destinationBranch,
+                    )
+                  : <String>[];
+
+              return _buildSearchableDropdown(
+                label: 'Destination Branch',
+                value: _currentConfig.destinationBranch,
+                items: destinationBranchItems,
+                onChanged: (value) {
+                  _updateConfig(
+                    _currentConfig.copyWith(
+                      destinationBranch: value,
+                      clearDestinationBranch: value == null,
+                    ),
+                  );
+                },
+                icon: Icons.location_on,
+                isDark: isDark,
+                searchHint: 'Search destination branch...',
               );
             },
-            icon: Icons.location_on,
           ),
           const SizedBox(height: 24),
         ],
@@ -375,19 +501,21 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
         if (widget.filterType == OrderFilterType.all) ...[
           _buildSectionTitle('Order Status', Icons.info_outline),
           const SizedBox(height: 8),
-          DropdownFilter(
+          _buildSearchableDropdown(
             label: 'Status',
-            value: _currentConfig.status,
-            items: _statusItems,
+            value: _statusLabelFromValue(_currentConfig.status),
+            items: _statusLabelByValue.values.toList(),
             onChanged: (value) {
               _updateConfig(
                 _currentConfig.copyWith(
-                  status: value?.toLowerCase().replaceAll(' ', '_'),
+                  status: _statusValueFromLabel(value),
                   clearStatus: value == null,
                 ),
               );
             },
             icon: Icons.info_outline,
+            isDark: isDark,
+            searchHint: 'Search status...',
           ),
           const SizedBox(height: 24),
         ],
@@ -396,19 +524,32 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
         if (widget.filterType != OrderFilterType.all) ...[
           _buildSectionTitle('Destination', Icons.place),
           const SizedBox(height: 8),
-          DropdownFilter(
-            label: 'Destination',
-            value: _currentConfig.destination,
-            items: _destinationItems,
-            onChanged: (value) {
-              _updateConfig(
-                _currentConfig.copyWith(
-                  destination: value,
-                  clearDestination: value == null,
-                ),
+          BlocBuilder<DestinationBranchBloc, DestinationBranchState>(
+            builder: (context, destinationBranchState) {
+              final destinationItems =
+                  destinationBranchState is DestinationBranchLoaded
+                  ? _extractBranchLabels(
+                      destinationBranchState.destinationBranch,
+                    )
+                  : <String>[];
+
+              return _buildSearchableDropdown(
+                label: 'Destination',
+                value: _currentConfig.destination,
+                items: destinationItems,
+                onChanged: (value) {
+                  _updateConfig(
+                    _currentConfig.copyWith(
+                      destination: value,
+                      clearDestination: value == null,
+                    ),
+                  );
+                },
+                icon: Icons.place,
+                isDark: isDark,
+                searchHint: 'Search destination...',
               );
             },
-            icon: Icons.place,
           ),
           const SizedBox(height: 24),
         ],
@@ -541,7 +682,7 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -588,6 +729,164 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SearchableOptionsDialog extends StatefulWidget {
+  final String title;
+  final List<String> options;
+  final String? selectedValue;
+  final String searchHint;
+
+  const _SearchableOptionsDialog({
+    required this.title,
+    required this.options,
+    required this.selectedValue,
+    required this.searchHint,
+  });
+
+  @override
+  State<_SearchableOptionsDialog> createState() =>
+      _SearchableOptionsDialogState();
+}
+
+class _SearchableOptionsDialogState extends State<_SearchableOptionsDialog> {
+  final TextEditingController _searchController = TextEditingController();
+  late List<String> _filteredOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredOptions = widget.options;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filter(String query) {
+    setState(() {
+      if (query.trim().isEmpty) {
+        _filteredOptions = widget.options;
+        return;
+      }
+      final q = query.toLowerCase().trim();
+      _filteredOptions = widget.options
+          .where((option) => option.toLowerCase().contains(q))
+          .toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 560, maxWidth: 480),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: theme.primaryColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: widget.searchHint,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchController.text.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filter('');
+                          },
+                        ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                ),
+                onChanged: _filter,
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              title: Text('All ${widget.title}'),
+              trailing: widget.selectedValue == null
+                  ? Icon(Icons.check_circle, color: theme.primaryColor)
+                  : null,
+              onTap: () => Navigator.pop(context, null),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: _filteredOptions.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No results found',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _filteredOptions.length,
+                      itemBuilder: (context, index) {
+                        final option = _filteredOptions[index];
+                        final isSelected = option == widget.selectedValue;
+
+                        return ListTile(
+                          title: Text(option),
+                          trailing: isSelected
+                              ? Icon(
+                                  Icons.check_circle,
+                                  color: theme.primaryColor,
+                                )
+                              : null,
+                          selected: isSelected,
+                          selectedTileColor: theme.primaryColor.withValues(
+                            alpha: 0.08,
+                          ),
+                          onTap: () => Navigator.pop(context, option),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

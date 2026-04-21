@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:gaaubesi_vendor/configure/constants/api_endpoints.dart';
@@ -97,6 +98,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
   OrderRemoteDataSourceImpl(this._dioClient);
 
+  void _logQueryParams(String endpoint, Map<String, dynamic> queryParams) {
+    debugPrint(
+      '[OrderRemoteDataSource] GET $endpoint | queryParams: $queryParams',
+    );
+  }
+
   Map<String, dynamic> _pageFilters(
     int page, {
     String? destination,
@@ -136,6 +143,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     }
     if (startDate != null && startDate.isNotEmpty) q['start_date'] = startDate;
     if (endDate != null && endDate.isNotEmpty) q['end_date'] = endDate;
+    _logQueryParams(ApiEndpoints.orderList, q);
 
     return remoteCall(
       () => _dioClient.get(ApiEndpoints.orderList, queryParameters: q),
@@ -163,18 +171,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     double? minCharge,
     double? maxCharge,
   }) {
+    final q = _pageFilters(
+      page,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      receiverSearch: receiverSearch,
+      minCharge: minCharge,
+      maxCharge: maxCharge,
+    );
+    _logQueryParams(ApiEndpoints.vendorDeliveredList, q);
+
     return remoteCall(
       () => _dioClient.get(
         ApiEndpoints.vendorDeliveredList,
-        queryParameters: _pageFilters(
-          page,
-          destination: destination,
-          startDate: startDate,
-          endDate: endDate,
-          receiverSearch: receiverSearch,
-          minCharge: minCharge,
-          maxCharge: maxCharge,
-        ),
+        queryParameters: q,
       ),
       (response) {
         if (response.statusCode != 200) {
@@ -201,18 +212,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     double? minCharge,
     double? maxCharge,
   }) {
+    final q = _pageFilters(
+      page,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      receiverSearch: receiverSearch,
+      minCharge: minCharge,
+      maxCharge: maxCharge,
+    );
+    _logQueryParams(ApiEndpoints.vendorPossibleRedirect, q);
+
     return remoteCall(
       () => _dioClient.get(
         ApiEndpoints.vendorPossibleRedirect,
-        queryParameters: _pageFilters(
-          page,
-          destination: destination,
-          startDate: startDate,
-          endDate: endDate,
-          receiverSearch: receiverSearch,
-          minCharge: minCharge,
-          maxCharge: maxCharge,
-        ),
+        queryParameters: q,
       ),
       (response) {
         if (response.statusCode != 200) {
@@ -238,18 +252,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     double? minCharge,
     double? maxCharge,
   }) {
+    final q = _pageFilters(
+      page,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      receiverSearch: receiverSearch,
+      minCharge: minCharge,
+      maxCharge: maxCharge,
+    );
+    _logQueryParams(ApiEndpoints.vendorReturnedOrders, q);
+
     return remoteCall(
       () => _dioClient.get(
         ApiEndpoints.vendorReturnedOrders,
-        queryParameters: _pageFilters(
-          page,
-          destination: destination,
-          startDate: startDate,
-          endDate: endDate,
-          receiverSearch: receiverSearch,
-          minCharge: minCharge,
-          maxCharge: maxCharge,
-        ),
+        queryParameters: q,
       ),
       (response) {
         if (response.statusCode != 200) {
@@ -275,18 +292,21 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     double? minCharge,
     double? maxCharge,
   }) {
+    final q = _pageFilters(
+      page,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      receiverSearch: receiverSearch,
+      minCharge: minCharge,
+      maxCharge: maxCharge,
+    );
+    _logQueryParams(ApiEndpoints.vendorRtvList, q);
+
     return remoteCall(
       () => _dioClient.get(
         ApiEndpoints.vendorRtvList,
-        queryParameters: _pageFilters(
-          page,
-          destination: destination,
-          startDate: startDate,
-          endDate: endDate,
-          receiverSearch: receiverSearch,
-          minCharge: minCharge,
-          maxCharge: maxCharge,
-        ),
+        queryParameters: q,
       ),
       (response) {
         if (response.statusCode != 200) {
@@ -323,7 +343,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   @override
   Future<OrderDetailModel> fetchOrderDetail({required int orderId}) {
     return remoteCall(
-      () => _dioClient.get('${ApiEndpoints.orderDetail}/$orderId'),
+      () => _dioClient.get('${ApiEndpoints.orderDetail}/$orderId/'),
       (response) {
         if (response.statusCode != 200) {
           throw ServerException(
@@ -365,6 +385,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<PaginatedOrderResponseModel> searchOrderId({String? orderId}) {
     final q = <String, dynamic>{};
     if (orderId != null && orderId.isNotEmpty) q['search'] = orderId;
+    _logQueryParams(ApiEndpoints.orderList, q);
 
     return remoteCall(
       () => _dioClient.get(ApiEndpoints.orderList, queryParameters: q),

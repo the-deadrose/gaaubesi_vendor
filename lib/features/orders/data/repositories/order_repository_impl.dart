@@ -148,7 +148,6 @@ class OrderRepositoryImpl implements OrderRepository {
           receiverPhoneNumber: request.receiverPhoneNumber,
           altReceiverPhoneNumber: request.altReceiverPhoneNumber,
           receiverFullAddress: request.receiverFullAddress,
-          weight: request.weight,
           codCharge: request.codCharge,
           packageAccess: request.packageAccess,
           referenceId: request.referenceId,

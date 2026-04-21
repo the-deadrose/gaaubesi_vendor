@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gaaubesi_vendor/features/notice/domain/usecase/notice_list_usecase.dart';
 import 'package:gaaubesi_vendor/features/notice/domain/usecase/mark_read_notice_usecase.dart';
@@ -31,6 +32,7 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
       if (_isPaginating) return;
 
       _isPaginating = true;
+      debugPrint('[NoticeBloc] fetching next page=$_currentPage');
       emit(NoticeListPaginating());
 
       final result = await _noticeListUsecase(
@@ -40,6 +42,10 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
       result.fold(
         (failure) {
           _isPaginating = false;
+          debugPrint(
+            '[NoticeBloc] pagination error: ${failure.message} '
+            'statusCode=${failure.statusCode}',
+          );
           emit(
             NoticeListPaginationError(
               message: failure.message,
@@ -47,6 +53,10 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
           );
         },
         (response) {
+          debugPrint(
+            '[NoticeBloc] pagination success count=${response.notices.length} '
+            'next=${response.next}',
+          );
           final mergedNotices = [
             ..._cachedResponse!.notices,
             ...response.notices,
@@ -72,6 +82,7 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
     }
 
     // Initial load
+    debugPrint('[NoticeBloc] fetching initial notice list');
     emit(NoticeListLoading());
 
     _currentPage = 1;
@@ -83,6 +94,10 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
 
     result.fold(
       (failure) {
+        debugPrint(
+          '[NoticeBloc] initial load error: ${failure.message} '
+          'statusCode=${failure.statusCode}',
+        );
         emit(
           NoticeListError(
             message: failure.message,
@@ -90,6 +105,10 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
         );
       },
       (response) {
+        debugPrint(
+          '[NoticeBloc] initial load success count=${response.notices.length} '
+          'next=${response.next}',
+        );
         _cachedResponse = response;
         emit(
           NoticeListLoaded(
@@ -104,6 +123,7 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
     MarkNoticeAsReadEvent event,
     Emitter<NoticeState> emit,
   ) async {
+    debugPrint('[NoticeBloc] mark as read requested noticeId=${event.noticeId}');
     emit(NoticeMarkAsReadLoading());
 
     final result = await _markReadNoticeUsecase(
@@ -112,6 +132,10 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
 
     result.fold(
       (failure) {
+        debugPrint(
+          '[NoticeBloc] mark as read error: ${failure.message} '
+          'statusCode=${failure.statusCode}',
+        );
         emit(
           NoticeMarkAsReadError(
             message: failure.message,
@@ -119,6 +143,7 @@ class NoticeBloc extends Bloc<NoticeEvent, NoticeState> {
         );
       },
       (success) {
+        debugPrint('[NoticeBloc] mark as read success noticeId=${event.noticeId}');
         emit(
           NoticeMarkAsReadSuccess(
             noticeId: event.noticeId,

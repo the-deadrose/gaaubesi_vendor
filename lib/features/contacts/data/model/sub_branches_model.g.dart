@@ -10,22 +10,24 @@ SubBranchesModel _$SubBranchesModelFromJson(Map<String, dynamic> json) =>
     SubBranchesModel(
       name: json['name'] as String?,
       district: json['district'] as String?,
-      phoneNumbers: (json['phoneNumbers'] as Map<String, dynamic>?)?.map(
-        (k, e) => MapEntry(k, e as String),
-      ),
-      baseCharge: (json['baseCharge'] as num?)?.toDouble(),
-      areaCovered: json['areaCovered'] as String?,
-      arrivalTime: json['arrivalTime'] as String?,
+      phoneNumbers:
+          (json['phone_numbers'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as String),
+          ) ??
+          {},
+      baseCharge: (json['base_charge'] as num?)?.toDouble(),
+      areaCovered: json['area_covered'] as String? ?? '',
+      arrivalTime: json['arrival_time'] as String? ?? '',
     );
 
 Map<String, dynamic> _$SubBranchesModelToJson(SubBranchesModel instance) =>
     <String, dynamic>{
       'name': instance.name,
       'district': instance.district,
-      'phoneNumbers': instance.phoneNumbers,
-      'baseCharge': instance.baseCharge,
-      'areaCovered': instance.areaCovered,
-      'arrivalTime': instance.arrivalTime,
+      'phone_numbers': instance.phoneNumbers,
+      'base_charge': instance.baseCharge,
+      'area_covered': instance.areaCovered,
+      'arrival_time': instance.arrivalTime,
     };
 
 SubBranchesResponseModel _$SubBranchesResponseModelFromJson(

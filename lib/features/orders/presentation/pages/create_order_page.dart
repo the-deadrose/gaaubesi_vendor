@@ -54,7 +54,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
   final _receiverNumberController = TextEditingController();
   final _altReceiverNumberController = TextEditingController();
   final _receiverAddressController = TextEditingController();
-  final _weightController = TextEditingController();
+  final _packageTypeController = TextEditingController();
   final _deliveryChargeController = TextEditingController();
   final _codChargeController = TextEditingController();
   final _referenceIdController = TextEditingController();
@@ -64,7 +64,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
   final _receiverNumberFocus = FocusNode();
   final _altReceiverNumberFocus = FocusNode();
   final _receiverAddressFocus = FocusNode();
-  final _weightFocus = FocusNode();
+  final _packageTypeFocus = FocusNode();
   final _codChargeFocus = FocusNode();
   final _referenceIdFocus = FocusNode();
   final _remarksFocus = FocusNode();
@@ -80,7 +80,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
   String? _selectedPickupPoint;
   PackageAccess? _selectedPackageAccess;
   PickupType? _selectedPickupType;
-  PackageType? _selectedPackageType;
   
   bool _isLoading = false;
   bool _isLoadingBranches = true;
@@ -289,7 +288,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     _receiverNumberController.dispose();
     _altReceiverNumberController.dispose();
     _receiverAddressController.dispose();
-    _weightController.dispose();
+    _packageTypeController.dispose();
     _deliveryChargeController.dispose();
     _codChargeController.dispose();
     _referenceIdController.dispose();
@@ -299,7 +298,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
     _receiverNumberFocus.dispose();
     _altReceiverNumberFocus.dispose();
     _receiverAddressFocus.dispose();
-    _weightFocus.dispose();
+    _packageTypeFocus.dispose();
     _codChargeFocus.dispose();
     _referenceIdFocus.dispose();
     _remarksFocus.dispose();
@@ -345,7 +344,6 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
             ? null
             : _altReceiverNumberController.text,
         receiverFullAddress: _receiverAddressController.text,
-        weight: double.parse(_weightController.text),
         codCharge: double.parse(
           _codChargeController.text.isEmpty ? '0' : _codChargeController.text,
         ),
@@ -355,7 +353,7 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
             : _referenceIdController.text,
         pickupPoint: _selectedPickupPoint,
         pickupType: _selectedPickupType!.displayName,
-        packageType: _selectedPackageType!.displayName,
+        packageType: _packageTypeController.text.trim(),
         remarks: _remarksController.text.isEmpty
             ? null
             : _remarksController.text,
@@ -548,41 +546,22 @@ class _CreateOrderPageState extends State<_CreateOrderView> {
                       const SizedBox(height: 24),
                       _buildSectionHeader('Package Information', Icons.inventory_2),
                       const SizedBox(height: 16),
-                      _buildEnumDropdownField<PackageType>(
-                        label: 'Package Type',
-                        value: _selectedPackageType,
-                        items: PackageType.values,
-                        onChanged: (value) =>
-                            setState(() => _selectedPackageType = value),
-                        icon: Icons.category_outlined,
-                        getDisplayName: (type) => type.displayName,
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select package type';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
                       InputField(
-                        controller: _weightController,
-                        label: 'Weight (kg)',
-                        hint: 'Enter package weight',
-                        prefixIcon: Icons.scale_outlined,
-                        keyboardType: TextInputType.number,
-                        focusNode: _weightFocus,
+                        controller: _packageTypeController,
+                        label: 'Package Type',
+                        hint: 'Enter package type',
+                        prefixIcon: Icons.category_outlined,
+                        focusNode: _packageTypeFocus,
                         textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) => _referenceIdFocus.requestFocus(),
+                        onFieldSubmitted: (_) => _codChargeFocus.requestFocus(),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter package weight';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Please enter a valid weight';
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter package type';
                           }
                           return null;
                         },
                       ),
+                     
                       const SizedBox(height: 16),
                       _buildEnumDropdownField<PackageAccess>(
                         label: 'Package Access',

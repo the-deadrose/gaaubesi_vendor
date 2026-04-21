@@ -8,9 +8,13 @@ class SubBranchesModel extends SubBranchesEntity {
   const SubBranchesModel({
     String? name,
     String? district,
+    @JsonKey(name: 'phone_numbers', defaultValue: {})
     Map<String, String>? phoneNumbers,
+    @JsonKey(name: 'base_charge')
     double? baseCharge,
+    @JsonKey(name: 'area_covered', defaultValue: '')
     String? areaCovered,
+    @JsonKey(name: 'arrival_time', defaultValue: '')
     String? arrivalTime,
   }) : super(
           name: name ?? '',
@@ -29,16 +33,12 @@ class SubBranchesModel extends SubBranchesEntity {
 
 @JsonSerializable()
 class SubBranchesResponseModel extends SubBranchesResponseEntity {
-  @JsonKey(name: 'count')
   final int count;
 
-  @JsonKey(name: 'next')
   final String? next;
 
-  @JsonKey(name: 'previous')
   final String? previous;
 
-  @JsonKey(name: 'results')
   final List<SubBranchesModel> results;
 
   const SubBranchesResponseModel({

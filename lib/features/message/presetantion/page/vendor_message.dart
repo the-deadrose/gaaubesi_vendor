@@ -366,7 +366,7 @@ class VendorMessagesScreenState extends State<VendorMessagesScreen> {
           'Messages',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
         ),
-        centerTitle: true,
+        centerTitle: false,
 
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),

@@ -30,8 +30,6 @@ class _OrderDetailPageState extends State<OrderDetailPage>
   bool _isMessagesExpanded = true;
   bool _isCommentsExpanded = true;
   bool _isStatusUpdatesExpanded = true;
-  bool _isDeliveryAddressExpanded = false;
-  bool _isDeliveryInstructionExpanded = false;
   final TextEditingController _newCommentController = TextEditingController();
   String _selectedCommentType = 'Information';
 
@@ -297,10 +295,10 @@ class _OrderDetailPageState extends State<OrderDetailPage>
             onPressed: () => _openEditDialog(order),
           ),
         IconButton(
-          tooltip: 'Copy tracking ID',
+          tooltip: 'Copy order ID',
           icon: Icon(Icons.copy_rounded, color: onPrimary),
           onPressed: () => _copyToClipboard(
-            order.trackId.isEmpty ? order.orderId.toString() : order.trackId,
+            order.orderId.toString(),
             'Tracking ID copied',
           ),
         ),
@@ -533,49 +531,6 @@ class _OrderDetailPageState extends State<OrderDetailPage>
       ),
     );
   }
-
-  Widget _collapsedStatusDot(String status, ThemeData theme) {
-    final (_, fg, _) = _statusStyle(status, theme);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(
-              color: fg == Colors.white
-                  ? Colors.white
-                  : Color.lerp(fg, Colors.white, 0.2),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: fg.withValues(alpha: 0.6), blurRadius: 6),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              status,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 10.5,
-                letterSpacing: 0.2,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _routeColumn({
     required String label,
     required String value,

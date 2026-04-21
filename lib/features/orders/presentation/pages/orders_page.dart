@@ -227,6 +227,9 @@ class _OrdersViewState extends State<_OrdersView>
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
+      iconTheme: const IconThemeData(
+  color: Colors.white,
+),
       backgroundColor: AppTheme.marianBlue,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -238,19 +241,17 @@ class _OrdersViewState extends State<_OrdersView>
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-        splashRadius: 22,
-        tooltip: 'Back',
-      ),
-      title: Text(
-        'My Orders',
-        style: GoogleFonts.inter(
-          fontSize: 17,
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
+      
+      title: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Text(
+          'My Orders',
+          style: GoogleFonts.inter(
+            fontSize: 17,
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+          ),
         ),
       ),
       actions: [
@@ -405,7 +406,7 @@ class _SearchField extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Search by order ID, customer, tracking…',
+                          'Search by order ID',
                           style: GoogleFonts.inter(
                             fontSize: 13.5,
                             color: _inkMuted,
