@@ -24,6 +24,7 @@ class FetchOrdersUseCase
       destinationBranch: params.destinationBranch,
       startDate: params.startDate,
       endDate: params.endDate,
+      search: params.search,
     );
   }
 }
@@ -35,6 +36,7 @@ class FetchOrdersParams extends Equatable {
   final String? destinationBranch;
   final String? startDate;
   final String? endDate;
+  final String? search;
 
   const FetchOrdersParams({
     required this.page,
@@ -43,6 +45,7 @@ class FetchOrdersParams extends Equatable {
     this.destinationBranch,
     this.startDate,
     this.endDate,
+    this.search,
   });
 
   @override
@@ -53,5 +56,6 @@ class FetchOrdersParams extends Equatable {
     destinationBranch,
     startDate,
     endDate,
+    search,
   ];
 }

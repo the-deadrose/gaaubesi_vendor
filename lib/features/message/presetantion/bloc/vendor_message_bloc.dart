@@ -113,6 +113,10 @@ class VendorMessageBloc extends Bloc<VendorMessageEvent, VendorMessageState> {
             }
           }
           
+          // Emit success state first (for the dialog listener)
+          emit(VendorMessageMarkAsReadSuccess(messageId: event.messageId));
+          
+          // Then emit the updated list state (to refresh the main screen)
           emit(
             VendorMessageLoaded(
               vendorMessageList: VendorMessageListEntity(

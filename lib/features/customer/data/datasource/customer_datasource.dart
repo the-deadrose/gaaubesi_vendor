@@ -25,7 +25,7 @@ class CustomerRemoteDatasourceImpl implements CustomerRemoteDatasource {
     String? searchQuery,
   ) async {
     try {
-      final queryParams = {'page': page, 'search': searchQuery ?? ''};
+      final queryParams = {'page': page, 'keyword': searchQuery ?? ''};
       final queryString = queryParams.entries
           .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
           .join('&');
@@ -33,7 +33,7 @@ class CustomerRemoteDatasourceImpl implements CustomerRemoteDatasource {
 
       final response = await _dioClient.get(
         ApiEndpoints.customerList,
-        queryParameters: {'page': page, 'search': searchQuery},
+        queryParameters: {'page': page, 'keyword': searchQuery},
       );
 
       // debugPrint('🔵 API Response: ${response.data}');

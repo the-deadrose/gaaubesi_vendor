@@ -78,6 +78,10 @@ class VendorMessagesScreenState extends State<VendorMessagesScreen> {
               ),
             ),
           );
+          // Close dialog after successful mark as read
+          Future.delayed(const Duration(milliseconds: 500), () {
+            Navigator.pop(context);
+          });
         }
         if (state is VendorMessageMarkAsReadError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -235,21 +239,22 @@ class VendorMessagesScreenState extends State<VendorMessagesScreen> {
                 ),
               ),
 
-            // Footer buttons
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppTheme.powerBlue, width: 1),
+              // Footer buttons
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: AppTheme.powerBlue, width: 1),
+                  ),
                 ),
-              ),
-              child: BlocBuilder<VendorMessageBloc, VendorMessageState>(
-                builder: (context, state) {
-                  final isLoading = state is VendorMessageMarkAsReadLoading;
-                  
-                  return Row(
-                    children: [
-                      Expanded(
+                child: BlocBuilder<VendorMessageBloc, VendorMessageState>(
+                  builder: (context, state) {
+                    final isLoading = state is VendorMessageMarkAsReadLoading;
+
+                    // If message is read, show only Close button
+                    if (message.isRead) {
+                      return SizedBox(
+                        width: double.infinity,
                         child: OutlinedButton(
                           onPressed: () {
                             Navigator.pop(context);
@@ -264,56 +269,74 @@ class VendorMessagesScreenState extends State<VendorMessagesScreen> {
                           ),
                           child: const Text('Close'),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  if (!message.isRead) {
-                                    context.read<VendorMessageBloc>().add(
-                                          MarkMessageAsReadEvent(
-                                            messageId: message.id.toString(),
-                                          ),
-                                        );
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.marianBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                      );
+                    }
+
+                    // If message is unread, show Close and Mark as Read buttons
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.blackBean,
+                              side: BorderSide(color: AppTheme.powerBlue),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            elevation: 2,
-                            disabledBackgroundColor: AppTheme.marianBlue.withValues(alpha: 0.5),
+                            child: const Text('Close'),
                           ),
-                          child: isLoading
-                              ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white.withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                )
-                              : Text(
-                                  message.isRead ? 'Reply' : 'Mark as Read',
-                                ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    context.read<VendorMessageBloc>().add(
+                                      MarkMessageAsReadEvent(
+                                        messageId: message.id.toString(),
+                                      ),
+                                    );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.marianBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                              disabledBackgroundColor: AppTheme.marianBlue
+                                  .withValues(alpha: 0.5),
+                            ),
+                            child: isLoading
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white.withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                  )
+                                : const Text('Mark as Read'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    )
     );
   }
 

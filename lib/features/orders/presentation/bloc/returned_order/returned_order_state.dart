@@ -26,8 +26,6 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const ReturnedOrderLoaded({
     required this.orders,
@@ -39,8 +37,6 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   ReturnedOrderLoaded copyWith({
@@ -53,8 +49,6 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     return ReturnedOrderLoaded(
       orders: orders ?? this.orders,
@@ -66,8 +60,6 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       receiverSearch: receiverSearch ?? this.receiverSearch,
-      minCharge: minCharge ?? this.minCharge,
-      maxCharge: maxCharge ?? this.maxCharge,
     );
   }
 
@@ -82,8 +74,6 @@ class ReturnedOrderLoaded extends ReturnedOrderState {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
 
@@ -97,8 +87,6 @@ class ReturnedOrderLoadingMore extends ReturnedOrderState {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const ReturnedOrderLoadingMore({
     required this.orders,
@@ -110,8 +98,6 @@ class ReturnedOrderLoadingMore extends ReturnedOrderState {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -125,8 +111,6 @@ class ReturnedOrderLoadingMore extends ReturnedOrderState {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
 

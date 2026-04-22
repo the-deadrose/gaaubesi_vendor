@@ -25,16 +25,12 @@ class PossibleRedirectOrderFilterChanged extends PossibleRedirectOrderEvent {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const PossibleRedirectOrderFilterChanged({
     this.destination,
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -43,7 +39,5 @@ class PossibleRedirectOrderFilterChanged extends PossibleRedirectOrderEvent {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }

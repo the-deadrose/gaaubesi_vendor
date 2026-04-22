@@ -27,8 +27,6 @@ class FetchDeliveredOrdersUseCase
       startDate: params.startDate,
       endDate: params.endDate,
       receiverSearch: params.receiverSearch,
-      minCharge: params.minCharge,
-      maxCharge: params.maxCharge,
     );
   }
 }
@@ -39,8 +37,6 @@ class FetchDeliveredOrdersParams extends Equatable {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const FetchDeliveredOrdersParams({
     required this.page,
@@ -48,8 +44,6 @@ class FetchDeliveredOrdersParams extends Equatable {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -59,7 +53,5 @@ class FetchDeliveredOrdersParams extends Equatable {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }

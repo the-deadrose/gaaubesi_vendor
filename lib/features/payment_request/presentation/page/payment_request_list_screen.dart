@@ -24,6 +24,8 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
   String _selectedStatus = 'all';
   String _selectedPaymentMethod = 'all';
   String _selectedBankName = 'all';
+  List<PaymentMethodEntity> _paymentMethods = [];
+  List<BankNameEntity> _bankNames = [];
 
   @override
   void initState() {
@@ -84,19 +86,12 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        final state = context.read<PaymentRequestBloc>().state;
-        PaymentRequestListEntity? paymentRequestList;
-
-        if (state is FetchPaymentRequestsSuccess) {
-          paymentRequestList = state.paymentRequestList;
-        }
-
         return _FiltersBottomSheet(
           selectedStatus: _selectedStatus,
           selectedPaymentMethod: _selectedPaymentMethod,
           selectedBankName: _selectedBankName,
-          paymentMethods: paymentRequestList?.paymentMethods ?? [],
-          bankNames: paymentRequestList?.bankNames ?? [],
+          paymentMethods: _paymentMethods,
+          bankNames: _bankNames,
           onApply: (status, paymentMethod, bankName) {
             setState(() {
               _selectedStatus = status;
@@ -119,7 +114,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
-    final bgColor = isDarkMode ? const Color(0xFF0F1115) : const Color(0xFFF6F7FB);
+    final bgColor = isDarkMode
+        ? const Color(0xFF0F1115)
+        : const Color(0xFFF6F7FB);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -145,6 +142,13 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
       floatingActionButton: _buildFab(theme),
       body: BlocConsumer<PaymentRequestBloc, PaymentRequestState>(
         listener: (context, state) {
+          if (state is FetchPaymentRequestsSuccess) {
+            setState(() {
+              _paymentMethods = state.paymentRequestList.paymentMethods;
+              _bankNames = state.paymentRequestList.bankNames;
+            });
+          }
+
           if (state is FetchPaymentRequestsSuccess && _isLoadingMore) {
             setState(() {
               _isLoadingMore = false;
@@ -180,8 +184,11 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
 
   Widget _buildFab(ThemeData theme) {
     return FloatingActionButton.extended(
-      onPressed: () {
-        context.router.push(const PaymentRequestRoute());
+      onPressed: () async {
+        final created = await context.router.push(const PaymentRequestRoute());
+        if (created == true && mounted) {
+          _fetchPaymentRequests();
+        }
       },
       backgroundColor: theme.colorScheme.primary,
       foregroundColor: theme.colorScheme.onPrimary,
@@ -260,7 +267,8 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                     child: _buildFilteredEmptyState(),
                   )
                 : SliverList.separated(
-                    itemCount: paymentRequestList.results.length +
+                    itemCount:
+                        paymentRequestList.results.length +
                         (_isLoadingMore ? 1 : 0),
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 12),
@@ -305,7 +313,8 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                 children: [
                   if (_selectedStatus != 'all')
                     _buildActiveFilterChip(
-                      label: _selectedStatus[0].toUpperCase() +
+                      label:
+                          _selectedStatus[0].toUpperCase() +
                           _selectedStatus.substring(1),
                       onRemove: () {
                         setState(() => _selectedStatus = 'all');
@@ -371,8 +380,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.18),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.18),
         ),
       ),
       child: Row(
@@ -408,12 +416,12 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
         .where((request) => request.status == 'pending')
         .length;
 
-    final approvedCount = paymentRequestList.results
-        .where((request) => request.status == 'approved')
+    final declinedCount = paymentRequestList.results
+        .where((request) => request.status == 'declined')
         .length;
 
-    final rejectedCount = paymentRequestList.results
-        .where((request) => request.status == 'rejected')
+    final settledCount = paymentRequestList.results
+        .where((request) => request.status == 'settled')
         .length;
 
     final primary = Theme.of(context).colorScheme.primary;
@@ -443,11 +451,7 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                   color: primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  Icons.insights_rounded,
-                  size: 18,
-                  color: primary,
-                ),
+                child: Icon(Icons.insights_rounded, size: 18, color: primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -490,19 +494,19 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
               _StatDivider(),
               Expanded(
                 child: _StatItem(
-                  count: approvedCount,
-                  label: 'Approved',
-                  color: Colors.green,
-                  icon: Icons.check_circle_rounded,
+                  count: declinedCount,
+                  label: 'Declined',
+                  color: Colors.red,
+                  icon: Icons.cancel_rounded,
                 ),
               ),
               _StatDivider(),
               Expanded(
                 child: _StatItem(
-                  count: rejectedCount,
-                  label: 'Rejected',
-                  color: Colors.red,
-                  icon: Icons.cancel_rounded,
+                  count: settledCount,
+                  label: 'Settled',
+                  color: Colors.green,
+                  icon: Icons.check_circle_rounded,
                 ),
               ),
             ],
@@ -581,9 +585,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
             const SizedBox(height: 24),
             Text(
               'Something went wrong',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -592,9 +596,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                 error,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).extra.darkGray,
-                      height: 1.4,
-                    ),
+                  color: Theme.of(context).extra.darkGray,
+                  height: 1.4,
+                ),
               ),
             ),
             const SizedBox(height: 28),
@@ -606,7 +610,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 14),
+                  horizontal: 28,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -629,7 +635,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -641,17 +649,17 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
           const SizedBox(height: 20),
           Text(
             'No matches found',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             'Try adjusting your filters to see more results',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).extra.darkGray,
-                ),
+              color: Theme.of(context).extra.darkGray,
+            ),
           ),
           const SizedBox(height: 16),
           TextButton.icon(
@@ -708,9 +716,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
             const SizedBox(height: 28),
             Text(
               'No payment requests yet',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -719,15 +727,20 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                 'Submit your first payment request and track its approval in real time.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).extra.darkGray,
-                      height: 1.4,
-                    ),
+                  color: Theme.of(context).extra.darkGray,
+                  height: 1.4,
+                ),
               ),
             ),
             const SizedBox(height: 28),
             ElevatedButton.icon(
-              onPressed: () {
-                context.router.push(const PaymentRequestRoute());
+              onPressed: () async {
+                final created = await context.router.push(
+                  const PaymentRequestRoute(),
+                );
+                if (created == true && mounted) {
+                  _fetchPaymentRequests();
+                }
               },
               icon: const Icon(Icons.add_rounded, size: 20),
               label: const Text('Create your first request'),
@@ -735,7 +748,9 @@ class _PaymentRequestListScreenState extends State<PaymentRequestListScreen> {
                 backgroundColor: primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 14),
+                  horizontal: 28,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -797,10 +812,12 @@ class _PaymentRequestCard extends StatelessWidget {
     switch (request.status) {
       case 'pending':
         return Colors.orange;
-      case 'approved':
-        return Colors.green;
-      case 'rejected':
+      case 'declined':
         return Colors.red;
+      case 'replied':
+        return Colors.blue;
+      case 'settled':
+        return Colors.green;
       default:
         return Colors.grey;
     }
@@ -823,10 +840,12 @@ class _PaymentRequestCard extends StatelessWidget {
     switch (request.status) {
       case 'pending':
         return 'Pending';
-      case 'approved':
-        return 'Approved';
-      case 'rejected':
-        return 'Rejected';
+      case 'declined':
+        return 'Declined';
+      case 'replied':
+        return 'Replied';
+      case 'settled':
+        return 'Settled';
       default:
         return request.statusDisplay;
     }
@@ -836,10 +855,12 @@ class _PaymentRequestCard extends StatelessWidget {
     switch (request.status) {
       case 'pending':
         return Icons.schedule_rounded;
-      case 'approved':
-        return Icons.check_circle_rounded;
-      case 'rejected':
+      case 'declined':
         return Icons.cancel_rounded;
+      case 'replied':
+        return Icons.reply_rounded;
+      case 'settled':
+        return Icons.check_circle_rounded;
       default:
         return Icons.info_rounded;
     }
@@ -860,9 +881,7 @@ class _PaymentRequestCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: Colors.grey.withValues(alpha: 0.12),
-            ),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.12)),
             boxShadow: [
               BoxShadow(
                 color: statusColor.withValues(alpha: 0.05),
@@ -940,7 +959,9 @@ class _PaymentRequestCard extends StatelessWidget {
                                         width: 3,
                                         height: 3,
                                         decoration: BoxDecoration(
-                                          color: darkGray.withValues(alpha: 0.5),
+                                          color: darkGray.withValues(
+                                            alpha: 0.5,
+                                          ),
                                           shape: BoxShape.circle,
                                         ),
                                       ),
@@ -986,7 +1007,9 @@ class _PaymentRequestCard extends StatelessWidget {
                           const SizedBox(height: 14),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.grey.withValues(alpha: 0.06),
                               borderRadius: BorderRadius.circular(12),
@@ -1006,16 +1029,17 @@ class _PaymentRequestCard extends StatelessWidget {
                                     width: 1,
                                     height: 14,
                                     margin: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    color:
-                                        Colors.grey.withValues(alpha: 0.25),
+                                      horizontal: 10,
+                                    ),
+                                    color: Colors.grey.withValues(alpha: 0.25),
                                   ),
                                 if (request.paymentAccountNumber != null)
                                   Expanded(
                                     child: _DetailChip(
                                       icon: Icons.credit_card_rounded,
                                       text: _maskAccount(
-                                          request.paymentAccountNumber!),
+                                        request.paymentAccountNumber!,
+                                      ),
                                       monospace: true,
                                     ),
                                   ),
@@ -1115,9 +1139,7 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withValues(alpha: 0.22),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1245,7 +1267,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
       ),
       child: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Handle
@@ -1271,17 +1293,8 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                     children: [
                       Text(
                         'Filters',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Refine your payment requests',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: Theme.of(context).extra.darkGray,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -1302,13 +1315,10 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
               ),
             ),
 
-            Divider(
-              height: 1,
-              color: Colors.grey.withValues(alpha: 0.15),
-            ),
+            Divider(height: 1, color: Colors.grey.withValues(alpha: 0.15)),
 
             // Content
-            Flexible(
+            Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -1323,6 +1333,14 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                           onSelected: (_) => setState(() => _status = 'all'),
                         ),
                         _FilterChip(
+                          label: 'Declined',
+                          selected: _status == 'declined',
+                          onSelected: (_) =>
+                              setState(() => _status = 'declined'),
+                          icon: Icons.cancel_rounded,
+                          color: Colors.red,
+                        ),
+                        _FilterChip(
                           label: 'Pending',
                           selected: _status == 'pending',
                           onSelected: (_) =>
@@ -1331,20 +1349,20 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                           color: Colors.orange,
                         ),
                         _FilterChip(
-                          label: 'Approved',
-                          selected: _status == 'approved',
+                          label: 'Replied',
+                          selected: _status == 'replied',
                           onSelected: (_) =>
-                              setState(() => _status = 'approved'),
-                          icon: Icons.check_circle_rounded,
-                          color: Colors.green,
+                              setState(() => _status = 'replied'),
+                          icon: Icons.reply_rounded,
+                          color: Colors.blue,
                         ),
                         _FilterChip(
-                          label: 'Rejected',
-                          selected: _status == 'rejected',
+                          label: 'Settled',
+                          selected: _status == 'settled',
                           onSelected: (_) =>
-                              setState(() => _status = 'rejected'),
-                          icon: Icons.cancel_rounded,
-                          color: Colors.red,
+                              setState(() => _status = 'settled'),
+                          icon: Icons.check_circle_rounded,
+                          color: Colors.green,
                         ),
                       ],
                     ),
@@ -1362,12 +1380,20 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                           _FilterChip(
                             label: method.name,
                             selected: _paymentMethod == method.id,
-                            onSelected: (_) =>
-                                setState(() => _paymentMethod = method.id),
+                            onSelected: (_) {
+                              setState(() {
+                                _paymentMethod = method.id;
+                                if (method.name.toLowerCase().contains(
+                                  'esewa',
+                                )) {
+                                  _bankName = 'all';
+                                }
+                              });
+                            },
                           ),
                       ],
                     ),
-                    if (widget.bankNames.isNotEmpty) ...[
+                    if (widget.bankNames.isNotEmpty && !_isEsewaSelected()) ...[
                       const SizedBox(height: 24),
                       _buildFilterSection(
                         title: 'Bank Name',
@@ -1399,9 +1425,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 border: Border(
-                  top: BorderSide(
-                    color: Colors.grey.withValues(alpha: 0.15),
-                  ),
+                  top: BorderSide(color: Colors.grey.withValues(alpha: 0.15)),
                 ),
               ),
               child: Row(
@@ -1439,8 +1463,7 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.primary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
@@ -1482,13 +1505,21 @@ class _FiltersBottomSheetState extends State<_FiltersBottomSheet> {
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: children,
-        ),
+        Wrap(spacing: 8, runSpacing: 8, children: children),
       ],
     );
+  }
+
+  bool _isEsewaSelected() {
+    if (_paymentMethod == 'all') {
+      return false;
+    }
+
+    final selectedMethod = widget.paymentMethods
+        .where((m) => m.id == _paymentMethod)
+        .firstOrNull;
+
+    return selectedMethod?.name.toLowerCase().contains('esewa') ?? false;
   }
 }
 
@@ -1519,9 +1550,7 @@ class _FilterChip extends StatelessWidget {
             Icon(
               icon,
               size: 14,
-              color: selected
-                  ? chipColor
-                  : Theme.of(context).extra.darkGray,
+              color: selected ? chipColor : Theme.of(context).extra.darkGray,
             ),
             const SizedBox(width: 4),
           ],

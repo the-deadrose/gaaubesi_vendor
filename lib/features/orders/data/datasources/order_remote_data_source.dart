@@ -29,6 +29,7 @@ abstract class OrderRemoteDataSource {
     String? destinationBranch,
     String? startDate,
     String? endDate,
+    String? search,
   });
   Future<PaginatedStaleOrdersResponseModel> fetchStaleOrders({
     required int page,
@@ -40,8 +41,6 @@ abstract class OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<PaginatedPossibleRedirectOrderResponseModel>
@@ -51,8 +50,6 @@ abstract class OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<PaginatedReturnedOrderResponseModel> fetchReturnedOrders({
@@ -61,8 +58,6 @@ abstract class OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<PaginatedRtvOrderResponseModel> fetchRtvOrders({
@@ -71,8 +66,6 @@ abstract class OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<void> createOrder({required CreateOrderRequestModel request});
@@ -110,16 +103,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     final q = <String, dynamic>{'page': page};
     if (destination != null) q['destination'] = destination;
-    if (startDate != null) q['start_date'] = startDate;
-    if (endDate != null) q['end_date'] = endDate;
-    if (receiverSearch != null) q['receiver_search'] = receiverSearch;
-    if (minCharge != null) q['min_charge'] = minCharge;
-    if (maxCharge != null) q['max_charge'] = maxCharge;
+    if (startDate != null) q['from_date'] = startDate;
+    if (endDate != null) q['to_date'] = endDate;
+    if (receiverSearch != null) q['search'] = receiverSearch;
     return q;
   }
 
@@ -131,18 +120,19 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     String? destinationBranch,
     String? startDate,
     String? endDate,
-    String? orderId,
+    String? search,
   }) {
     final q = <String, dynamic>{'page': page};
     if (status != null && status.isNotEmpty) q['status'] = status;
     if (sourceBranch != null && sourceBranch.isNotEmpty) {
-      q['source_branch'] = sourceBranch;
+      q['source'] = sourceBranch;
     }
     if (destinationBranch != null && destinationBranch.isNotEmpty) {
-      q['destination_branch'] = destinationBranch;
+      q['destination'] = destinationBranch;
     }
-    if (startDate != null && startDate.isNotEmpty) q['start_date'] = startDate;
-    if (endDate != null && endDate.isNotEmpty) q['end_date'] = endDate;
+    if (startDate != null && startDate.isNotEmpty) q['from_date'] = startDate;
+    if (endDate != null && endDate.isNotEmpty) q['to_date'] = endDate;
+    if (search != null && search.isNotEmpty) q['search'] = search;
     _logQueryParams(ApiEndpoints.orderList, q);
 
     return remoteCall(
@@ -168,8 +158,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     final q = _pageFilters(
       page,
@@ -177,8 +165,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       startDate: startDate,
       endDate: endDate,
       receiverSearch: receiverSearch,
-      minCharge: minCharge,
-      maxCharge: maxCharge,
     );
     _logQueryParams(ApiEndpoints.vendorDeliveredList, q);
 
@@ -209,8 +195,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     final q = _pageFilters(
       page,
@@ -218,8 +202,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       startDate: startDate,
       endDate: endDate,
       receiverSearch: receiverSearch,
-      minCharge: minCharge,
-      maxCharge: maxCharge,
     );
     _logQueryParams(ApiEndpoints.vendorPossibleRedirect, q);
 
@@ -249,8 +231,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     final q = _pageFilters(
       page,
@@ -258,8 +238,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       startDate: startDate,
       endDate: endDate,
       receiverSearch: receiverSearch,
-      minCharge: minCharge,
-      maxCharge: maxCharge,
     );
     _logQueryParams(ApiEndpoints.vendorReturnedOrders, q);
 
@@ -289,8 +267,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     final q = _pageFilters(
       page,
@@ -298,8 +274,6 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       startDate: startDate,
       endDate: endDate,
       receiverSearch: receiverSearch,
-      minCharge: minCharge,
-      maxCharge: maxCharge,
     );
     _logQueryParams(ApiEndpoints.vendorRtvList, q);
 

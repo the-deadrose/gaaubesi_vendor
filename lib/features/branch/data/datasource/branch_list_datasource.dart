@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:gaaubesi_vendor/features/branch/data/model/pickup_point_model.dart';
 import 'package:gaaubesi_vendor/features/branch/data/model/redirect_station_list_model.dart';
 import 'package:gaaubesi_vendor/features/branch/domain/entity/pickup_point_entity.dart';
@@ -29,18 +28,12 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
   BranchListDatasourceImpl(this._dioClient);
   final DioClient _dioClient;
 
-  void _logRequest(String endpoint, Map<String, dynamic> queryParams) {
-    debugPrint('[BRANCH_LIST_DATASOURCE] GET $endpoint | queryParams: $queryParams');
-  }
+  void _logRequest(String endpoint, Map<String, dynamic> queryParams) {}
 
-  void _logResponse(String label, dynamic responseData) {
-    debugPrint('[BRANCH_LIST_DATASOURCE] $label response type: ${responseData.runtimeType}');
-    debugPrint('[BRANCH_LIST_DATASOURCE] $label response data: $responseData');
-  }
+  void _logResponse(String label, dynamic responseData) {}
 
   @override
   Future<List<BranchListEntity>> fetchBranchList(String branch) async {
-    debugPrint('[BRANCH_LIST_DATASOURCE] FETCHING BRANCH LIST');
     final queryParams = {'search': branch};
     _logRequest(ApiEndpoints.branchList, queryParams);
 
@@ -48,10 +41,6 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
       final response = await _dioClient.get(
         ApiEndpoints.branchList,
         queryParameters: queryParams,
-      );
-
-      debugPrint(
-        '[BRANCH_LIST_DATASOURCE] branch list response status: ${response.statusCode}',
       );
 
       if (response.statusCode == 200) {
@@ -67,9 +56,6 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
               responseData['branches'];
 
           data = (rawData ?? []) as List<dynamic>;
-          debugPrint(
-            '[BRANCH_LIST_DATASOURCE] Extracted list length: ${data.length}',
-          );
         } else if (responseData is List) {
           data = responseData;
         } else {
@@ -80,20 +66,18 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
 
         for (var i = 0; i < data.length; i++) {
           try {
-            debugPrint('[BRANCH_LIST_DATASOURCE]  Item $i: ${data[i]}');
             final model = BranchListModel.fromJson(
               data[i] as Map<String, dynamic>,
             );
             final entity = model.toEntity();
             branchList.add(entity);
           } catch (e) {
-            debugPrint('[BRANCH_LIST_DATASOURCE]  Error processing item $i: $e');
+            debugPrint(
+              '[BRANCH_LIST_DATASOURCE] Error parsing branch at index $i: $e',
+            );
           }
         }
 
-        debugPrint(
-          '[BRANCH_LIST_DATASOURCE] Successfully converted ${branchList.length} entities',
-        );
         return branchList;
       } else {
         throw ServerException('Failed to fetch branch list');
@@ -176,15 +160,14 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
   Future<List<BranchListEntity>> fetchdestinationBranch(String branch) async {
     try {
       final queryParams = {'search': branch};
-      _logRequest('${ApiEndpoints.orderCreateDestinationBranchList}destination/', queryParams);
+      _logRequest(
+        '${ApiEndpoints.orderCreateDestinationBranchList}destination/',
+        queryParams,
+      );
 
       final response = await _dioClient.get(
         "${ApiEndpoints.orderCreateDestinationBranchList}destination/",
         queryParameters: queryParams,
-      );
-
-      debugPrint(
-        '[BRANCH_LIST_DATASOURCE] destination branch response status: ${response.statusCode}',
       );
 
       if (response.statusCode == 200) {
@@ -193,20 +176,22 @@ class BranchListDatasourceImpl implements BranchListRemoteDatasource {
         if (responseData is! Map<String, dynamic>) {
           throw ServerException('Unexpected response format');
         }
-        
+
         // Extract results array from paginated response
         final resultsList = responseData['results'] as List?;
         if (resultsList == null || resultsList.isEmpty) {
-          debugPrint('[BRANCH_LIST_DATASOURCE] No results found in destination branch response');
           return [];
         }
-        
+
         // Parse each branch from results array
         final branches = resultsList
-            .map((item) => BranchListModel.fromJson(item as Map<String, dynamic>).toEntity())
+            .map(
+              (item) => BranchListModel.fromJson(
+                item as Map<String, dynamic>,
+              ).toEntity(),
+            )
             .toList();
-        
-        debugPrint('[BRANCH_LIST_DATASOURCE] Parsed ${branches.length} destination branches');
+
         return branches;
       } else {
         throw ServerException('Failed to fetch destination branch');

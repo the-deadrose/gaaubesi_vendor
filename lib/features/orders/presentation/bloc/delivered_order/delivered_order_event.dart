@@ -24,16 +24,12 @@ class DeliveredOrderFilterChanged extends DeliveredOrderEvent {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const DeliveredOrderFilterChanged({
     this.destination,
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -42,7 +38,5 @@ class DeliveredOrderFilterChanged extends DeliveredOrderEvent {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }

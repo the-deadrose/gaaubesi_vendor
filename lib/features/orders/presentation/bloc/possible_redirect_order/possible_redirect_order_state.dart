@@ -25,8 +25,6 @@ class PossibleRedirectOrderLoaded extends PossibleRedirectOrderState {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const PossibleRedirectOrderLoaded({
     required this.orders,
@@ -37,8 +35,6 @@ class PossibleRedirectOrderLoaded extends PossibleRedirectOrderState {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   PossibleRedirectOrderLoaded copyWith({
@@ -50,8 +46,6 @@ class PossibleRedirectOrderLoaded extends PossibleRedirectOrderState {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     return PossibleRedirectOrderLoaded(
       orders: orders ?? this.orders,
@@ -62,8 +56,6 @@ class PossibleRedirectOrderLoaded extends PossibleRedirectOrderState {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       receiverSearch: receiverSearch ?? this.receiverSearch,
-      minCharge: minCharge ?? this.minCharge,
-      maxCharge: maxCharge ?? this.maxCharge,
     );
   }
 
@@ -77,8 +69,6 @@ class PossibleRedirectOrderLoaded extends PossibleRedirectOrderState {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
 
@@ -91,8 +81,6 @@ class PossibleRedirectOrderLoadingMore extends PossibleRedirectOrderState {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const PossibleRedirectOrderLoadingMore({
     required this.orders,
@@ -103,8 +91,6 @@ class PossibleRedirectOrderLoadingMore extends PossibleRedirectOrderState {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -117,8 +103,6 @@ class PossibleRedirectOrderLoadingMore extends PossibleRedirectOrderState {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
 

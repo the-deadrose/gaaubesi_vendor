@@ -16,8 +16,6 @@ class OrderFilterConfig {
   final String? status;
   final String? destination;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const OrderFilterConfig({
     this.sourceBranch,
@@ -27,8 +25,6 @@ class OrderFilterConfig {
     this.status,
     this.destination,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   OrderFilterConfig copyWith({
@@ -39,8 +35,6 @@ class OrderFilterConfig {
     String? status,
     String? destination,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
     bool clearSourceBranch = false,
     bool clearDestinationBranch = false,
     bool clearStartDate = false,
@@ -48,8 +42,6 @@ class OrderFilterConfig {
     bool clearStatus = false,
     bool clearDestination = false,
     bool clearReceiverSearch = false,
-    bool clearMinCharge = false,
-    bool clearMaxCharge = false,
   }) {
     return OrderFilterConfig(
       sourceBranch: clearSourceBranch
@@ -65,8 +57,6 @@ class OrderFilterConfig {
       receiverSearch: clearReceiverSearch
           ? null
           : (receiverSearch ?? this.receiverSearch),
-      minCharge: clearMinCharge ? null : (minCharge ?? this.minCharge),
-      maxCharge: clearMaxCharge ? null : (maxCharge ?? this.maxCharge),
     );
   }
 
@@ -77,9 +67,7 @@ class OrderFilterConfig {
       endDate != null ||
       status != null ||
       destination != null ||
-      receiverSearch != null ||
-      minCharge != null ||
-      maxCharge != null;
+      receiverSearch != null;
 
   int get activeFilterCount {
     int count = 0;
@@ -89,7 +77,6 @@ class OrderFilterConfig {
     if (status != null) count++;
     if (destination != null) count++;
     if (receiverSearch != null) count++;
-    if (minCharge != null || maxCharge != null) count++;
     return count;
   }
 }
@@ -141,25 +128,24 @@ class OrderFilterBottomSheet extends StatefulWidget {
 class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
   late OrderFilterConfig _currentConfig;
   final TextEditingController _receiverController = TextEditingController();
-  final TextEditingController _minChargeController = TextEditingController();
-  final TextEditingController _maxChargeController = TextEditingController();
 
   static const Map<String, String> _statusLabelByValue = {
-    'dropoff_order_created': 'Drop-off Order',
-    'pickup_order_created': 'Pickup Order',
-    'send_for_pickup': 'Send for Pickup',
-    'pickup_complete': 'Pickup Complete',
-    'dispatched': 'Dispatch',
-    'arrived':'Arrived',
-    'send_for_delivery': 'Out for Delivery',
-    'delivered': 'Delivered',
-    'return_deliverd': 'Return Delivered',
-    'send_to_vendor': 'Send to Vendor',
-    'order_created': 'Order Created',
-    'hold': 'Hold',
-    'cancelled': 'Cancelled',
-    'rtv_branch': 'RTV Branch',
-    'rtv_all': 'RTV All',
+    'Order Created': 'Order Created',
+    'Drop Off Order Created': 'Drop Off Order Created',
+    'Pickup Order Created': 'Pickup Order Created',
+    'Sent for Pickup': 'Sent for Pickup',
+    'Pickup Complete': 'Pickup Complete',
+    'Dispatched': 'Dispatched',
+    'Arrived': 'Arrived',
+    'Returned to Warehouse': 'Returned to Warehouse',
+    'Sent for Delivery': 'Sent for Delivery',
+    'Delivered': 'Delivered',
+    'Cancelled': 'Cancelled',
+    'Sent to Vendor': 'Sent to Vendor',
+    'Returned Delivered': 'Returned Delivered',
+    'Hold': 'Hold',
+    'RTV BRANCH': 'RTV BRANCH',
+    'RTV ALL': 'RTV ALL',
   };
 
   @override
@@ -167,8 +153,6 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
     super.initState();
     _currentConfig = widget.initialConfig;
     _receiverController.text = _currentConfig.receiverSearch ?? '';
-    _minChargeController.text = _currentConfig.minCharge?.toString() ?? '';
-    _maxChargeController.text = _currentConfig.maxCharge?.toString() ?? '';
     _loadBranchFilters();
   }
 
@@ -191,6 +175,30 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
         .where((label) => label.isNotEmpty)
         .where((label) => seen.add(label))
         .toList();
+  }
+
+  String? _branchCodeFromLabel(List<dynamic> branches, String? label) {
+    if (label == null || label.isEmpty) return null;
+    for (final branch in branches) {
+      final branchLabel = (branch.label as String).trim();
+      if (branchLabel == label) {
+        final code = (branch.code as String).trim();
+        return code.isEmpty ? null : code;
+      }
+    }
+    return null;
+  }
+
+  String? _branchLabelFromCode(List<dynamic> branches, String? code) {
+    if (code == null || code.isEmpty) return null;
+    for (final branch in branches) {
+      final branchCode = (branch.code as String).trim();
+      if (branchCode == code) {
+        final label = (branch.label as String).trim();
+        return label.isEmpty ? null : label;
+      }
+    }
+    return null;
   }
 
   String? _statusLabelFromValue(String? value) {
@@ -281,8 +289,6 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
   @override
   void dispose() {
     _receiverController.dispose();
-    _minChargeController.dispose();
-    _maxChargeController.dispose();
     super.dispose();
   }
 
@@ -296,31 +302,15 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
     setState(() {
       _currentConfig = const OrderFilterConfig();
       _receiverController.clear();
-      _minChargeController.clear();
-      _maxChargeController.clear();
     });
   }
 
   void _applyFilters() {
-    // Parse charge values
-    double? minCharge;
-    double? maxCharge;
-    if (_minChargeController.text.isNotEmpty) {
-      minCharge = double.tryParse(_minChargeController.text);
-    }
-    if (_maxChargeController.text.isNotEmpty) {
-      maxCharge = double.tryParse(_maxChargeController.text);
-    }
-
     final finalConfig = _currentConfig.copyWith(
       receiverSearch: _receiverController.text.isEmpty
           ? null
           : _receiverController.text,
-      minCharge: minCharge,
-      maxCharge: maxCharge,
       clearReceiverSearch: _receiverController.text.isEmpty,
-      clearMinCharge: minCharge == null,
-      clearMaxCharge: maxCharge == null,
     );
 
     widget.onApply(finalConfig);
@@ -444,18 +434,23 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
           const SizedBox(height: 8),
           BlocBuilder<BranchListBloc, BranchListState>(
             builder: (context, branchState) {
-              final sourceBranchItems = branchState is BranchListLoaded
-                  ? _extractBranchLabels(branchState.branchList)
-                  : <String>[];
+              final sourceBranches = branchState is BranchListLoaded
+                  ? branchState.branchList
+                  : <dynamic>[];
+              final sourceBranchItems = _extractBranchLabels(sourceBranches);
+              final sourceBranchLabel = _branchLabelFromCode(
+                sourceBranches,
+                _currentConfig.sourceBranch,
+              );
 
               return _buildSearchableDropdown(
                 label: 'Source Branch',
-                value: _currentConfig.sourceBranch,
+                value: sourceBranchLabel,
                 items: sourceBranchItems,
                 onChanged: (value) {
                   _updateConfig(
                     _currentConfig.copyWith(
-                      sourceBranch: value,
+                      sourceBranch: _branchCodeFromLabel(sourceBranches, value),
                       clearSourceBranch: value == null,
                     ),
                   );
@@ -469,21 +464,29 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
           const SizedBox(height: 12),
           BlocBuilder<DestinationBranchBloc, DestinationBranchState>(
             builder: (context, destinationBranchState) {
-              final destinationBranchItems =
+              final destinationBranches =
                   destinationBranchState is DestinationBranchLoaded
-                  ? _extractBranchLabels(
-                      destinationBranchState.destinationBranch,
-                    )
-                  : <String>[];
+                  ? destinationBranchState.destinationBranch
+                  : <dynamic>[];
+              final destinationBranchItems = _extractBranchLabels(
+                destinationBranches,
+              );
+              final destinationBranchLabel = _branchLabelFromCode(
+                destinationBranches,
+                _currentConfig.destinationBranch,
+              );
 
               return _buildSearchableDropdown(
                 label: 'Destination Branch',
-                value: _currentConfig.destinationBranch,
+                value: destinationBranchLabel,
                 items: destinationBranchItems,
                 onChanged: (value) {
                   _updateConfig(
                     _currentConfig.copyWith(
-                      destinationBranch: value,
+                      destinationBranch: _branchCodeFromLabel(
+                        destinationBranches,
+                        value,
+                      ),
                       clearDestinationBranch: value == null,
                     ),
                   );
@@ -526,21 +529,27 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
           const SizedBox(height: 8),
           BlocBuilder<DestinationBranchBloc, DestinationBranchState>(
             builder: (context, destinationBranchState) {
-              final destinationItems =
+              final destinationBranches =
                   destinationBranchState is DestinationBranchLoaded
-                  ? _extractBranchLabels(
-                      destinationBranchState.destinationBranch,
-                    )
-                  : <String>[];
+                  ? destinationBranchState.destinationBranch
+                  : <dynamic>[];
+              final destinationItems = _extractBranchLabels(destinationBranches);
+              final destinationLabel = _branchLabelFromCode(
+                destinationBranches,
+                _currentConfig.destination,
+              );
 
               return _buildSearchableDropdown(
                 label: 'Destination',
-                value: _currentConfig.destination,
+                value: destinationLabel,
                 items: destinationItems,
                 onChanged: (value) {
                   _updateConfig(
                     _currentConfig.copyWith(
-                      destination: value,
+                      destination: _branchCodeFromLabel(
+                        destinationBranches,
+                        value,
+                      ),
                       clearDestination: value == null,
                     ),
                   );
@@ -563,35 +572,6 @@ class _OrderFilterBottomSheetState extends State<OrderFilterBottomSheet> {
           icon: Icons.person,
           isDark: isDark,
         ),
-        const SizedBox(height: 24),
-
-        // Charge Range (for all types)
-        _buildSectionTitle('Charge Range', Icons.money),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _buildTextField(
-                controller: _minChargeController,
-                label: 'Min Charge',
-                icon: Icons.attach_money,
-                isDark: isDark,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildTextField(
-                controller: _maxChargeController,
-                label: 'Max Charge',
-                icon: Icons.attach_money,
-                isDark: isDark,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
       ],
     );
   }

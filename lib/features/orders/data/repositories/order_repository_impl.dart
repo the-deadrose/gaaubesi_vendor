@@ -43,6 +43,7 @@ class OrderRepositoryImpl implements OrderRepository {
     String? destinationBranch,
     String? startDate,
     String? endDate,
+    String? search,
   }) =>
       _guard(() => remoteDataSource.fetchOrders(
             page: page,
@@ -51,6 +52,7 @@ class OrderRepositoryImpl implements OrderRepository {
             destinationBranch: destinationBranch,
             startDate: startDate,
             endDate: endDate,
+            search: search,
           ));
 
   @override
@@ -61,8 +63,6 @@ class OrderRepositoryImpl implements OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) =>
           _guard(() => remoteDataSource.fetchDeliveredOrders(
                 page: page,
@@ -70,8 +70,6 @@ class OrderRepositoryImpl implements OrderRepository {
                 startDate: startDate,
                 endDate: endDate,
                 receiverSearch: receiverSearch,
-                minCharge: minCharge,
-                maxCharge: maxCharge,
               ));
 
   @override
@@ -82,8 +80,6 @@ class OrderRepositoryImpl implements OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) =>
           _guard(() => remoteDataSource.fetchPossibleRedirectOrders(
                 page: page,
@@ -91,8 +87,6 @@ class OrderRepositoryImpl implements OrderRepository {
                 startDate: startDate,
                 endDate: endDate,
                 receiverSearch: receiverSearch,
-                minCharge: minCharge,
-                maxCharge: maxCharge,
               ));
 
   @override
@@ -103,8 +97,6 @@ class OrderRepositoryImpl implements OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) =>
           _guard(() => remoteDataSource.fetchReturnedOrders(
                 page: page,
@@ -112,8 +104,6 @@ class OrderRepositoryImpl implements OrderRepository {
                 startDate: startDate,
                 endDate: endDate,
                 receiverSearch: receiverSearch,
-                minCharge: minCharge,
-                maxCharge: maxCharge,
               ));
 
   @override
@@ -123,8 +113,6 @@ class OrderRepositoryImpl implements OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) =>
       _guard(() => remoteDataSource.fetchRtvOrders(
             page: page,
@@ -132,8 +120,6 @@ class OrderRepositoryImpl implements OrderRepository {
             startDate: startDate,
             endDate: endDate,
             receiverSearch: receiverSearch,
-            minCharge: minCharge,
-            maxCharge: maxCharge,
           ));
 
   @override

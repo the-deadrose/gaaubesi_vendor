@@ -55,6 +55,7 @@ class _AllOrdersTabState extends BaseOrderTabViewState<AllOrdersTab> {
         startDate: state.startDate,
         endDate: state.endDate,
         status: state.currentStatus,
+        receiverSearch: state.search,
       );
     }
     if (state is OrderLoadingMore) {
@@ -64,6 +65,7 @@ class _AllOrdersTabState extends BaseOrderTabViewState<AllOrdersTab> {
         startDate: state.startDate,
         endDate: state.endDate,
         status: state.currentStatus,
+        receiverSearch: state.search,
       );
     }
     return const OrderFilterConfig();
@@ -83,6 +85,7 @@ class _AllOrdersTabState extends BaseOrderTabViewState<AllOrdersTab> {
           startDate: result.startDate,
           endDate: result.endDate,
           status: result.status,
+          search: result.receiverSearch,
         ),
       );
     }

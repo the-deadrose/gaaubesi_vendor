@@ -26,8 +26,6 @@ class RtvOrderLoaded extends RtvOrderState {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const RtvOrderLoaded({
     required this.orders,
@@ -39,8 +37,6 @@ class RtvOrderLoaded extends RtvOrderState {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   RtvOrderLoaded copyWith({
@@ -53,8 +49,6 @@ class RtvOrderLoaded extends RtvOrderState {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   }) {
     return RtvOrderLoaded(
       orders: orders ?? this.orders,
@@ -66,8 +60,6 @@ class RtvOrderLoaded extends RtvOrderState {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       receiverSearch: receiverSearch ?? this.receiverSearch,
-      minCharge: minCharge ?? this.minCharge,
-      maxCharge: maxCharge ?? this.maxCharge,
     );
   }
 
@@ -82,8 +74,6 @@ class RtvOrderLoaded extends RtvOrderState {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
 
@@ -97,8 +87,6 @@ class RtvOrderLoadingMore extends RtvOrderState {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const RtvOrderLoadingMore({
     required this.orders,
@@ -110,8 +98,6 @@ class RtvOrderLoadingMore extends RtvOrderState {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -125,8 +111,6 @@ class RtvOrderLoadingMore extends RtvOrderState {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
 

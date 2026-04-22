@@ -48,12 +48,16 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
     super.dispose();
   }
 
-  void _clearFields() {
+  void _clearInputControllers() {
     _descriptionController.clear();
     _accountNameController.clear();
     _accountNumberController.clear();
     _phoneNumberController.clear();
     _bankNameController.clear();
+  }
+
+  void _clearFields() {
+    _clearInputControllers();
     setState(() {
       _selectedPaymentMethod = null;
       _selectedPaymentMethodId = null;
@@ -62,10 +66,10 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
   }
 
   void _onPaymentMethodSelected(PaymentMethod? method) {
+    _clearInputControllers();
     setState(() {
       _selectedPaymentMethod = method;
       _selectedPaymentMethodId = method?.id;
-      _clearFields();
       _showBankNameDropdown = true;
     });
   }
@@ -192,7 +196,7 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
             listener: (context, state) {
               if (state is CreatePaymentRequestSuccess) {
                 _showSnackBar(state.message);
-                Navigator.pop(context);
+                context.router.maybePop(true);
               } else if (state is CreatePaymentRequestFailure) {
                 _showSnackBar(state.error, isError: true);
               }
@@ -235,15 +239,12 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Payment method dropdown shimmer
           _buildShimmerWidget(height: 60, radius: 12),
           const SizedBox(height: 24),
 
-          // Description field shimmer
           _buildShimmerWidget(height: 120, radius: 12),
           const SizedBox(height: 24),
 
-          // Frequently used header shimmer
           _buildShimmerWidget(height: 40, radius: 8),
           const SizedBox(height: 16),
 

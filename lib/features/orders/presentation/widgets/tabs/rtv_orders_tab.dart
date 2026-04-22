@@ -54,8 +54,7 @@ class _RtvOrdersTabState extends BaseOrderTabViewState<RtvOrdersTab> {
         startDate: state.startDate,
         endDate: state.endDate,
         receiverSearch: state.receiverSearch,
-        minCharge: state.minCharge,
-        maxCharge: state.maxCharge,
+     
       );
     }
     if (state is RtvOrderLoadingMore) {
@@ -64,8 +63,7 @@ class _RtvOrdersTabState extends BaseOrderTabViewState<RtvOrdersTab> {
         startDate: state.startDate,
         endDate: state.endDate,
         receiverSearch: state.receiverSearch,
-        minCharge: state.minCharge,
-        maxCharge: state.maxCharge,
+      
       );
     }
     return const OrderFilterConfig();
@@ -84,8 +82,7 @@ class _RtvOrdersTabState extends BaseOrderTabViewState<RtvOrdersTab> {
           startDate: result.startDate,
           endDate: result.endDate,
           receiverSearch: result.receiverSearch,
-          minCharge: result.minCharge,
-          maxCharge: result.maxCharge,
+      
         ),
       );
     }

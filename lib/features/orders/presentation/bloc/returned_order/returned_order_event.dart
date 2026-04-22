@@ -24,16 +24,12 @@ class ReturnedOrderFilterChanged extends ReturnedOrderEvent {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const ReturnedOrderFilterChanged({
     this.destination,
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -42,7 +38,5 @@ class ReturnedOrderFilterChanged extends ReturnedOrderEvent {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }

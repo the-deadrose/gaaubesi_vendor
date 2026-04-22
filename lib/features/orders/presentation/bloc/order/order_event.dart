@@ -63,6 +63,7 @@ class OrderAdvancedFilterChanged extends OrderEvent {
   final String? startDate;
   final String? endDate;
   final String? status;
+  final String? search;
 
   const OrderAdvancedFilterChanged({
     this.sourceBranch,
@@ -70,6 +71,7 @@ class OrderAdvancedFilterChanged extends OrderEvent {
     this.startDate,
     this.endDate,
     this.status,
+    this.search,
   });
 
   @override
@@ -79,6 +81,7 @@ class OrderAdvancedFilterChanged extends OrderEvent {
     startDate,
     endDate,
     status,
+    search,
   ];
 }
 

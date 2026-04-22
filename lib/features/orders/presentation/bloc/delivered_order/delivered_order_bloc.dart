@@ -91,8 +91,6 @@ class DeliveredOrderBloc
         startDate: currentState.startDate,
         endDate: currentState.endDate,
         receiverSearch: currentState.receiverSearch,
-        minCharge: currentState.minCharge,
-        maxCharge: currentState.maxCharge,
       ),
     );
 
@@ -104,8 +102,6 @@ class DeliveredOrderBloc
         startDate: currentState.startDate,
         endDate: currentState.endDate,
         receiverSearch: currentState.receiverSearch,
-        minCharge: currentState.minCharge,
-        maxCharge: currentState.maxCharge,
       ),
     );
 
@@ -127,8 +123,6 @@ class DeliveredOrderBloc
             startDate: currentState.startDate,
             endDate: currentState.endDate,
             receiverSearch: currentState.receiverSearch,
-            minCharge: currentState.minCharge,
-            maxCharge: currentState.maxCharge,
           ),
         );
       },
@@ -148,8 +142,6 @@ class DeliveredOrderBloc
         startDate: event.startDate,
         endDate: event.endDate,
         receiverSearch: event.receiverSearch,
-        minCharge: event.minCharge,
-        maxCharge: event.maxCharge,
       ),
     );
 
@@ -166,8 +158,6 @@ class DeliveredOrderBloc
           startDate: event.startDate,
           endDate: event.endDate,
           receiverSearch: event.receiverSearch,
-          minCharge: event.minCharge,
-          maxCharge: event.maxCharge,
         ),
       ),
     );

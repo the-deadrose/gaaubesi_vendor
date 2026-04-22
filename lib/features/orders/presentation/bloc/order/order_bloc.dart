@@ -69,6 +69,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     String? destinationBranch;
     String? startDate;
     String? endDate;
+    String? search;
 
     if (currentState is OrderLoaded) {
       searchQuery = currentState.searchQuery;
@@ -78,6 +79,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       destinationBranch = currentState.destinationBranch;
       startDate = currentState.startDate;
       endDate = currentState.endDate;
+      search = currentState.search;
     }
 
     final result = await fetchOrdersUseCase(
@@ -88,6 +90,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         destinationBranch: destinationBranch,
         startDate: startDate,
         endDate: endDate,
+        search: search,
       ),
     );
 
@@ -106,6 +109,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
           destinationBranch: destinationBranch,
           startDate: startDate,
           endDate: endDate,
+          search: search,
         ),
       ),
     );
@@ -130,6 +134,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         destinationBranch: currentState.destinationBranch,
         startDate: currentState.startDate,
         endDate: currentState.endDate,
+        search: currentState.search,
       ),
     );
 
@@ -164,6 +169,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
           destinationBranch: currentState.destinationBranch,
           startDate: currentState.startDate,
           endDate: currentState.endDate,
+          search: currentState.search,
         ),
       );
     });
@@ -236,6 +242,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         destinationBranch: event.destinationBranch,
         startDate: event.startDate,
         endDate: event.endDate,
+        search: event.search,
       ),
     );
 
@@ -251,6 +258,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
           destinationBranch: event.destinationBranch,
           startDate: event.startDate,
           endDate: event.endDate,
+            search: event.search,
           // Preserve stats if possible, or re-fetch
           stats: currentState is OrderLoaded
               ? currentState.stats

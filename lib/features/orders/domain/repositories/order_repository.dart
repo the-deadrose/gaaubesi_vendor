@@ -22,6 +22,7 @@ abstract class OrderRepository {
     String? destinationBranch,
     String? startDate,
     String? endDate,
+    String? search,
   });
 
   Future<Either<Failure, PaginatedDeliveredOrderResponseEntity>>
@@ -31,8 +32,6 @@ abstract class OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<Either<Failure, PaginatedPossibleRedirectOrderResponseEntity>>
@@ -42,8 +41,6 @@ abstract class OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<Either<Failure, PaginatedReturnedOrderResponseEntity>>
@@ -53,8 +50,6 @@ abstract class OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<Either<Failure, PaginatedRtvOrderResponseEntity>> fetchRtvOrders({
@@ -63,8 +58,6 @@ abstract class OrderRepository {
     String? startDate,
     String? endDate,
     String? receiverSearch,
-    double? minCharge,
-    double? maxCharge,
   });
 
   Future<Either<Failure, void>> createOrder({

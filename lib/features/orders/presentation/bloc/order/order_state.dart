@@ -39,6 +39,7 @@ class OrderLoaded extends OrderState {
   final String? destinationBranch;
   final String? startDate;
   final String? endDate;
+  final String? search;
 
   const OrderLoaded({
     required this.orders,
@@ -52,6 +53,7 @@ class OrderLoaded extends OrderState {
     this.destinationBranch,
     this.startDate,
     this.endDate,
+    this.search,
   });
 
   OrderLoaded copyWith({
@@ -66,6 +68,7 @@ class OrderLoaded extends OrderState {
     String? destinationBranch,
     String? startDate,
     String? endDate,
+    String? search,
   }) {
     return OrderLoaded(
       orders: orders ?? this.orders,
@@ -79,6 +82,7 @@ class OrderLoaded extends OrderState {
       destinationBranch: destinationBranch ?? this.destinationBranch,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      search: search ?? this.search,
     );
   }
 
@@ -95,6 +99,7 @@ class OrderLoaded extends OrderState {
     destinationBranch,
     startDate,
     endDate,
+    search,
   ];
 }
 
@@ -109,6 +114,7 @@ class OrderLoadingMore extends OrderState {
   final String? destinationBranch;
   final String? startDate;
   final String? endDate;
+  final String? search;
 
   const OrderLoadingMore({
     required this.orders,
@@ -121,6 +127,7 @@ class OrderLoadingMore extends OrderState {
     this.destinationBranch,
     this.startDate,
     this.endDate,
+    this.search,
   });
 
   @override
@@ -135,6 +142,7 @@ class OrderLoadingMore extends OrderState {
     destinationBranch,
     startDate,
     endDate,
+    search,
   ];
 }
 

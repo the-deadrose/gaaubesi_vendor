@@ -23,8 +23,6 @@ class FetchRtvOrdersUseCase
       startDate: params.startDate,
       endDate: params.endDate,
       receiverSearch: params.receiverSearch,
-      minCharge: params.minCharge,
-      maxCharge: params.maxCharge,
     );
   }
 }
@@ -35,8 +33,6 @@ class FetchRtvOrdersParams extends Equatable {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const FetchRtvOrdersParams({
     required this.page,
@@ -44,8 +40,6 @@ class FetchRtvOrdersParams extends Equatable {
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -55,7 +49,5 @@ class FetchRtvOrdersParams extends Equatable {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }

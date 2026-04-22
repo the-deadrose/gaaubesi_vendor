@@ -58,8 +58,7 @@ class _ReturnedOrdersTabState extends BaseOrderTabViewState<ReturnedOrdersTab> {
         startDate: state.startDate,
         endDate: state.endDate,
         receiverSearch: state.receiverSearch,
-        minCharge: state.minCharge,
-        maxCharge: state.maxCharge,
+       
       );
     }
     if (state is ReturnedOrderLoadingMore) {
@@ -68,8 +67,7 @@ class _ReturnedOrdersTabState extends BaseOrderTabViewState<ReturnedOrdersTab> {
         startDate: state.startDate,
         endDate: state.endDate,
         receiverSearch: state.receiverSearch,
-        minCharge: state.minCharge,
-        maxCharge: state.maxCharge,
+      
       );
     }
     return const OrderFilterConfig();
@@ -88,8 +86,10 @@ class _ReturnedOrdersTabState extends BaseOrderTabViewState<ReturnedOrdersTab> {
           startDate: result.startDate,
           endDate: result.endDate,
           receiverSearch: result.receiverSearch,
-          minCharge: result.minCharge,
-          maxCharge: result.maxCharge,
+          
+
+
+          
         ),
       );
     }

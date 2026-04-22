@@ -92,8 +92,6 @@ class ReturnedOrderBloc extends Bloc<ReturnedOrderEvent, ReturnedOrderState> {
         startDate: currentState.startDate,
         endDate: currentState.endDate,
         receiverSearch: currentState.receiverSearch,
-        minCharge: currentState.minCharge,
-        maxCharge: currentState.maxCharge,
       ),
     );
 
@@ -104,8 +102,6 @@ class ReturnedOrderBloc extends Bloc<ReturnedOrderEvent, ReturnedOrderState> {
         startDate: currentState.startDate,
         endDate: currentState.endDate,
         receiverSearch: currentState.receiverSearch,
-        minCharge: currentState.minCharge,
-        maxCharge: currentState.maxCharge,
       ),
     );
 
@@ -122,8 +118,6 @@ class ReturnedOrderBloc extends Bloc<ReturnedOrderEvent, ReturnedOrderState> {
           startDate: currentState.startDate,
           endDate: currentState.endDate,
           receiverSearch: currentState.receiverSearch,
-          minCharge: currentState.minCharge,
-          maxCharge: currentState.maxCharge,
         ),
       ),
     );
@@ -142,8 +136,6 @@ class ReturnedOrderBloc extends Bloc<ReturnedOrderEvent, ReturnedOrderState> {
         startDate: event.startDate,
         endDate: event.endDate,
         receiverSearch: event.receiverSearch,
-        minCharge: event.minCharge,
-        maxCharge: event.maxCharge,
       ),
     );
 
@@ -160,8 +152,6 @@ class ReturnedOrderBloc extends Bloc<ReturnedOrderEvent, ReturnedOrderState> {
           startDate: event.startDate,
           endDate: event.endDate,
           receiverSearch: event.receiverSearch,
-          minCharge: event.minCharge,
-          maxCharge: event.maxCharge,
         ),
       ),
     );

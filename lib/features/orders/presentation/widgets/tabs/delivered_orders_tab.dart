@@ -59,8 +59,6 @@ class _DeliveredOrdersTabState
         startDate: state.startDate,
         endDate: state.endDate,
         receiverSearch: state.receiverSearch,
-        minCharge: state.minCharge,
-        maxCharge: state.maxCharge,
       );
     }
     if (state is DeliveredOrderLoadingMore) {
@@ -69,8 +67,6 @@ class _DeliveredOrdersTabState
         startDate: state.startDate,
         endDate: state.endDate,
         receiverSearch: state.receiverSearch,
-        minCharge: state.minCharge,
-        maxCharge: state.maxCharge,
       );
     }
     return const OrderFilterConfig();
@@ -89,8 +85,6 @@ class _DeliveredOrdersTabState
           startDate: result.startDate,
           endDate: result.endDate,
           receiverSearch: result.receiverSearch,
-          minCharge: result.minCharge,
-          maxCharge: result.maxCharge,
         ),
       );
     }

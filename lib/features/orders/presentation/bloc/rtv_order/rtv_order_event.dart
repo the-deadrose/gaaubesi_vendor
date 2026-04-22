@@ -24,16 +24,12 @@ class RtvOrderFilterChanged extends RtvOrderEvent {
   final String? startDate;
   final String? endDate;
   final String? receiverSearch;
-  final double? minCharge;
-  final double? maxCharge;
 
   const RtvOrderFilterChanged({
     this.destination,
     this.startDate,
     this.endDate,
     this.receiverSearch,
-    this.minCharge,
-    this.maxCharge,
   });
 
   @override
@@ -42,7 +38,5 @@ class RtvOrderFilterChanged extends RtvOrderEvent {
     startDate,
     endDate,
     receiverSearch,
-    minCharge,
-    maxCharge,
   ];
 }
