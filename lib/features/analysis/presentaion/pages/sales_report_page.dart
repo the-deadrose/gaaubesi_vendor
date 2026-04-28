@@ -19,8 +19,7 @@ class SalesReportAnalysisScreen extends StatefulWidget {
       _SalesReportAnalysisScreenState();
 }
 
-class _SalesReportAnalysisScreenState
-    extends State<SalesReportAnalysisScreen> {
+class _SalesReportAnalysisScreenState extends State<SalesReportAnalysisScreen> {
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
   DateTime? _selectedStartDate;
@@ -35,10 +34,12 @@ class _SalesReportAnalysisScreenState
     final now = DateTime.now();
     _selectedStartDate = DateTime(now.year, now.month, 1);
     _selectedEndDate = now;
-    _startDateController.text =
-        DateFormat('yyyy-MM-dd').format(_selectedStartDate!);
-    _endDateController.text =
-        DateFormat('yyyy-MM-dd').format(_selectedEndDate!);
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchAnalysis();
@@ -135,10 +136,12 @@ class _SalesReportAnalysisScreenState
     final now = DateTime.now();
     _selectedEndDate = now;
     _selectedStartDate = now.subtract(Duration(days: days));
-    _startDateController.text =
-        DateFormat('yyyy-MM-dd').format(_selectedStartDate!);
-    _endDateController.text =
-        DateFormat('yyyy-MM-dd').format(_selectedEndDate!);
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
     setState(() {
       _dateRangeError = null;
     });
@@ -149,10 +152,12 @@ class _SalesReportAnalysisScreenState
     final now = DateTime.now();
     _selectedStartDate = DateTime(now.year, now.month, 1);
     _selectedEndDate = now;
-    _startDateController.text =
-        DateFormat('yyyy-MM-dd').format(_selectedStartDate!);
-    _endDateController.text =
-        DateFormat('yyyy-MM-dd').format(_selectedEndDate!);
+    _startDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedStartDate!);
+    _endDateController.text = DateFormat(
+      'yyyy-MM-dd',
+    ).format(_selectedEndDate!);
     setState(() {
       _dateRangeError = null;
     });
@@ -171,11 +176,11 @@ class _SalesReportAnalysisScreenState
         return;
       }
       context.read<SalesReportAnalysisBloc>().add(
-            FetchSalesReportAnalysisEvent(
-              startDate: _startDateController.text,
-              endDate: _endDateController.text,
-            ),
-          );
+        FetchSalesReportAnalysisEvent(
+          startDate: _startDateController.text,
+          endDate: _endDateController.text,
+        ),
+      );
     }
   }
 
@@ -192,24 +197,24 @@ class _SalesReportAnalysisScreenState
           SliverToBoxAdapter(
             child:
                 BlocBuilder<SalesReportAnalysisBloc, SalesReportAnalysisState>(
-              builder: (context, state) {
-                if (state is SalesReportAnalysisLoaded) {
-                  return Column(
-                    children: [
-                      _buildSalesHero(state.salesReportAnalysis),
-                      _buildStatsGrid(state.salesReportAnalysis),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+                  builder: (context, state) {
+                    if (state is SalesReportAnalysisLoaded) {
+                      return Column(
+                        children: [
+                          _buildSalesHero(state.salesReportAnalysis),
+                          _buildStatsGrid(state.salesReportAnalysis),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
           ),
           SliverToBoxAdapter(
             child:
                 BlocBuilder<SalesReportAnalysisBloc, SalesReportAnalysisState>(
-              builder: (context, state) => _buildContentBasedOnState(state),
-            ),
+                  builder: (context, state) => _buildContentBasedOnState(state),
+                ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
@@ -243,10 +248,7 @@ class _SalesReportAnalysisScreenState
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                AppTheme.marianBlue,
-                Color(0xFF2E5BB8),
-              ],
+              colors: [AppTheme.marianBlue, Color(0xFF2E5BB8)],
             ),
           ),
           child: SafeArea(
@@ -262,8 +264,11 @@ class _SalesReportAnalysisScreenState
                         color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.calendar_month_rounded,
-                          color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.calendar_month_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -309,8 +314,7 @@ class _SalesReportAnalysisScreenState
 
   String _rangeDaysLabel() {
     if (_selectedStartDate == null || _selectedEndDate == null) return '';
-    final days =
-        _selectedEndDate!.difference(_selectedStartDate!).inDays + 1;
+    final days = _selectedEndDate!.difference(_selectedStartDate!).inDays + 1;
     return '$days day${days == 1 ? '' : 's'} selected';
   }
 
@@ -332,8 +336,7 @@ class _SalesReportAnalysisScreenState
         children: [
           InkWell(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            onTap: () =>
-                setState(() => _filtersExpanded = !_filtersExpanded),
+            onTap: () => setState(() => _filtersExpanded = !_filtersExpanded),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -344,8 +347,11 @@ class _SalesReportAnalysisScreenState
                       color: AppTheme.marianBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.tune_rounded,
-                        size: 18, color: AppTheme.marianBlue),
+                    child: const Icon(
+                      Icons.tune_rounded,
+                      size: 18,
+                      color: AppTheme.marianBlue,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -361,8 +367,10 @@ class _SalesReportAnalysisScreenState
                   AnimatedRotation(
                     turns: _filtersExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: const Icon(Icons.keyboard_arrow_down_rounded,
-                        color: AppTheme.darkGray),
+                    child: const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppTheme.darkGray,
+                    ),
                   ),
                 ],
               ),
@@ -395,13 +403,11 @@ class _SalesReportAnalysisScreenState
             decoration: BoxDecoration(
               color: AppTheme.rojo.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
-              border:
-                  Border.all(color: AppTheme.rojo.withValues(alpha: 0.25)),
+              border: Border.all(color: AppTheme.rojo.withValues(alpha: 0.25)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.error_outline,
-                    color: AppTheme.rojo, size: 18),
+                const Icon(Icons.error_outline, color: AppTheme.rojo, size: 18),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -445,8 +451,11 @@ class _SalesReportAnalysisScreenState
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Icon(Icons.arrow_forward_rounded,
-                  color: AppTheme.powerBlue.withValues(alpha: 0.8), size: 18),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                color: AppTheme.powerBlue.withValues(alpha: 0.8),
+                size: 18,
+              ),
             ),
             Expanded(
               child: _buildDateField(
@@ -463,7 +472,8 @@ class _SalesReportAnalysisScreenState
 
   Widget _buildMtdChip() {
     final now = DateTime.now();
-    final isMtd = _selectedStartDate != null &&
+    final isMtd =
+        _selectedStartDate != null &&
         _selectedEndDate != null &&
         _selectedStartDate!.year == now.year &&
         _selectedStartDate!.month == now.month &&
@@ -556,14 +566,18 @@ class _SalesReportAnalysisScreenState
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               border: Border.all(
-                  color: AppTheme.powerBlue.withValues(alpha: 0.3)),
+                color: AppTheme.powerBlue.withValues(alpha: 0.3),
+              ),
               borderRadius: BorderRadius.circular(12),
               color: Colors.white,
             ),
             child: Row(
               children: [
-                const Icon(Icons.calendar_today_rounded,
-                    size: 16, color: AppTheme.marianBlue),
+                const Icon(
+                  Icons.calendar_today_rounded,
+                  size: 16,
+                  color: AppTheme.marianBlue,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -595,10 +609,13 @@ class _SalesReportAnalysisScreenState
 
   Widget _buildSalesHero(SalesReportAnalysis analysis) {
     final currencyFmt = NumberFormat.currency(
-        symbol: 'Rs.', decimalDigits: 0, locale: 'en_IN');
+      symbol: 'Rs. ',
+      decimalDigits: 0,
+      locale: 'en_NP',
+    );
     final deliveryRate = analysis.totalOrders > 0
         ? (analysis.totalDeliveredOrders / analysis.totalOrders * 100)
-            .toStringAsFixed(1)
+              .toStringAsFixed(1)
         : '0.0';
 
     return Container(
@@ -608,10 +625,7 @@ class _SalesReportAnalysisScreenState
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.marianBlue,
-            Color(0xFF2E5BB8),
-          ],
+          colors: [AppTheme.marianBlue, Color(0xFF2E5BB8)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -633,8 +647,11 @@ class _SalesReportAnalysisScreenState
                   color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.payments_rounded,
-                    color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.payments_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 10),
               Text(
@@ -668,19 +685,16 @@ class _SalesReportAnalysisScreenState
             ),
           ),
           const SizedBox(height: 16),
-          Container(
-            height: 1,
-            color: Colors.white.withValues(alpha: 0.18),
-          ),
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.18)),
           const SizedBox(height: 14),
           Row(
             children: [
-              _heroStat(
-                  label: 'Orders', value: '${analysis.totalOrders}'),
+              _heroStat(label: 'Orders', value: '${analysis.totalOrders}'),
               _heroDivider(),
               _heroStat(
-                  label: 'Delivered',
-                  value: '${analysis.totalDeliveredOrders}'),
+                label: 'Delivered',
+                value: '${analysis.totalDeliveredOrders}',
+              ),
               _heroDivider(),
               _heroStat(label: 'Rate', value: '$deliveryRate%'),
             ],
@@ -859,8 +873,11 @@ class _SalesReportAnalysisScreenState
               color: AppTheme.marianBlue.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.analytics_rounded,
-                size: 44, color: AppTheme.marianBlue),
+            child: const Icon(
+              Icons.analytics_rounded,
+              size: 44,
+              color: AppTheme.marianBlue,
+            ),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -982,8 +999,7 @@ class _SalesReportAnalysisScreenState
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppTheme.lightGray,
                   borderRadius: BorderRadius.circular(10),
@@ -1010,8 +1026,10 @@ class _SalesReportAnalysisScreenState
     final dailyReports = analysis.dailyReports;
     if (dailyReports.isEmpty) return const SizedBox();
 
-    final currencyFmt =
-        NumberFormat.compactCurrency(symbol: 'Rs.', decimalDigits: 0);
+    final currencyFmt = NumberFormat.compactCurrency(
+      symbol: 'Rs.',
+      decimalDigits: 0,
+    );
 
     return _buildChartCard(
       icon: Icons.show_chart_rounded,
@@ -1028,7 +1046,7 @@ class _SalesReportAnalysisScreenState
             labelIntersectAction: AxisLabelIntersectAction.rotate45,
             maximumLabels: 200,
             labelStyle: const TextStyle(
-              fontSize: 10,
+              fontSize: 7,
               color: AppTheme.darkGray,
               fontWeight: FontWeight.w500,
             ),
@@ -1037,8 +1055,7 @@ class _SalesReportAnalysisScreenState
             majorTickLines: const MajorTickLines(size: 0),
           ),
           primaryYAxis: NumericAxis(
-            labelStyle:
-                const TextStyle(fontSize: 10, color: AppTheme.darkGray),
+            labelStyle: const TextStyle(fontSize: 10, color: AppTheme.darkGray),
             majorGridLines: MajorGridLines(
               color: AppTheme.powerBlue.withValues(alpha: 0.2),
               width: 1,
@@ -1094,40 +1111,48 @@ class _SalesReportAnalysisScreenState
             color: AppTheme.blackBean,
             textStyle: const TextStyle(color: Colors.white, fontSize: 11),
             borderWidth: 0,
-            builder: (dynamic data, dynamic point, dynamic series,
-                int pointIndex, int seriesIndex) {
-              final p = data as DailySalesReport;
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.blackBean,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('MMM d, yyyy').format(p.createdDate),
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 10,
-                      ),
+            builder:
+                (
+                  dynamic data,
+                  dynamic point,
+                  dynamic series,
+                  int pointIndex,
+                  int seriesIndex,
+                ) {
+                  final p = data as DailySalesReport;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Rs.${p.sales.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.blackBean,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
-              );
-            },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat('MMM d, yyyy').format(p.createdDate),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 10,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Rs.${p.sales.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
           ),
         ),
       ),
@@ -1153,7 +1178,7 @@ class _SalesReportAnalysisScreenState
             labelIntersectAction: AxisLabelIntersectAction.rotate45,
             maximumLabels: 200,
             labelStyle: const TextStyle(
-              fontSize: 10,
+              fontSize: 7,
               color: AppTheme.darkGray,
               fontWeight: FontWeight.w500,
             ),
@@ -1162,8 +1187,7 @@ class _SalesReportAnalysisScreenState
             majorTickLines: const MajorTickLines(size: 0),
           ),
           primaryYAxis: NumericAxis(
-            labelStyle:
-                const TextStyle(fontSize: 10, color: AppTheme.darkGray),
+            labelStyle: const TextStyle(fontSize: 10, color: AppTheme.darkGray),
             majorGridLines: MajorGridLines(
               color: AppTheme.powerBlue.withValues(alpha: 0.2),
               width: 1,
@@ -1236,8 +1260,9 @@ class _SalesReportAnalysisScreenState
   }
 
   Widget _buildDailyDetailsSection(SalesReportAnalysis analysis) {
-    final reversed =
-        List<DailySalesReport>.from(analysis.dailyReports).reversed.toList();
+    final reversed = List<DailySalesReport>.from(
+      analysis.dailyReports,
+    ).reversed.toList();
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -1263,8 +1288,11 @@ class _SalesReportAnalysisScreenState
                   color: AppTheme.marianBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.list_alt_rounded,
-                    size: 16, color: AppTheme.marianBlue),
+                child: const Icon(
+                  Icons.list_alt_rounded,
+                  size: 16,
+                  color: AppTheme.marianBlue,
+                ),
               ),
               const SizedBox(width: 10),
               const Expanded(
@@ -1278,8 +1306,7 @@ class _SalesReportAnalysisScreenState
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppTheme.lightGray,
                   borderRadius: BorderRadius.circular(10),
@@ -1320,14 +1347,15 @@ class _SalesReportAnalysisScreenState
         decoration: BoxDecoration(
           color: AppTheme.lightGray,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: AppTheme.powerBlue.withValues(alpha: 0.15)),
+          border: Border.all(color: AppTheme.powerBlue.withValues(alpha: 0.15)),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: ExpansionTile(
-            tilePadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 4,
+            ),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             collapsedIconColor: AppTheme.darkGray,
             iconColor: AppTheme.marianBlue,
@@ -1338,7 +1366,8 @@ class _SalesReportAnalysisScreenState
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: AppTheme.marianBlue.withValues(alpha: 0.2)),
+                  color: AppTheme.marianBlue.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1468,8 +1497,10 @@ class _SalesReportAnalysisScreenState
     final total = daily.totalOrders;
     String pct(int v) =>
         total > 0 ? '${(v / total * 100).toStringAsFixed(0)}%' : '0%';
-    final other =
-        (total - daily.deliveredOrders - daily.returnedOrders).clamp(0, total);
+    final other = (total - daily.deliveredOrders - daily.returnedOrders).clamp(
+      0,
+      total,
+    );
     return Row(
       children: [
         Expanded(
@@ -1512,8 +1543,11 @@ class _SalesReportAnalysisScreenState
       ),
       child: Row(
         children: [
-          const Icon(Icons.inventory_2_rounded,
-              size: 16, color: AppTheme.darkGray),
+          const Icon(
+            Icons.inventory_2_rounded,
+            size: 16,
+            color: AppTheme.darkGray,
+          ),
           const SizedBox(width: 8),
           const Text(
             'Package Value',
@@ -1558,8 +1592,7 @@ class _SalesReportAnalysisScreenState
               Container(
                 width: 6,
                 height: 6,
-                decoration:
-                    BoxDecoration(color: color, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               const SizedBox(width: 4),
               Expanded(
@@ -1620,8 +1653,11 @@ class _SalesReportAnalysisScreenState
               color: AppTheme.powerBlue.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.inbox_rounded,
-                size: 44, color: AppTheme.powerBlue.withValues(alpha: 0.9)),
+            child: Icon(
+              Icons.inbox_rounded,
+              size: 44,
+              color: AppTheme.powerBlue.withValues(alpha: 0.9),
+            ),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -1646,10 +1682,10 @@ class _SalesReportAnalysisScreenState
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.marianBlue,
               foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -1670,8 +1706,11 @@ class _SalesReportAnalysisScreenState
               color: AppTheme.rojo.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.error_outline_rounded,
-                size: 44, color: AppTheme.rojo),
+            child: const Icon(
+              Icons.error_outline_rounded,
+              size: 44,
+              color: AppTheme.rojo,
+            ),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -1699,10 +1738,10 @@ class _SalesReportAnalysisScreenState
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.marianBlue,
               foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],

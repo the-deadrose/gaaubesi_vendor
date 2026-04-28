@@ -70,7 +70,7 @@ class _OrderCardState extends State<OrderCard>
       if (i > 0 && (whole.length - i) % 3 == 0) buffer.write(',');
       buffer.write(whole[i]);
     }
-    return 'NPR $buffer';
+    return 'Rs $buffer';
   }
 
   @override
